@@ -1,0 +1,157 @@
+# ========================
+# Игнорирование пользовательских файлов Visual Studio
+# ========================
+
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.userprefs
+
+# Папка с кешем и опциями Visual Studio 2015+
+.vs/
+
+# ========================
+# Игнорирование результатов сборки проекта
+# ========================
+
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# ========================
+# Игнорирование артефактов компиляции
+# ========================
+
+*.ilk
+*.meta
+*.obj
+*.iobj
+*.pch
+*.pdb
+*.ipdb
+*.pgc
+*.pgd
+*.rsp
+*.sbr
+*.tlb
+*.tli
+*.tlh
+*.tmp
+*.tmp_proj
+*.log
+*.vspscc
+*.vssscc
+.builds
+*.pidb
+*.svclog
+*.scc
+
+# Файлы для C++ проектов (если есть)
+ipch/
+*.aps
+*.ncb
+*.opendb
+*.opensdf
+*.sdf
+*.cachefile
+*.VC.db
+*.VC.VC.opendb
+
+# ========================
+# Игнорирование результатов тестов
+# ========================
+
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+*.VisualState.xml
+TestResult.xml
+nunit-*.xml
+
+# ========================
+# Игнорирование системных файлов ОС
+# ========================
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# macOS
+.DS_Store
+__MACOSX/
+
+# Linux
+.directory
+
+# ========================
+# Игнорирование артефактов пакетных менеджеров
+# ========================
+
+# NuGet
+packages/
+*.nupkg
+project.lock.json
+project.fragment.lock.json
+
+# Node.js (если используется)
+node_modules/
+
+# ========================
+# Игнорирование специфичных для ASP.NET файлов
+# ========================
+
+# Папка с результатами публикации
+publish/
+*.Publish.xml
+*.pubxml
+*.pubxml.user
+*.azurePubxml
+
+# Клиентские библиотеки (если устанавливаются через LibMan)
+wwwroot/lib/
+
+# Файлы для Azure
+csx/
+*.build.csdef
+
+# ========================
+# Игнорирование файлов популярных расширений VS
+# ========================
+
+# ReSharper
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.DotSettings.user
+
+# Code Coverage
+*.coverage
+*.coveragexml
+*.dotCover
+
+# NCrunch
+_NCrunch_*
+.*crunch*.local.xml
+nCrunchTemp_*
+
+# ========================
+# Игнорирование прочего
+# ========================
+
+# Папка с бенчмарками
+BenchmarkDotNet.Artifacts/
+
+# Файлы, создаваемые при миграции EF
+Migrations/*.Designer.cs
