@@ -3,9 +3,18 @@
   "name": "Color Changer",
   "version": "1.0",
   "description": "Меняет цвет фона текущей страницы на небесно-голубой.",
-  "permissions": ["activeTab", "scripting", "tabs"],
+  "permissions": ["activeTab", "scripting", "tabs", "contextMenus"],
+  "background": {
+    "service_worker": "scripts/background.js"
+  },
   "action": {
     "default_popup": "popup.html",
     "default_title": "Color Changer"
-  }
+  },
+  "content_scripts": [
+    {
+      "js": ["scripts/content.js"],
+      "matches": ["<all_urls>"]
+    }
+  ]
 }
