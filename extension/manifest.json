@@ -1,0 +1,11 @@
+{
+  "manifest_version": 3,
+  "name": "Color Changer",
+  "version": "1.0",
+  "description": "Меняет цвет фона текущей страницы на небесно-голубой.",
+  "permissions": ["activeTab", "scripting", "tabs"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Color Changer"
+  }
+}
