@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Highliter.com</title>
+    <link rel="stylesheet" href="styles/notes.css" />
+  </head>
+  <body>
+    <!-- Основной контейнер приложения -->
+    <div class="app-container">
+      <aside class="sidebar">
+        <div class="sidebar-body">
+            <div class="logo">Highliter.com</div>
+
+            <div class="folder-icon">
+                <img src="media/Folder plus.png">
+            </div>
+
+            <nav class="categories">
+            <ul>
+                <li class="active">общее</li>
+                <li>матмех.мэпс</li>
+                <li>стажировка</li>
+                <li>кулинария</li>
+                <li>полезное приложение</li>
+            </ul>
+            </nav>
+        </div>
+
+        <div class="sidebar-footer">
+          <div class="gradient-circle"></div>
+          <button class="about-btn">О сайте</button>
+        </div>
+      </aside>
+
+      <!-- Основная область контента -->
+      <main class="content-area">
+        <!-- Шапка контента с поиском и фильтрами -->
+        <header class="content-header">
+          <div class="search-bar">
+            <input type="text" placeholder="поиск" />
+          </div>
+          <nav class="view-switch">
+            <button class="active">все</button>
+            <button>картинки</button>
+            <button>текст</button>
+          </nav>
+        </header>
+
+        <!-- Список карточек/заметок -->
+        <section class="cards-list">
+          <!-- Пример карточки (Стажировка / Habr) -->
+          <article class="card">
+            <header class="card-header">
+              <select class="category-select">
+                <option>стажировка</option>
+              </select>
+              <a href="#" class="source-link">habr.com</a>
+            </header>
+            <div class="card-body">
+              <a href="#" class="main-link">https://habr.com...</a>
+              <p>Градиентный спуск — это способ обучения...</p>
+            </div>
+            <footer class="card-footer">
+              <time datetime="2026-05-30T18:10">18:10 30.05.2026</time>
+            </footer>
+          </article>
+
+          <!-- Пример карточки с рецептом (Кулинария) -->
+          <article class="card">
+            <header class="card-header">
+              <select class="category-select">
+                <option>кулинария</option>
+              </select>
+              <a href="#" class="source-link">google.com</a>
+            </header>
+            <div class="card-body">
+              <h3>Ингредиенты</h3>
+              <ul>
+                <li>Кефир: 500 мл</li>
+                <li>Мука пшеничная: 350-400 г</li>
+                <!-- и другие пункты -->
+              </ul>
+            </div>
+            <footer class="card-footer">
+              <time datetime="2026-05-30T18:10">18:10 30.05.2026</time>
+            </footer>
+          </article>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>

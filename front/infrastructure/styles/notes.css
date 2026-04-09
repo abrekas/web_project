@@ -1,0 +1,134 @@
+/* ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ */
+:root {
+  --background-color: #ffffff;
+  --second-color: #E2E2E2;
+  --accent-color: #79D1C3;
+  --card-bg: #F5F5F5;
+  
+  --first-radius: 16px;
+  --second-radius: 8px;
+  
+  --font-main: 'Helvetica', Arial, sans-serif;
+  --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* ОБНУЛЕНИЕ И БАЗОВЫЕ СТИЛИ */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background-color: var(--background-color);
+    font-family: var(--font-main);
+    color: #333;
+}
+
+/* ОСНОВНАЯ СЕТКА */
+.app-container {
+    display: flex;
+    width: 100%;
+    min-height: 100vh;
+    padding-right: 24px;
+}
+
+/* БОКОВАЯ ПАНЕЛЬ */
+.sidebar {
+    width: 256px;
+    margin: 24px;
+    display: flex;
+    gap: 16px;
+    flex-direction: column;
+}
+
+.sidebar-body {
+    padding: 16px;
+    background-color: var(--second-color);
+    border-radius: var(--first-radius);
+    display: flex;
+    gap: 16px;
+    flex-direction: column;
+    height: 100%;
+    box-shadow: var(--shadow);
+}
+
+.logo{
+    display: flex;
+    width: 100%;
+    height: 32px;
+    background-color: white;
+    border-radius: var(--second-radius);
+    justify-content: center;
+    align-items: center;
+    box-shadow: var(--shadow);
+}
+
+.folder-icon img{
+    margin-left: 16px;
+    width: 20px; 
+}
+
+.categories ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.categories li {
+    padding: 7px 16px;
+    border-radius: var(--second-radius);
+    cursor: pointer;
+    margin-bottom: 4px;
+}
+
+.categories li.active {
+    background-color: var(--accent-color);
+    box-shadow: var(--shadow);
+}
+
+
+/* Контейнер внизу сайдбара */
+.sidebar-footer {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+/* Кружочек с градиентом */
+.gradient-circle {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    background: conic-gradient(
+        red, #EA960E, #D4D71B, #57C428, #32B5B3, #3A5DA9, #6F4A92, red
+    );
+}
+
+/* Кнопка О сайте */
+.about-btn {
+    flex-grow: 1;
+    height: 32px;
+    background-color: var(--second-color);
+    border-radius: var(--first-radius);
+    font-family: var(--font-main);
+    font-size: 14px;
+    cursor: pointer;
+    border: none;
+    transition: background 0.2s;
+    box-shadow: var(--shadow);
+}
+
+.about-btn:hover {
+    background-color: #ebebeb;
+}
+
+
+/* ОБЛАСТЬ КОНТЕНТА */
+.content-area {
+    flex-grow: 1; /* Занимает всё оставшееся пространство */
+    padding-top: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
