@@ -10,26 +10,26 @@
     <div class="app-container">
       <aside class="sidebar">
         <div class="sidebar-body">
-            <div class="logo">Highliter.com</div>
+          <div class="logo">Highliter.com</div>
 
-            <div class="folder-icon">
-                <img src="media/Folder plus.png">
-            </div>
+          <div class="folder-icon">
+            <img src="media/Folder plus.png" />
+          </div>
 
-            <nav class="categories">
+          <nav class="categories">
             <ul>
-                <li class="active">общее</li>
-                <li>матмех.мэпс</li>
-                <li>стажировка</li>
-                <li>кулинария</li>
-                <li>полезное приложение</li>
+              <li class="active">общее</li>
+              <li>матмех.мэпс</li>
+              <li>стажировка</li>
+              <li>кулинария</li>
+              <li>полезное приложение</li>
             </ul>
-            </nav>
+          </nav>
         </div>
 
         <div class="sidebar-footer">
-          <div class="gradient-circle"></div>
-          <button class="about-btn">О сайте</button>
+          <div id="color-btn" class="gradient-circle"></div>
+          <button id="about-btn" class="about-btn">О сайте</button>
         </div>
       </aside>
 
@@ -37,7 +37,7 @@
       <main class="content-area">
         <!-- Шапка контента с поиском и фильтрами -->
         <header class="content-header">
-          <div class="search-bar">
+          <div id="search-btn" class="search-bar">
             <input type="text" placeholder="поиск" />
           </div>
           <nav class="view-switch">
@@ -89,5 +89,16 @@
         </section>
       </main>
     </div>
+
+    <!--Модальное окно, по умолчанию display: none-->
+    <div id="universal-modal" class="modal-overlay">
+      <div class="modal-content">
+        <div id="modal-body">
+          <!-- Сюда будет загружаться контент -->
+        </div>
+      </div>
+    </div>
+
+    <script src="js/modal.js"></script>
   </body>
 </html>

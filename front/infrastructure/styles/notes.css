@@ -1,15 +1,16 @@
 /* ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ */
 :root {
-  --background-color: #ffffff;
+  --background-color: #ffffffc6;
   --second-color: #E2E2E2;
   --accent-color: #79D1C3;
   --card-bg: #F5F5F5;
+  --blur: blur(5px);
   
   --first-radius: 16px;
   --second-radius: 8px;
   
   --font-main: 'Helvetica', Arial, sans-serif;
-  --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  --shadow: 4px 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 /* ОБНУЛЕНИЕ И БАЗОВЫЕ СТИЛИ */
@@ -103,6 +104,7 @@ body {
     background: conic-gradient(
         red, #EA960E, #D4D71B, #57C428, #32B5B3, #3A5DA9, #6F4A92, red
     );
+    cursor: pointer;
 }
 
 /* Кнопка О сайте */
@@ -131,4 +133,34 @@ body {
     display: flex;
     flex-direction: column;
     gap: 20px;
+}
+
+
+/* МОДАЛЬНОЕ ОКНО*/
+
+/* Фон (затемнение) */
+.modal-overlay {
+    display: none; /* Скрыто по умолчанию */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.562);
+    backdrop-filter: var(--blur); 
+    -webkit-backdrop-filter: var(--blur);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Моальное окно */
+.modal-content {
+    background: var(--second-color);
+    backdrop-filter: var(--blur); 
+    -webkit-backdrop-filter: var(--blur);
+    padding: 20px;
+    border-radius: var(--first-radius);
+    position: relative;
+    min-width: 300px;
 }
