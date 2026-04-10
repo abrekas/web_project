@@ -10,6 +10,9 @@
   
   --first-radius: 16px;
   --second-radius: 8px;
+
+  --font-size: 12pt;
+  --small-font-size: 8pt;
   
   --font-main: 'Helvetica', Arial, sans-serif;
   --shadow: 2px 2px 4px rgba(0, 0, 0, 0.25);
@@ -26,7 +29,6 @@ body {
     background-color: var(--background-color);
     font-family: var(--font-main);
     color: #333;
-    font-size: 12pt;
 }
 
 /* ОСНОВНАЯ СЕТКА */
@@ -117,7 +119,7 @@ body {
     background-color: var(--second-color);
     border-radius: var(--first-radius);
     font-family: var(--font-main);
-    font-size: 14px;
+    font-size: var(--font-main);
     cursor: pointer;
     border: none;
     transition: background 0.2s;
@@ -204,6 +206,7 @@ body {
     display: flex;
     flex-direction: column;
     gap: 1px;
+    font-style: italic;
 }
 
 .card-header {
@@ -211,7 +214,7 @@ body {
 }
 
 .category-select {
-    font-size: 12px;
+    font-size: var(--font-main);
     font-family: var(--font-main);
     border: none;
     border-radius: var(--second-radius);
@@ -241,7 +244,7 @@ body {
     text-decoration: none;
     color: black;
     margin: 5px 8px;
-    font-size: 12px;
+    font-size: var(--font-main);
     max-width: 200px;
     overflow: hidden;
 }
@@ -258,7 +261,7 @@ body {
     display: block;
     text-decoration: none;
     color: var(--link-color);
-    font-size: 12px;
+    font-size: var(--font-main);
     font-family: var(--font-main);
     margin-bottom: 8px;
 }
@@ -266,14 +269,14 @@ body {
 .card-body p {
     margin: 0;
     font-family: var(--font-main);
-    font-size: 12px;
+    font-size: var(--font-main);
 }
 
 .card-footer {
     position: absolute;
     bottom: 8px;
     right: 8px;
-    font-size: 12px;
+    font-size: var(--font-main);
     font-family: var(--font-main);
     color: #AEAEAE;
 }
