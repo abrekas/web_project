@@ -10,7 +10,7 @@
   --second-radius: 8px;
   
   --font-main: 'Helvetica', Arial, sans-serif;
-  --shadow: 4px 4px 12px rgba(0, 0, 0, 0.05);
+  --shadow: 2px 2px 4px rgba(0, 0, 0, 0.25);
 }
 
 /* ОБНУЛЕНИЕ И БАЗОВЫЕ СТИЛИ */
@@ -40,6 +40,7 @@ body {
     display: flex;
     gap: 16px;
     flex-direction: column;
+    min-width: 256px;
 }
 
 .sidebar-body {
@@ -129,11 +130,153 @@ body {
 /* ОБЛАСТЬ КОНТЕНТА */
 .content-area {
     flex-grow: 1; /* Занимает всё оставшееся пространство */
-    padding-top: 24px;
+    padding-top: 42px;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+/* ПОИСК И ФИЛЬТР */
+.content-header {
+    display: flex;
+    align-items: center;
+}
+
+.search-bar {
+    position: relative;
+}
+
+.search-icon {
+    position: absolute;
+    right: 16px;
+    top: 8px;
+    width: 16px;
+}
+
+.search-bar-input {
+    background-color: var(--second-color);
+    font-family: var(--font-main);
+    border-radius: var(--second-radius);
+    border: none;
+    width: 265px;
+    height: 32px;
+    padding: 8px 16px;
+    box-shadow: inset 2px 2px 2px rgb(0 0 0 / 25%);
+}
+
+.search-bar-input::placeholder {
+    color: #757575;
+    opacity: 1;
+}
+
+.view-switch {
+    margin-left: auto;
+    display: flex;
+}
+
+.view-switch button {
+    background: none;
+    border: none;
+    padding: 4px 12px;
+    border-bottom: 1px solid #B2B2B2;
+    color: #B2B2B2;
+}
+
+.view-switch button.active {
+    color: #303030;
+    border-bottom: 2px solid #303030;
+}
+
+
+/* ЗАПИСИ */
+
+.cards-list {
     display: flex;
     flex-direction: column;
     gap: 20px;
 }
+
+.card {
+    background-color: var(--accent-color);
+    border-radius: var(--second-radius);
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+.card-header {
+    display: flex;
+}
+
+.category-select {
+    font-size: 12px;
+    font-family: var(--font-main);
+    border: none;
+    border-radius: var(--second-radius);
+    max-width: 140px;
+    overflow: hidden;
+    padding: 4px 8px;
+    box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.header-link {
+    display: flex;
+    margin-left: auto;
+    background-color: var(--second-color);
+    align-items: center;
+    border-radius: var(--second-radius);
+    box-shadow: var(--shadow);
+    border: 1px solid #ADADAD;
+}
+
+.link-icon {
+    height: 16px;
+    margin: 5px 8px;
+    cursor: pointer;
+}
+
+.source-link {
+    text-decoration: none;
+    color: black;
+    margin: 5px 8px;
+    font-size: 12px;
+    max-width: 200px;
+    overflow: hidden;
+}
+
+.card-content {
+    background-color: white;
+    border-radius: var(--second-radius);
+    box-shadow: var(--shadow);
+    padding: 12px 42px 25px 16px;
+    position: relative;
+}
+
+.card-body .main-link {
+    display: block;
+    text-decoration: none;
+    color: #7A1DDB;
+    font-size: 12px;
+    font-family: var(--font-main);
+    margin-bottom: 8px;
+}
+
+.card-body p {
+    margin: 0;
+    font-family: var(--font-main);
+    font-size: 12px;
+}
+
+.card-footer {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    font-size: 12px;
+    font-family: var(--font-main);
+    color: #AEAEAE;
+}
+
+
 
 
 /* МОДАЛЬНОЕ ОКНО*/

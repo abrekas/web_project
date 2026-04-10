@@ -38,7 +38,8 @@
         <!-- Шапка контента с поиском и фильтрами -->
         <header class="content-header">
           <div id="search-btn" class="search-bar">
-            <input type="text" placeholder="поиск" />
+            <input class="search-bar-input" type="text" placeholder="поиск" />
+            <img class="search-icon" src="media/search_icon.png">
           </div>
           <nav class="view-switch">
             <button class="active">все</button>
@@ -55,15 +56,20 @@
               <select class="category-select">
                 <option>стажировка</option>
               </select>
-              <a href="#" class="source-link">habr.com</a>
+              <div class="header-link">
+                <img src="media/link.png" class="link-icon">
+                <a href="#" class="source-link">habr.com</a>
+              </div>
             </header>
-            <div class="card-body">
-              <a href="#" class="main-link">https://habr.com...</a>
-              <p>Градиентный спуск — это способ обучения...</p>
+            <div class="card-content">
+              <div class="card-body">
+                <a href="#" class="main-link">https://habr.com...</a>
+                <p>Градиентный спуск — это способ обучения...</p>
+              </div>
+              <footer class="card-footer">
+                <time datetime="2026-05-30T18:10">18:10 30.05.2026</time>
+              </footer>
             </div>
-            <footer class="card-footer">
-              <time datetime="2026-05-30T18:10">18:10 30.05.2026</time>
-            </footer>
           </article>
 
           <!-- Пример карточки с рецептом (Кулинария) -->
@@ -72,19 +78,27 @@
               <select class="category-select">
                 <option>кулинария</option>
               </select>
-              <a href="#" class="source-link">google.com</a>
+              <div class="header-link">
+                <img src="media/link.png" class="link-icon">
+                <a href="#" class="source-link">google.com</a>
+              </div>
             </header>
-            <div class="card-body">
-              <h3>Ингредиенты</h3>
-              <ul>
-                <li>Кефир: 500 мл</li>
-                <li>Мука пшеничная: 350-400 г</li>
-                <!-- и другие пункты -->
-              </ul>
+            <div class="card-content">
+              <div class="card-body">
+                <p>Для приготовления пышных оладий на кефире, которые не опадают, важно соблюдать правильную густоту теста и температурный режим.
+                  Ингредиенты
+                  Кефир (лучше жирный, 3,2%): 500 мл
+                  Мука пшеничная: ~350–400 г (тесто должно быть густым)
+                  Яйцо: 1 шт.
+                  Сахар: 1,5 ст. л. (не добавляйте слишком много, иначе оладьи подгорят, но не пропекутся)
+                  Соль: щепотка
+                  Сода: 0,5–1 ч. л.
+                  Растительное масло: для жарки</p>
+              </div>
+              <footer class="card-footer">
+                <time datetime="2026-05-30T18:10">18:10 30.05.2026</time>
+              </footer>
             </div>
-            <footer class="card-footer">
-              <time datetime="2026-05-30T18:10">18:10 30.05.2026</time>
-            </footer>
           </article>
         </section>
       </main>
