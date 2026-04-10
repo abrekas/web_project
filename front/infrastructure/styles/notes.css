@@ -42,7 +42,7 @@ body {
 /* БОКОВАЯ ПАНЕЛЬ */
 .sidebar {
     width: 256px;
-    margin: 24px;
+    margin: 24px 32px 24px 24px;
     display: flex;
     gap: 16px;
     flex-direction: column;
@@ -207,6 +207,7 @@ body {
     flex-direction: column;
     gap: 1px;
     font-style: italic;
+    position: relative;
 }
 
 .card-header {
@@ -281,7 +282,20 @@ body {
     color: #AEAEAE;
 }
 
+.adidas {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    position: absolute;
+    left: -22px;
+    top: 7px;
+}
 
+.adidas span {
+    width: 15px;
+    height: 2px;
+    background-color: var(--third-color);
+}
 
 
 /* МОДАЛЬНОЕ ОКНО*/
