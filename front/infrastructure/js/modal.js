@@ -5,7 +5,35 @@ const modal = document.getElementById('universal-modal');
 const modalBody = document.getElementById('modal-body');
 
 let aboutInnerHTML = '<h3>О сайте</h3><p>Highliter.com — ваш помощник в работе с заметками.</p>';
-let colorInnerHTML = '<h3>Выбор цвета</h3><p>Выберите одну из тем</p>';
+let colorInnerHTML = `<div class="color-container">
+    <!-- Заголовок сверху -->
+    <div>Выберите тему</div>
+
+    <!-- Сетка с 4 картинками 2x2 -->
+    <div class="grid-layout">
+        <div class="grid-item-wrapper">
+            <img class="grid-item" src="media/theme4.png" alt="Тема 1">
+            <div class="overlay"></div>
+        </div>
+        <img class="grid-item" src="media/theme1.png" alt="Тема 2">
+        <img class="grid-item" src="media/theme2.png" alt="Тема 3">
+        <img class="grid-item" src="media/theme3.png" alt="Тема 4">
+    </div>
+</div>
+<style>
+    .modal-content {
+        height: auto !important;
+        max-height: 80% !important;
+        width: 50% !important;
+    }
+    #modal-body {
+        overflow-y: auto !important;
+    }
+    .color-container {
+        max-height: none !important;
+        overflow-y: visible !important;
+    }
+</style>`;
 let searchInnerHTML = `
 <div class="search-container">
   <!-- Поле поиска -->

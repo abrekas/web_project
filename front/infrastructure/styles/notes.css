@@ -424,3 +424,42 @@ body {
     scrollbar-width: thin;
     scrollbar-color: var(--third-color) transparent;
 }
+
+
+/* Выбор темы */
+
+.color-container {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.grid-layout {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+}
+
+.grid-item-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.grid-item {
+    width: 100%;
+    border-radius: var(--second-radius);
+    object-fit: cover;
+    display: block;
+}
+
+/* Затемнение только для первой картинки */
+.grid-item-wrapper .overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Черное затемнение на 50% */
+    border-radius: var(--second-radius);
+    pointer-events: none; /* Чтобы можно было кликнуть сквозь затемнение */
+}
