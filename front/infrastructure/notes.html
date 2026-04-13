@@ -5,26 +5,51 @@
     <title>Highliter.com</title>
     <link rel="stylesheet" href="styles/notes.css" />
     <link rel="icon" href="media/logo.png" type="image/png">
+    <style>
+      .startup-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,.55);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+      }
+      .startup-overlay.show { display: flex; }
+      .startup-box {
+        width: min(520px, calc(100vw - 32px));
+        background: #fff;
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 10px 40px rgba(0,0,0,.2);
+        font-family: system-ui, sans-serif;
+      }
+      .startup-box h2 { margin: 0 0 12px; }
+      .startup-box p { margin: 0 0 16px; line-height: 1.45; }
+      .startup-actions { display: flex; gap: 12px; }
+      .startup-actions button {
+        padding: 10px 16px;
+        border: 0;
+        border-radius: 10px;
+        cursor: pointer;
+      }
+      .primary-btn { background: #111; color: white; }
+      .secondary-btn { background: #eee; }
+      #startup-error { color: #c00; margin-top: 12px; }
+    </style>
   </head>
   <body>
-    <!-- Основной контейнер приложения -->
     <div class="app-container">
       <aside class="sidebar">
         <div class="sidebar-body">
           <div class="logo">Highliter.com</div>
 
-          <div class="folder-icon">
+          <div id="folder-icon" class="folder-icon">
             <img src="media/Folder plus.png" />
           </div>
 
           <nav class="categories">
-            <ul>
-              <li class="active">общее</li>
-              <li>матмех.мэпс</li>
-              <li>стажировка</li>
-              <li>кулинария</li>
-              <li>полезное приложение</li>
-            </ul>
+            <ul id="categories-ul"></ul>
           </nav>
         </div>
 
@@ -34,12 +59,10 @@
         </div>
       </aside>
 
-      <!-- Основная область контента -->
       <main class="content-area">
-        <!-- Шапка контента с поиском и фильтрами -->
         <header class="content-header">
           <div id="search-btn" class="search-bar">
-            <input class="search-bar-input" type="text" placeholder="поиск" />
+            <input id="search-input" class="search-bar-input" type="text" placeholder="поиск" />
             <img class="search-icon" src="media/search_icon.png">
           </div>
           <nav class="view-switch">
@@ -49,81 +72,35 @@
           </nav>
         </header>
 
-        <!-- Список карточек/заметок -->
-        <section class="cards-list">
-          <!-- Пример карточки (Стажировка / Habr) -->
-          <article class="card">
-            <div class="adidas">
-              <span></span>
-              <span></span>
-              <span></span>
-            </div>
-            <header class="card-header">
-              <select class="category-select">
-                <option>стажировка</option>
-              </select>
-              <div class="header-link">
-                <img src="media/link.png" class="link-icon">
-                <a href="#" class="source-link">habr.com</a>
-              </div>
-            </header>
-            <div class="card-content">
-              <div class="card-body">
-                <a href="#" class="main-link">https://habr.com...</a>
-                <p>Градиентный спуск — это способ обучения...</p>
-              </div>
-              <footer class="card-footer">
-                <time datetime="2026-05-30T18:10">18:10 30.05.2026</time>
-              </footer>
-            </div>
-          </article>
-
-          <!-- Пример карточки с рецептом (Кулинария) -->
-          <article class="card">
-            <div class="adidas">
-              <span></span>
-              <span></span>
-              <span></span>
-            </div>
-            <header class="card-header">
-              <select class="category-select">
-                <option>кулинария</option>
-              </select>
-              <div class="header-link">
-                <img src="media/link.png" class="link-icon">
-                <a href="#" class="source-link">google.com</a>
-              </div>
-            </header>
-            <div class="card-content">
-              <div class="card-body">
-                <p>Для приготовления пышных оладий на кефире, которые не опадают, важно соблюдать правильную густоту теста и температурный режим.
-                  Ингредиенты
-                  Кефир (лучше жирный, 3,2%): 500 мл
-                  Мука пшеничная: ~350–400 г (тесто должно быть густым)
-                  Яйцо: 1 шт.
-                  Сахар: 1,5 ст. л. (не добавляйте слишком много, иначе оладьи подгорят, но не пропекутся)
-                  Соль: щепотка
-                  Сода: 0,5–1 ч. л.
-                  Растительное масло: для жарки</p>
-              </div>
-              <footer class="card-footer">
-                <time datetime="2026-05-30T18:10">18:10 30.05.2026</time>
-              </footer>
-            </div>
-          </article>
-        </section>
+        <section id="cards-list" class="cards-list"></section>
       </main>
     </div>
 
-    <!--Модальное окно, по умолчанию display: none-->
     <div id="universal-modal" class="modal-overlay">
       <div class="modal-content">
-        <div id="modal-body">
-          <!-- Сюда будет загружаться контент -->
+        <div id="modal-body"></div>
+      </div>
+    </div>
+
+    <!-- Стартовый запрос доступа -->
+    <div id="startup-overlay" class="startup-overlay">
+      <div class="startup-box">
+        <h2>Разрешите доступ к папке с данными</h2>
+        <p>
+          Сайт хранит ваши заметки и категории в выбранной вами папке.
+          Будут использоваться файлы <b>notes.json</b> и <b>categories.json</b>.
+        </p>
+        <div class="startup-actions">
+          <button id="grant-access-btn" class="primary-btn">Разрешить доступ</button>
+          <button id="startup-cancel-btn" class="secondary-btn">Позже</button>
         </div>
+        <div id="startup-error"></div>
       </div>
     </div>
 
     <script src="js/modal.js"></script>
+    <script src="js/fs-storage.js"></script>
+    <script src="js/parser.js"></script>
+    <script src="js/categories.js"></script>
   </body>
 </html>
