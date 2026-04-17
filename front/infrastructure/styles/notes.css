@@ -184,7 +184,7 @@ body {
 .content-header {
   display: flex;
   align-items: center;
-  
+
 }
 
 .search-bar {
@@ -208,7 +208,7 @@ body {
   box-shadow: var(--inside-shadow);
   font-family: var(--font-main);
   font-size: var(--font-size);
-  color: var(--text-color);
+  color: var(--notes-text-color);
 }
 
 .search-bar-input::placeholder {
@@ -382,6 +382,7 @@ body {
 .modal-content {
   position: relative;
   display: flex;
+  z-index: 10000;
   flex-direction: column;
   width: 50%;
   height: 60%;
@@ -517,12 +518,13 @@ body {
   width: 100%;
   border-radius: var(--second-radius);
   object-fit: cover;
+  cursor: pointer;
 }
 
 .grid-item-wrapper .overlay {
   position: absolute;
   inset: 0;
   border-radius: var(--second-radius);
-  background-color: rgba(0, 0, 0, 0.5);
+  border: 5px solid black;
   pointer-events: none;
 }

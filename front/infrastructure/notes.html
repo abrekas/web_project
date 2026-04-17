@@ -4,38 +4,56 @@
     <meta charset="UTF-8" />
     <title>Highliter.com</title>
     <link rel="stylesheet" href="styles/notes.css" />
-    <link rel="icon" href="media/logo.png" type="image/png">
+    <link rel="icon" href="media/logo.png" type="image/png" />
     <style>
       .startup-overlay {
         position: fixed;
         inset: 0;
-        background: rgba(0,0,0,.55);
+        background: rgba(0, 0, 0, 0.55);
         display: none;
         align-items: center;
         justify-content: center;
         z-index: 9999;
       }
-      .startup-overlay.show { display: flex; }
+      .startup-overlay.show {
+        display: flex;
+      }
       .startup-box {
         width: min(520px, calc(100vw - 32px));
         background: #fff;
         border-radius: 16px;
         padding: 24px;
-        box-shadow: 0 10px 40px rgba(0,0,0,.2);
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
         font-family: system-ui, sans-serif;
       }
-      .startup-box h2 { margin: 0 0 12px; }
-      .startup-box p { margin: 0 0 16px; line-height: 1.45; }
-      .startup-actions { display: flex; gap: 12px; }
+      .startup-box h2 {
+        margin: 0 0 12px;
+      }
+      .startup-box p {
+        margin: 0 0 16px;
+        line-height: 1.45;
+      }
+      .startup-actions {
+        display: flex;
+        gap: 12px;
+      }
       .startup-actions button {
         padding: 10px 16px;
         border: 0;
         border-radius: 10px;
         cursor: pointer;
       }
-      .primary-btn { background: #111; color: white; }
-      .secondary-btn { background: #eee; }
-      #startup-error { color: #c00; margin-top: 12px; }
+      .primary-btn {
+        background: #111;
+        color: white;
+      }
+      .secondary-btn {
+        background: #eee;
+      }
+      #startup-error {
+        color: #c00;
+        margin-top: 12px;
+      }
     </style>
   </head>
   <body>
@@ -62,8 +80,13 @@
       <main class="content-area">
         <header class="content-header">
           <div id="search-btn" class="search-bar">
-            <input id="search-input" class="search-bar-input" type="text" placeholder="поиск" />
-            <img class="search-icon" src="media/search_icon.png">
+            <input
+              id="search-input"
+              class="search-bar-input"
+              type="text"
+              placeholder="поиск"
+            />
+            <img class="search-icon" src="media/search_icon.png" />
           </div>
           <nav class="view-switch">
             <button class="active">все</button>
@@ -87,11 +110,13 @@
       <div class="startup-box">
         <h2>Разрешите доступ к папке с данными</h2>
         <p>
-          Сайт хранит ваши заметки и категории в выбранной вами папке.
-          Будут использоваться файлы <b>notes.json</b> и <b>categories.json</b>.
+          Сайт хранит ваши заметки и категории в выбранной вами папке. Будут
+          использоваться файлы <b>notes.json</b> и <b>categories.json</b>.
         </p>
         <div class="startup-actions">
-          <button id="grant-access-btn" class="primary-btn">Разрешить доступ</button>
+          <button id="grant-access-btn" class="primary-btn">
+            Разрешить доступ
+          </button>
           <button id="startup-cancel-btn" class="secondary-btn">Позже</button>
         </div>
         <div id="startup-error"></div>
@@ -102,5 +127,6 @@
     <script src="js/fs-storage.js"></script>
     <script src="js/parser.js"></script>
     <script src="js/categories.js"></script>
+    <script src="js/themes.js"></script>
   </body>
 </html>
