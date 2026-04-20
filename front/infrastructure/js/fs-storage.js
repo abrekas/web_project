@@ -230,6 +230,32 @@
     return value;
   }
 
+  async function deleteCategory(categoryName) {
+    const value = String(categoryName || '').trim();
+    if (!value) return false;
+    if (value.toLowerCase() === 'общее') return false;
+
+    const list = await getCategories();
+    const idx = list.findIndex(item => String(item).toLowerCase() === value.toLowerCase());
+    if (idx === -1) return false;
+
+    list.splice(idx, 1);
+    await saveCategories(list);
+
+    const notes = await getNotes();
+    let changed = false;
+    const updated = notes.map(n => {
+      if ((n.category || '').toLowerCase() === value.toLowerCase()) {
+        changed = true;
+        return { ...n, category: 'общее' };
+      }
+      return n;
+    });
+
+    if (changed) await saveNotes(updated);
+    return true;
+  }
+
   // ---------------- Events ----------------
   window.addEventListener('DOMContentLoaded', () => {
     const grantBtn = document.getElementById('grant-access-btn');
@@ -269,6 +295,7 @@
     getCategories,
     saveCategories,
     addCategory,
+    deleteCategory,
 
     isReady: () => !!folderHandle
   };
