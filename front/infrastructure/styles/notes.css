@@ -119,6 +119,28 @@
     cursor: pointer;
   }
 
+.categories li {
+  position: relative;
+}
+
+.delete-category {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+}
+
+.delete-category img {
+  width: 14px;
+  height: 14px;
+  display: block;
+}
+
   .categories li.active {
     background-color: var(--accent-color);
     box-shadow: var(--shadow);
