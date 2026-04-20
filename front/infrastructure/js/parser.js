@@ -56,12 +56,15 @@ function renderNote(data) {
         <select class="category-select" data-note-id="${noteId}">
           ${buildCategoryOptions(currentCategory)}
         </select>
+        <button class="delete-note">
+            <img class="delete-icon" src="media/trash.png" alt="удалить запись">
+        </button>
         <div class="header-link">
-        <img class="link-icon" src="media/link.png">
+          <img class="link-icon" src="media/link.png">
           <a href="${escapeHtml(href)}" class="source-link" target="_blank" rel="noopener noreferrer">
             ${escapeHtml(safeSiteRaw.slice(0, 20) || 'нет ссылки')}
           </a>
-        </div>
+        </div>  
       </header>
       <div class="card-content">
         <div class="card-body"><p>${safeContent}</p></div>
@@ -149,6 +152,19 @@ if (searchInput) {
     loadAllNotes(selectedCategory, searchInput.value);
   });
 }
+
+cardsList.addEventListener('click', async (e) => {
+  const deleteBtn = e.target.closest('.delete-note');
+  if (deleteBtn) {
+    const card = deleteBtn.closest('.card');
+    if (confirm('Удалить заметку?')) {
+      const noteId = card.getAttribute('data-note-id');
+      await window.fsStorage.deleteNote(noteId);
+      card.remove();
+      allNotes = await window.fsStorage.getNotes();
+    }
+  }
+})
 
 cardsList.addEventListener('change', async (e) => {
   const select = e.target.closest('.category-select');
