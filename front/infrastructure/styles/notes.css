@@ -326,6 +326,10 @@
     cursor: pointer;
   }
 
+  .delete-note img {
+    width: 16px;
+  }
+
   .delete-note:hover {
     background-color: #FF2121;
     border: none;
