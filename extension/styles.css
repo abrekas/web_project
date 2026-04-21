@@ -1,0 +1,31 @@
+#highlight-save-btn {
+  position: absolute;
+  z-index: 999999;
+  background: #4CAF50;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  transition: all 0.2s ease;
+  user-select: none;
+  white-space: nowrap;
+  align-items: center;
+  gap: 6px;
+  border: none;
+  backdrop-filter: blur(4px);
+  background: rgba(76, 175, 80, 0.95);
+}
+
+#highlight-save-btn:hover {
+  background: rgba(69, 160, 73, 0.95);
+  transform: scale(1.02);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+}
+
+#highlight-save-btn:active {
+  transform: scale(0.98);
+}

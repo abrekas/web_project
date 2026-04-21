@@ -1,11 +1,23 @@
 {
   "manifest_version": 3,
-  "name": "Color Changer",
-  "version": "1.0",
-  "description": "Меняет цвет фона текущей страницы на небесно-голубой.",
-  "permissions": ["activeTab", "scripting", "tabs"],
-  "action": {
-    "default_popup": "popup.html",
-    "default_title": "Color Changer"
-  }
+  "name": "Выдели и сохрани",
+  "version": "1.1",
+  "description": "Сохраняет выделенный текст в один файл notes.json",
+  "permissions": [
+    "activeTab",
+    "storage"
+  ],
+  "host_permissions": [],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "css": ["styles.css"],
+      "run_at": "document_end"
+    }
+  ],
+  "options_page": "options.html"
 }
