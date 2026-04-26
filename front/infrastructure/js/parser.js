@@ -159,9 +159,8 @@ cardsList.addEventListener('click', async (e) => {
     const card = deleteBtn.closest('.card');
     if (confirm('Удалить заметку?')) {
       const noteId = card.getAttribute('data-note-id');
-      await window.fsStorage.deleteNote(noteId);
+      allNotes = await window.fsStorage.deleteNote(noteId);
       card.remove();
-      allNotes = await window.fsStorage.getNotes();
     }
   }
 })

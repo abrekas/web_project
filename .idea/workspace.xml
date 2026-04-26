@@ -2,9 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="dc5618a9-4460-4347-bc60-f8dce87600c8" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/front/infrastructure/js/parser.js" beforeDir="false" afterPath="$PROJECT_DIR$/front/infrastructure/js/parser.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/front/infrastructure/styles/notes.css" beforeDir="false" afterPath="$PROJECT_DIR$/front/infrastructure/styles/notes.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/front/src/testovye_zameki/zametka.json" beforeDir="false" afterPath="$PROJECT_DIR$/front/src/testovye_zameki/zametka.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -59,7 +57,10 @@
       <workItem from="1775810896590" duration="15389000" />
       <workItem from="1775846160623" duration="2860000" />
       <workItem from="1776087917057" duration="1248000" />
-      <workItem from="1776661058384" duration="8011000" />
+      <workItem from="1776661058384" duration="8610000" />
+      <workItem from="1776777303081" duration="2517000" />
+      <workItem from="1776780272383" duration="229000" />
+      <workItem from="1776785738032" duration="347000" />
     </task>
     <servers />
   </component>
