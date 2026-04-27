@@ -179,9 +179,11 @@
 
     const newNote = {
       id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
+      type: note.type || 'text',
+      content: note.type === 'text' ? (note.content || '') : null,
+      imageUrl: note.type === 'image' ? (note.imageUrl || null) : null,
       category: note.category || 'общее',
       site: note.site || '',
-      content: note.content || '',
       time: note.time || new Date().toLocaleString('ru-RU')
     };
 

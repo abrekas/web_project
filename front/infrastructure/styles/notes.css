@@ -219,6 +219,12 @@
   .view-switch {
     display: flex;
     margin-left: auto;
+    opacity: 0;
+    transition: opacity 0.1s ease;
+  }
+
+  .view-switch.ready {
+    opacity: 1;
   }
 
   .view-switch button {
@@ -237,6 +243,15 @@
   }
 
   /* NOTES */
+
+  .note-image {
+    max-width: 100%;
+    height: auto;
+    max-height: 300px;
+    object-fit: contain;
+    display: block;
+    margin: 0 auto;
+  }
 
   .cards-list {
     flex: 1;

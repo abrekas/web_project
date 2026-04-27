@@ -21,17 +21,17 @@ async function loadAllCategories() {
 }
 
 categoriesUl.addEventListener('click', (e) => {
-  const targetLi = e.target.closest('li');
-  if (!targetLi || targetLi.querySelector('input')) return;
+  const li = e.target.closest('li');
+  if (!li) return;
 
-  document.querySelectorAll('#categories-ul li').forEach(li => li.classList.remove('active'));
-  targetLi.classList.add('active');
+  state.category = li.textContent.trim();
 
-  const selectedCategory = targetLi.textContent.trim();
-  const searchInput = document.getElementById('search-input');
-  const searchValue = searchInput ? searchInput.value : '';
+  document.querySelectorAll('#categories-ul li')
+      .forEach(x => x.classList.remove('active'));
 
-  loadAllNotes(selectedCategory, searchValue);
+  li.classList.add('active');
+
+  renderNotes();
 });
 
 function createNewCategory() {
