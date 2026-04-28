@@ -208,6 +208,25 @@
     await saveNotes(filtered);
     return filtered;
   }
+  
+  async function sortNotes(parameter) {
+    // by date; by sites
+    const notes = await getNotes();
+    switch (parameter) {
+      case "byDate":
+        notes.sort((n,m) => new Date(n.savedAt) - new Date(m.savedAt));
+        break;
+      case "bySite":
+        console.log('сортировка по сайтам');
+        notes.sort((n,m) => n.site.localeCompare(m.site));
+        break;
+      default:
+        notes.sort((n,m) => new Date(n.savedAt) - new Date(m.savedAt));
+        break;
+    }
+    await saveNotes(notes);
+    return notes;
+  }
 
   // ---------------- Categories API ----------------
   async function getCategories() {
@@ -268,6 +287,7 @@
     addNote,
     updateNote,
     deleteNote,
+    sortNotes,
 
     getCategories,
     saveCategories,

@@ -1,6 +1,7 @@
 const cardsList = document.getElementById('cards-list');
 const searchInput = document.getElementById('search-input');
 const filter = document.querySelector('.view-switch');
+const sortMenu = document.querySelector('#sort-menu');
 
 const state = {
   category: 'общее',
@@ -193,7 +194,28 @@ cardsList.addEventListener('click', async (e) => {
       card.remove();
     }
   }
-})
+});
+
+sortMenu.addEventListener('change', async (event) => {
+    const selectedValue = event.target.value;
+    console.log('Выбрано:', selectedValue);
+    await window.fsStorage.sortNotes(selectedValue);
+    // await refreshNotes();
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  // 1. Восстановить значение при загрузке
+  const savedValue = localStorage.getItem('selectedOption');
+  if (savedValue) {
+    sortMenu.value = savedValue;
+  }
+  console.log('пытаемся сохранить изменённое при обновлении страницы');
+
+  // 2. Сохранять значение при изменении
+  sortMenu.addEventListener('change', () => {
+    localStorage.setItem('selectedOption', sortMenu.value);
+  });
+});
 
 filter.addEventListener('click', (e) => {
   const btn = e.target.closest('button');
