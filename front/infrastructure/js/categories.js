@@ -60,7 +60,7 @@ function createNewCategory() {
 
     const added = await window.fsStorage.addCategory(val);
 
-    if (!added) {
+    if (!added || val === "общее") {
       alert('Такая категория уже есть');
       li.remove();
       return;

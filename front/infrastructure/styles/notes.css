@@ -527,6 +527,42 @@
     flex-shrink: 0;
   }
 
+  /* FULL IMAGE MODAL */
+
+  .modal-content.image-viewer {
+    width: auto;
+    height: auto;
+    max-width: calc(100vw - 32px);
+    max-height: calc(100vh - 32px);
+    padding: 16px;
+  }
+
+  .modal-content.image-viewer #modal-body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    max-width: calc(100vw - 64px);
+    max-height: calc(100vh - 64px);
+
+    overflow: hidden;
+  }
+
+  .full-modal-image {
+    display: block;
+
+    width: auto;
+    height: auto;
+
+    max-width: calc(100vw - 64px);
+    max-height: calc(100vh - 64px);
+
+    object-fit: contain;
+    border-radius: 8px;
+  }
+
+
+
   /* THEME PICKER */
 
   .color-container {

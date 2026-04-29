@@ -62,7 +62,7 @@ function renderNote(data) {
   let bodyContent = '';
 
   if (noteType === 'image' && safeImageUrl) {
-    bodyContent = `<img class="note-image" src="${safeImageUrl}" alt="картинка записи"/>`;
+    bodyContent = `<img class="note-image" id="${noteId}" src="${safeImageUrl}" alt="картинка записи"/>`;
   } else {
     bodyContent = `<p>${safeContent}</p>`
   }
@@ -91,6 +91,7 @@ function renderNote(data) {
       </div>
     </article>
   `;
+
 }
 
 function filterNotes(category = 'общее', searchToken = '', view) {
@@ -111,7 +112,8 @@ function filterNotes(category = 'общее', searchToken = '', view) {
 
     let byType = true;
 
-    if (view === 'text') byType = note.type === 'text';
+    if (view === 'text') byType = note.type != 'image';
+    ;
     if (view === 'image') byType = note.type === 'image';
 
     return byCategory && bySearch && byType;
@@ -183,24 +185,86 @@ if (searchInput) {
   });
 }
 
+function openImageModal(src) {
+  const modal = document.getElementById('universal-modal');
+  const modalBody = document.getElementById('modal-body');
+  const modalContent = modal.querySelector('.modal-content');
+
+  modalContent.classList.add('image-viewer');
+
+  modalBody.innerHTML = '';
+
+  const img = document.createElement('img');
+  img.src = src;
+  img.alt = 'изображение заметки';
+  img.className = 'full-modal-image';
+
+  img.addEventListener('load', () => {
+    const MIN_IMAGE_SIZE = 700; 
+    const MAX_SCALE = 3;
+
+    const naturalWidth = img.naturalWidth;
+    const naturalHeight = img.naturalHeight;
+
+    const availableWidth = window.innerWidth - 64;
+    const availableHeight = window.innerHeight - 64;
+
+    const longestSide = Math.max(naturalWidth, naturalHeight);
+
+    let scale = 1;
+
+    if (longestSide < MIN_IMAGE_SIZE) {
+      scale = MIN_IMAGE_SIZE / longestSide;
+    }
+
+    scale = Math.min(scale, MAX_SCALE);
+
+    const fitScale = Math.min(
+      availableWidth / naturalWidth,
+      availableHeight / naturalHeight
+    );
+
+    scale = Math.min(scale, fitScale);
+
+    img.style.width = `${naturalWidth * scale}px`;
+    img.style.height = `${naturalHeight * scale}px`;
+  });
+
+  modalBody.appendChild(img);
+
+  modal.style.display = 'flex';
+}
+
+
 cardsList.addEventListener('click', async (e) => {
   const deleteBtn = e.target.closest('.delete-note');
+
   if (deleteBtn) {
     const card = deleteBtn.closest('.card');
+
     if (confirm('Удалить заметку?')) {
       const noteId = card.getAttribute('data-note-id');
       allNotes = await window.fsStorage.deleteNote(noteId);
       card.remove();
     }
+
+    return;
   }
-})
+
+  const image = e.target.closest('.note-image');
+
+  if (image) {
+    openImageModal(image.src);
+  }
+});
+
 
 filter.addEventListener('click', (e) => {
   const btn = e.target.closest('button');
   if (!btn) return;
 
   document.querySelectorAll('.view-switch button')
-      .forEach(b => b.classList.remove('active'));
+    .forEach(b => b.classList.remove('active'));
 
   btn.classList.add('active');
 
@@ -218,6 +282,8 @@ cardsList.addEventListener('change', async (e) => {
 
   await changeNoteCategory(noteId, newCategory);
 });
+
+
 
 window.loadAllNotes = loadAllNotes;
 window.refreshNotes = refreshNotes;
