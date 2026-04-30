@@ -48,7 +48,7 @@ function renderNote(data) {
   const safeTime = escapeHtml(data.time || '');
   const href = safeSiteRaw ? `https://${safeSiteRaw}` : '#';
   const noteId = escapeHtml(data.id || '');
-  const currentCategory = data.category || 'без категории';
+  const currentCategory = data.category || 'общее';
 
   cardsList.innerHTML += `
     <article class="card" data-note-id="${noteId}">

@@ -23,7 +23,7 @@ async function renderCategory(category) {
     delBtn.addEventListener('click', async (ev) => {
       ev.stopPropagation();
       if (!window.fsStorage || !window.fsStorage.isReady()) {
-        alert('Сначала разрешите доступ к папке данных');
+        alert('Сначала разрешите доступ к папке');
         return;
       }
 
@@ -78,7 +78,7 @@ categoriesUl.addEventListener('click', (e) => {
 
 function createNewCategory() {
   if (!window.fsStorage || !window.fsStorage.isReady()) {
-    alert('Сначала разрешите доступ к папке данных');
+    alert('Сначала разрешите доступ к папке');
     return;
   }
 
