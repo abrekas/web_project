@@ -44,6 +44,7 @@ function buildCategoryOptions(currentCategory) {
 
 function renderNote(data) {
   const safeSiteRaw = String(data.site || '').replace(/^https?:\/\//, '');
+  const domainOnly = safeSiteRaw.split('/')[0];
   const safeContent = escapeHtml(data.content || '');
   const safeTime = escapeHtml(data.time || '');
   const href = safeSiteRaw ? `https://${safeSiteRaw}` : '#';
@@ -62,7 +63,7 @@ function renderNote(data) {
         <div class="header-link">
           <img class="link-icon" src="media/link.png">
           <a href="${escapeHtml(href)}" class="source-link" target="_blank" rel="noopener noreferrer">
-            ${escapeHtml(safeSiteRaw.slice(0, 20) || 'нет ссылки')}
+            ${escapeHtml(domainOnly || 'нет ссылки')}
           </a>
         </div>  
       </header>
@@ -79,30 +80,27 @@ function filterNotes(category = 'общее', searchToken = '', site = null) {
   const search = String(searchToken).trim().toLowerCase();
   const selectedSite = site ? String(site).trim().toLowerCase() : null;
 
-  console.log(`[FILTER] Входные параметры: category="${category}", cat="${cat}", site="${site}", search="${search}"`);
-  console.log(`[FILTER] allNotes.length=${allNotes.length}`);
-
   const filtered = allNotes.filter(note => {
     const noteCategory = String(note.category || '').trim().toLowerCase();
     const noteContent = String(note.content || '').toLowerCase();
     const noteSite = String(note.site || '').toLowerCase();
 
-    // Если выбран конкретный сайт, фильтруем по нему
-    if (selectedSite) {
-      const bySite = noteSite === selectedSite;
-      const byCategoryAndSite = noteCategory === cat;
-      const bySearch = !search || noteContent.includes(search) || noteSite.includes(search) || noteCategory.includes(search);
-      return bySite && byCategoryAndSite && bySearch;
-    }
-
-    // Если выбрана "общее", показываем все заметки
-    const byCategory = cat === 'общее' ? true : noteCategory === cat;
     const bySearch = !search || noteContent.includes(search) || noteSite.includes(search) || noteCategory.includes(search);
 
-    return byCategory && bySearch;
+    if (selectedSite) {
+      const bySite = noteSite === selectedSite;
+      if (cat === 'общее') {
+        return bySite && bySearch;
+      }
+      return bySite && noteCategory === cat && bySearch;
+    }
+
+    if (cat === 'общее') {
+      return bySearch;
+    }
+    return noteCategory === cat && bySearch;
   });
 
-  console.log(`[FILTER] Результат: ${filtered.length} заметок из ${allNotes.length}`);
   return filtered;
 }
 
@@ -129,7 +127,6 @@ async function refreshNotes(category = 'общее') {
     allNotes = await window.fsStorage.getNotes();
 
     if (window.loadAllCategories) {
-      console.log('[PAR] Перезагрузка категорий...');
       await window.loadAllCategories();
     }
 
@@ -153,7 +150,7 @@ async function changeNoteCategory(noteId, newCategory) {
     await window.fsStorage.updateNote(note);
 
     const activeCategory = document.querySelector('#categories-ul li.active');
-    const selectedCategory = activeCategory ? activeCategory.textContent.trim() : 'общее';
+    const selectedCategory = activeCategory ? activeCategory.dataset.category : 'общее';
     
     let selectedSite = null;
     if (activeCategory && activeCategory.dataset.site) {
@@ -178,7 +175,7 @@ async function changeNoteCategory(noteId, newCategory) {
 if (searchInput) {
   searchInput.addEventListener('input', () => {
     const activeCategory = document.querySelector('#categories-ul li.active');
-    const selectedCategory = activeCategory ? activeCategory.textContent.trim() : 'общее';
+    const selectedCategory = activeCategory ? activeCategory.dataset.category : 'общее';
     
     let selectedSite = null;
     if (activeCategory && activeCategory.dataset.site) {

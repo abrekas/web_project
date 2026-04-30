@@ -46,7 +46,8 @@ async function renderCategory(category) {
     
     sites.forEach(site => {
       const siteLi = document.createElement('li');
-      siteLi.textContent = site;
+      const siteDisplay = String(site || '').replace(/^https?:\/\//,  '').split('/')[0];
+      siteLi.textContent = siteDisplay;
       siteLi.dataset.category = category;
       siteLi.dataset.site = site;
       sitesList.appendChild(siteLi);
@@ -101,7 +102,8 @@ async function renderCategory(category) {
     
     sites.forEach(site => {
       const siteLi = document.createElement('li');
-      siteLi.textContent = site;
+      const siteDisplay = String(site || '').replace(/^https?:\/\//,  '').split('/')[0];
+      siteLi.textContent = siteDisplay;
       siteLi.dataset.category = category;
       siteLi.dataset.site = site;
       sitesList.appendChild(siteLi);
@@ -127,7 +129,8 @@ async function loadAllCategories() {
     
     generalSites.forEach(site => {
       const siteLi = document.createElement('li');
-      siteLi.textContent = site;
+      const siteDisplay = String(site || '').replace(/^https?:\/\//,  '').split('/')[0];
+      siteLi.textContent = siteDisplay;
       siteLi.dataset.category = 'общее';
       siteLi.dataset.site = site;
       sitesList.appendChild(siteLi);
@@ -160,23 +163,17 @@ categoriesUl.addEventListener('click', (e) => {
   let currentCategory = selectedCategory;
   let currentSite = selectedSite;
   
-  console.log('[CLICK] targetLi.dataset:', targetLi.dataset);
-  console.log('[CLICK] targetLi.textContent:', targetLi.textContent);
-  
   if (targetLi.dataset.site) {
     currentSite = targetLi.dataset.site;
     currentCategory = targetLi.dataset.category;
-    console.log('[CLICK] Выбран сайт:', currentSite, 'категория:', currentCategory);
   } else {
     currentCategory = targetLi.dataset.category;
     currentSite = null;
-    console.log('[CLICK] Выбрана категория:', currentCategory);
   }
 
   selectedCategory = currentCategory;
   selectedSite = currentSite;
 
-  console.log('[CLICK] Вызов loadAllNotes с:', { currentCategory, searchValue, currentSite });
   loadAllNotes(currentCategory, searchValue, currentSite);
 });
 
