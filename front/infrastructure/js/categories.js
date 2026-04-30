@@ -85,7 +85,9 @@ async function renderCategory(category) {
           return;
         }
         await loadAllCategories();
-        loadAllNotes('общее', '');
+        if (window.refreshNotes) {
+          await window.refreshNotes('общее');
+        }
       } catch (e) {
         console.error(e);
         alert('Ошибка при удалении категории');
