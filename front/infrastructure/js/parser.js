@@ -74,11 +74,14 @@ function renderNote(data) {
   `;
 }
 
-function filterNotes(category = 'общее', searchToken = '') {
+function filterNotes(category = 'общее', searchToken = '', site = null) {
   const cat = String(category).trim().toLowerCase();
   const search = String(searchToken).trim().toLowerCase();
+  const selectedSite = site ? String(site).trim().toLowerCase() : null;
 
-  return allNotes.filter(note => {
+  console.log(`[FILTER] Фильтрация: категория="${cat}", сайт="${selectedSite}", поиск="${search}", всего заметок=${allNotes.length}`);
+
+  const filtered = allNotes.filter(note => {
     const noteCategory = String(note.category || '').trim().toLowerCase();
     const noteContent = String(note.content || '').toLowerCase();
     const noteSite = String(note.site || '').toLowerCase();
@@ -89,14 +92,18 @@ function filterNotes(category = 'общее', searchToken = '') {
       noteContent.includes(search) ||
       noteSite.includes(search) ||
       noteCategory.includes(search);
+    const bySite = !selectedSite || noteSite === selectedSite;
 
-    return byCategory && bySearch;
+    return byCategory && bySearch && bySite;
   });
+
+  console.log(`[FILTER] Результат: ${filtered.length} заметок из ${allNotes.length}`);
+  return filtered;
 }
 
-function loadAllNotes(category = 'общее', searchToken = '') {
+function loadAllNotes(category = 'общее', searchToken = '', site = null) {
   cardsList.innerHTML = '';
-  const filtered = filterNotes(category, searchToken);
+  const filtered = filterNotes(category, searchToken, site);
 
   if (!filtered.length) {
     cardsList.innerHTML = `<p>Заметки не найдены</p>`;
@@ -108,13 +115,18 @@ function loadAllNotes(category = 'общее', searchToken = '') {
 
 async function refreshNotes(category = 'общее') {
   if (!window.fsStorage || !window.fsStorage.isReady()) {
-    cardsList.innerHTML = `<p>Сначала разрешите доступ к папке с данными</p>`;
+    cardsList.innerHTML = `<p>Сначала разрешите доступ к папке</p>`;
     return;
   }
 
   try {
     await loadCategoriesForSelects();
     allNotes = await window.fsStorage.getNotes();
+
+    if (window.loadAllCategories) {
+      console.log('[PAR] Перезагрузка категорий...');
+      await window.loadAllCategories();
+    }
 
     const searchValue = searchInput ? searchInput.value : '';
     loadAllNotes(category, searchValue);
@@ -127,7 +139,9 @@ async function refreshNotes(category = 'общее') {
 async function changeNoteCategory(noteId, newCategory) {
   try {
     const note = allNotes.find(item => String(item.id) === String(noteId));
-    if (!note) return;
+    if (!note) {
+      return;
+    }
 
     note.category = newCategory;
 
@@ -135,10 +149,21 @@ async function changeNoteCategory(noteId, newCategory) {
 
     const activeCategory = document.querySelector('#categories-ul li.active');
     const selectedCategory = activeCategory ? activeCategory.textContent.trim() : 'общее';
+    
+    let selectedSite = null;
+    if (activeCategory && activeCategory.dataset.site) {
+      selectedSite = activeCategory.dataset.site;
+    }
+    
     const searchValue = searchInput ? searchInput.value : '';
 
     allNotes = await window.fsStorage.getNotes();
-    loadAllNotes(selectedCategory, searchValue);
+    
+    if (window.loadAllCategories) {
+      await window.loadAllCategories();
+    }
+    
+    loadAllNotes(selectedCategory, searchValue, selectedSite);
   } catch (e) {
     console.error('Ошибка смены категории заметки:', e);
     alert('Не удалось изменить категорию');
@@ -149,7 +174,13 @@ if (searchInput) {
   searchInput.addEventListener('input', () => {
     const activeCategory = document.querySelector('#categories-ul li.active');
     const selectedCategory = activeCategory ? activeCategory.textContent.trim() : 'общее';
-    loadAllNotes(selectedCategory, searchInput.value);
+    
+    let selectedSite = null;
+    if (activeCategory && activeCategory.dataset.site) {
+      selectedSite = activeCategory.dataset.site;
+    }
+    
+    loadAllNotes(selectedCategory, searchInput.value, selectedSite);
   });
 }
 
@@ -161,6 +192,10 @@ cardsList.addEventListener('click', async (e) => {
       const noteId = card.getAttribute('data-note-id');
       allNotes = await window.fsStorage.deleteNote(noteId);
       card.remove();
+      
+      if (window.loadAllCategories) {
+        await window.loadAllCategories();
+      }
     }
   }
 })
@@ -180,6 +215,11 @@ window.refreshNotes = refreshNotes;
 
 async function initParser() {
   await window.fsStorage.restoreFolder();
+  
+  if (window.loadAllCategories) {
+    await window.loadAllCategories();
+  }
+  
   await refreshNotes();
 }
 

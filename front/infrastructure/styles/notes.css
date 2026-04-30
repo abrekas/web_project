@@ -124,6 +124,31 @@
     box-shadow: var(--shadow);
   }
 
+  /* Вложенные сайты */
+  .categories li.category-item {
+    padding: 7px 16px;
+  }
+
+  .sites-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .sites-list li {
+    margin-bottom: 4px;
+    padding: 7px 16px 7px 32px;
+    border-radius: var(--second-radius);
+    cursor: pointer;
+    font-size: 11pt;
+    color: rgba(95, 67, 151, 0.8);
+  }
+
+  .sites-list li.active {
+    background-color: var(--accent-color);
+    box-shadow: var(--shadow);
+  }
+
   .category-input {
     width: 100%;
     height: 32px;
