@@ -60,6 +60,8 @@ async function renderCategory(category) {
   const node = tmpl.content.firstElementChild.cloneNode(true);
   const span = node.querySelector('span');
   span.textContent = category;
+  
+  node.dataset.category = category;
 
   const delBtn = node.querySelector('.delete-category');
   if (category === 'общее' && delBtn) delBtn.remove();
@@ -91,6 +93,22 @@ async function renderCategory(category) {
   }
 
   categoriesUl.appendChild(node);
+
+  const sites = await getSitesInCategory(category);
+  if (sites.length > 0) {
+    const sitesList = document.createElement('ul');
+    sitesList.className = 'sites-list';
+    
+    sites.forEach(site => {
+      const siteLi = document.createElement('li');
+      siteLi.textContent = site;
+      siteLi.dataset.category = category;
+      siteLi.dataset.site = site;
+      sitesList.appendChild(siteLi);
+    });
+    
+    node.appendChild(sitesList);
+  }
 }
 
 async function loadAllCategories() {
@@ -136,20 +154,30 @@ categoriesUl.addEventListener('click', (e) => {
   
   targetLi.classList.add('active');
 
-  const span = targetLi.querySelector('span');
-  const selectedCategory = (span ? span.textContent : targetLi.textContent).trim();
   const searchInput = document.getElementById('search-input');
   const searchValue = searchInput ? searchInput.value : '';
   
+  let currentCategory = selectedCategory;
+  let currentSite = selectedSite;
+  
+  console.log('[CLICK] targetLi.dataset:', targetLi.dataset);
+  console.log('[CLICK] targetLi.textContent:', targetLi.textContent);
+  
   if (targetLi.dataset.site) {
-    selectedSite = targetLi.dataset.site;
-    selectedCategory = targetLi.dataset.category;
+    currentSite = targetLi.dataset.site;
+    currentCategory = targetLi.dataset.category;
+    console.log('[CLICK] Выбран сайт:', currentSite, 'категория:', currentCategory);
   } else {
-    selectedCategory = targetLi.dataset.category;
-    selectedSite = null;
+    currentCategory = targetLi.dataset.category;
+    currentSite = null;
+    console.log('[CLICK] Выбрана категория:', currentCategory);
   }
 
-  loadAllNotes(selectedCategory, searchValue, selectedSite);
+  selectedCategory = currentCategory;
+  selectedSite = currentSite;
+
+  console.log('[CLICK] Вызов loadAllNotes с:', { currentCategory, searchValue, currentSite });
+  loadAllNotes(currentCategory, searchValue, currentSite);
 });
 
 function createNewCategory() {

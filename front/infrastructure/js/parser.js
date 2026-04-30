@@ -31,7 +31,7 @@ async function loadCategoriesForSelects() {
 }
 
 function buildCategoryOptions(currentCategory) {
-  const normalizedCurrent = String(currentCategory || 'без категории').trim();
+  const normalizedCurrent = String(currentCategory || 'общее').trim();
 
   const categoriesSet = new Set(['общее', ...allCategories, normalizedCurrent]);
   const categories = Array.from(categoriesSet);
@@ -79,22 +79,27 @@ function filterNotes(category = 'общее', searchToken = '', site = null) {
   const search = String(searchToken).trim().toLowerCase();
   const selectedSite = site ? String(site).trim().toLowerCase() : null;
 
-  console.log(`[FILTER] Фильтрация: категория="${cat}", сайт="${selectedSite}", поиск="${search}", всего заметок=${allNotes.length}`);
+  console.log(`[FILTER] Входные параметры: category="${category}", cat="${cat}", site="${site}", search="${search}"`);
+  console.log(`[FILTER] allNotes.length=${allNotes.length}`);
 
   const filtered = allNotes.filter(note => {
     const noteCategory = String(note.category || '').trim().toLowerCase();
     const noteContent = String(note.content || '').toLowerCase();
     const noteSite = String(note.site || '').toLowerCase();
 
-    const byCategory = cat === 'общее' || noteCategory === cat;
-    const bySearch =
-      !search ||
-      noteContent.includes(search) ||
-      noteSite.includes(search) ||
-      noteCategory.includes(search);
-    const bySite = !selectedSite || noteSite === selectedSite;
+    // Если выбран конкретный сайт, фильтруем по нему
+    if (selectedSite) {
+      const bySite = noteSite === selectedSite;
+      const byCategoryAndSite = noteCategory === cat;
+      const bySearch = !search || noteContent.includes(search) || noteSite.includes(search) || noteCategory.includes(search);
+      return bySite && byCategoryAndSite && bySearch;
+    }
 
-    return byCategory && bySearch && bySite;
+    // Если выбрана "общее", показываем все заметки
+    const byCategory = cat === 'общее' ? true : noteCategory === cat;
+    const bySearch = !search || noteContent.includes(search) || noteSite.includes(search) || noteCategory.includes(search);
+
+    return byCategory && bySearch;
   });
 
   console.log(`[FILTER] Результат: ${filtered.length} заметок из ${allNotes.length}`);

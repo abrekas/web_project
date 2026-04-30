@@ -209,7 +209,6 @@
 
   // ---------------- Categories API ----------------
   async function getCategories() {
-    console.log('hjsdbhj')
     return await readJsonFile(CATEGORIES_FILE, []);
   }
 
