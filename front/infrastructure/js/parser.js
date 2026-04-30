@@ -30,6 +30,17 @@ async function loadCategoriesForSelects() {
   }
 }
 
+function updateAllCategorySelects() {
+  document.querySelectorAll('.category-select').forEach(select => {
+    const noteId = select.dataset.noteId;
+    const note = allNotes.find(n => String(n.id) === String(noteId));
+    if (note) {
+      const currentCategory = note.category || 'общее';
+      select.innerHTML = buildCategoryOptions(currentCategory);
+    }
+  });
+}
+
 function buildCategoryOptions(currentCategory) {
   const normalizedCurrent = String(currentCategory || 'общее').trim();
 
@@ -214,6 +225,8 @@ cardsList.addEventListener('change', async (e) => {
 
 window.loadAllNotes = loadAllNotes;
 window.refreshNotes = refreshNotes;
+window.loadCategoriesForSelects = loadCategoriesForSelects;
+window.updateAllCategorySelects = updateAllCategorySelects;
 
 async function initParser() {
   await window.fsStorage.restoreFolder();

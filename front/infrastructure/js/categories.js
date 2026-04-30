@@ -141,7 +141,9 @@ async function loadAllCategories() {
     generalLi.appendChild(sitesList);
   }
 
-  if (!window.fsStorage || !window.fsStorage.isReady()) return;
+  if (!window.fsStorage || !window.fsStorage.isReady()) {
+    return;
+  }
 
   try {
     const list = await window.fsStorage.getCategories();
@@ -223,6 +225,25 @@ function createNewCategory() {
       return;
     }
       await loadAllCategories();
+      
+      if (window.loadCategoriesForSelects) {
+        await window.loadCategoriesForSelects();
+      }
+      
+      const activeCategory = document.querySelector('#categories-ul li.active');
+      const selectedCategory = activeCategory ? activeCategory.dataset.category : 'общее';
+      
+      let selectedSite = null;
+      if (activeCategory && activeCategory.dataset.site) {
+        selectedSite = activeCategory.dataset.site;
+      }
+      
+      const searchInput = document.getElementById('search-input');
+      const searchValue = searchInput ? searchInput.value : '';
+      
+      if (window.loadAllNotes) {
+        window.loadAllNotes(selectedCategory, searchValue, selectedSite);
+      }
   };
 
   input.addEventListener('keydown', async (e) => {
