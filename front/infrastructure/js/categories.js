@@ -177,6 +177,18 @@ categoriesUl.addEventListener('click', (e) => {
   loadAllNotes(currentCategory, searchValue, currentSite);
 });
 
+categoriesUl.addEventListener('dblclick', (e) => {
+  const targetLi = e.target.closest('li');
+  if (!targetLi || targetLi.dataset.site) {
+    return;
+  }
+  
+  const sitesList = targetLi.querySelector('.sites-list');
+  if (sitesList) {
+    sitesList.classList.toggle('collapsed');
+  }
+});
+
 function createNewCategory() {
   if (!window.fsStorage || !window.fsStorage.isReady()) {
     alert('Сначала разрешите доступ к папке');
