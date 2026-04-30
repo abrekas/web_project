@@ -200,11 +200,30 @@ cardsList.addEventListener('click', async (e) => {
 document.addEventListener('DOMContentLoaded', () => {
   if (!sortMenu) return;
 
+  const updateSortOrderLabels = () => {
+    if (!sortOrder) return;
+
+    const ascOpt = sortOrder.querySelector('option[value="asc"]');
+    const descOpt = sortOrder.querySelector('option[value="desc"]');
+    if (!ascOpt || !descOpt) return;
+
+    if (sortMenu.value === 'bySite') {
+      ascOpt.textContent = 'A → Z';
+      descOpt.textContent = 'Z ← A';
+      return;
+    }
+
+    // byDate (и всё остальное) — дата
+    ascOpt.textContent = 'сначала старые';
+    descOpt.textContent = 'сначала новые';
+  };
+
   // восстановить значение при загрузке
   const savedValue = localStorage.getItem('selectedOption');
   if (savedValue) sortMenu.value = savedValue;
   const savedOrder = localStorage.getItem('sortOrder');
   if (sortOrder && savedOrder) sortOrder.value = savedOrder;
+  updateSortOrderLabels();
 
   // сортировать + обновить список без перезагрузки
   const applySort = async () => {
@@ -225,7 +244,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
-  sortMenu.addEventListener('change', applySort);
+  sortMenu.addEventListener('change', () => {
+    updateSortOrderLabels();
+    void applySort();
+  });
   if (sortOrder) sortOrder.addEventListener('change', applySort);
 });
 
