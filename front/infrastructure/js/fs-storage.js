@@ -202,8 +202,9 @@
 
   async function deleteNote(noteId) {
     const notes = await getNotes();
-    const filtered = notes.filter(n => n.id !== noteId);
+    const filtered = notes.filter(n => String(n.id) !== noteId);
     await saveNotes(filtered);
+    return filtered;
   }
 
   // ---------------- Categories API ----------------
