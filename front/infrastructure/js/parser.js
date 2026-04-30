@@ -50,7 +50,7 @@ function buildCategoryOptions(currentCategory) {
   }).join('');
 }
 
-function renderNote(data) {
+function renderNoteHtml(data) {
   const safeSiteRaw = String(data.site || '').replace(/^https?:\/\//, '');
   const safeContent = escapeHtml(data.content || '');
   const safeTime = escapeHtml(data.time || '');
@@ -68,7 +68,7 @@ function renderNote(data) {
     bodyContent = `<p>${safeContent}</p>`
   }
 
-  cardsList.innerHTML += `
+  return `
     <article class="card" data-note-id="${noteId}">
       <header class="card-header">
         <select class="category-select" data-note-id="${noteId}">
@@ -120,7 +120,6 @@ function filterNotes(category = 'общее', searchToken = '', view) {
 }
 
 function loadAllNotes(category = 'общее', searchToken = '', view = 'all') {
-  cardsList.innerHTML = '';
   const filtered = filterNotes(category, searchToken, view);
 
   if (!filtered.length) {
@@ -128,7 +127,8 @@ function loadAllNotes(category = 'общее', searchToken = '', view = 'all') {
     return;
   }
 
-  filtered.forEach(renderNote);
+  const html = filtered.map(renderNoteHtml).join('');
+  cardsList.innerHTML = html;
 }
 
 function getState() {
@@ -196,24 +196,28 @@ cardsList.addEventListener('click', async (e) => {
   }
 });
 
-sortMenu.addEventListener('change', async (event) => {
-    const selectedValue = event.target.value;
-    console.log('Выбрано:', selectedValue);
-    await window.fsStorage.sortNotes(selectedValue);
-    // await refreshNotes();
-});
-
 document.addEventListener('DOMContentLoaded', () => {
-  // 1. Восстановить значение при загрузке
-  const savedValue = localStorage.getItem('selectedOption');
-  if (savedValue) {
-    sortMenu.value = savedValue;
-  }
-  console.log('пытаемся сохранить изменённое при обновлении страницы');
+  if (!sortMenu) return;
 
-  // 2. Сохранять значение при изменении
-  sortMenu.addEventListener('change', () => {
-    localStorage.setItem('selectedOption', sortMenu.value);
+  // восстановить значение при загрузке
+  const savedValue = localStorage.getItem('selectedOption');
+  if (savedValue) sortMenu.value = savedValue;
+
+  // сортировать + обновить список без перезагрузки
+  sortMenu.addEventListener('change', async () => {
+    const selectedValue = sortMenu.value;
+    localStorage.setItem('selectedOption', selectedValue);
+
+    if (!window.fsStorage || !window.fsStorage.isReady()) return;
+
+    try {
+      // sortNotes возвращает уже отсортированный массив (и сохраняет в notes.json)
+      const sorted = await window.fsStorage.sortNotes(selectedValue);
+      allNotes = Array.isArray(sorted) ? sorted : await window.fsStorage.getNotes();
+      renderNotes();
+    } catch (e) {
+      console.error('Ошибка сортировки заметок:', e);
+    }
   });
 });
 
