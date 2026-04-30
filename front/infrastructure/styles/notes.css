@@ -160,6 +160,15 @@
     width: 100%;
     margin: 4px -16px 0 -16px;
     padding: 0 16px;
+    max-height: 500px;
+    overflow: hidden;
+    transition: max-height 0.3s ease, opacity 0.3s ease;
+    opacity: 1;
+  }
+
+  .categories li .sites-list.collapsed {
+    max-height: 0;
+    opacity: 0;
   }
 
   .categories li.active {
