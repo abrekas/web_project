@@ -213,19 +213,17 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    // byDate (и всё остальное) — дата
     ascOpt.textContent = 'сначала старые';
     descOpt.textContent = 'сначала новые';
   };
 
-  // восстановить значение при загрузке
   const savedValue = localStorage.getItem('selectedOption');
   if (savedValue) sortMenu.value = savedValue;
   const savedOrder = localStorage.getItem('sortOrder');
   if (sortOrder && savedOrder) sortOrder.value = savedOrder;
   updateSortOrderLabels();
 
-  // сортировать + обновить список без перезагрузки
+  
   const applySort = async () => {
     const selectedValue = sortMenu.value;
     const order = sortOrder ? sortOrder.value : 'asc';

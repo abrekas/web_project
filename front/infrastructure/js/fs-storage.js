@@ -219,19 +219,6 @@
       if (!Number.isNaN(t)) return new Date(t);
     }
 
-    const raw = String(note.time || '').trim();
-    // ожидаем формат ru-RU: "dd.mm.yyyy, hh:mm:ss" (секунды могут отсутствовать)
-    const m = raw.match(/(\d{2})\.(\d{2})\.(\d{4})(?:,\s*)?(\d{1,2}):(\d{2})(?::(\d{2}))?/);
-    if (m) {
-      const dd = Number(m[1]);
-      const mm = Number(m[2]);
-      const yyyy = Number(m[3]);
-      const hh = Number(m[4] ?? 0);
-      const min = Number(m[5] ?? 0);
-      const ss = Number(m[6] ?? 0);
-      return new Date(yyyy, mm - 1, dd, hh, min, ss);
-    }
-
     return new Date(0);
   }
 
