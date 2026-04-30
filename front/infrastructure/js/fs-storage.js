@@ -176,6 +176,7 @@
 
   async function addNote(note) {
     const notes = await getNotes();
+    const nowIso = new Date().toISOString();
 
     const newNote = {
       id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
@@ -184,7 +185,8 @@
       imageUrl: note.type === 'image' ? (note.imageUrl || null) : null,
       category: note.category || 'общее',
       site: note.site || '',
-      time: note.time || new Date().toLocaleString('ru-RU')
+      time: note.time || new Date().toLocaleString('ru-RU'),
+      savedAt: note.savedAt || nowIso
     };
 
     notes.unshift(newNote);
@@ -209,19 +211,42 @@
     return filtered;
   }
   
-  async function sortNotes(parameter) {
-    // by date; by sites
+  function parseNoteDate(note) {
+    if (!note) return new Date(0);
+
+    if (note.savedAt) {
+      const t = Date.parse(note.savedAt);
+      if (!Number.isNaN(t)) return new Date(t);
+    }
+
+    const raw = String(note.time || '').trim();
+    // ожидаем формат ru-RU: "dd.mm.yyyy, hh:mm:ss" (секунды могут отсутствовать)
+    const m = raw.match(/(\d{2})\.(\d{2})\.(\d{4})(?:,\s*)?(\d{1,2}):(\d{2})(?::(\d{2}))?/);
+    if (m) {
+      const dd = Number(m[1]);
+      const mm = Number(m[2]);
+      const yyyy = Number(m[3]);
+      const hh = Number(m[4] ?? 0);
+      const min = Number(m[5] ?? 0);
+      const ss = Number(m[6] ?? 0);
+      return new Date(yyyy, mm - 1, dd, hh, min, ss);
+    }
+
+    return new Date(0);
+  }
+
+  async function sortNotes(parameter, order = 'asc') {
     const notes = await getNotes();
+    const dir = order === 'desc' ? -1 : 1;
     switch (parameter) {
       case "byDate":
-        notes.sort((n,m) => new Date(n.savedAt) - new Date(m.savedAt));
+        notes.sort((a, b) => (parseNoteDate(a) - parseNoteDate(b)) * dir);
         break;
       case "bySite":
-        console.log('сортировка по сайтам');
-        notes.sort((n,m) => n.site.localeCompare(m.site));
+        notes.sort((a, b) => (String(a.site || '').localeCompare(String(b.site || ''))) * dir);
         break;
       default:
-        notes.sort((n,m) => new Date(n.savedAt) - new Date(m.savedAt));
+        notes.sort((a, b) => (parseNoteDate(a) - parseNoteDate(b)) * dir);
         break;
     }
     await saveNotes(notes);
@@ -230,7 +255,6 @@
 
   // ---------------- Categories API ----------------
   async function getCategories() {
-    console.log('hjsdbhj')
     return await readJsonFile(CATEGORIES_FILE, []);
   }
 

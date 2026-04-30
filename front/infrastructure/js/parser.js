@@ -2,6 +2,7 @@ const cardsList = document.getElementById('cards-list');
 const searchInput = document.getElementById('search-input');
 const filter = document.querySelector('.view-switch');
 const sortMenu = document.querySelector('#sort-menu');
+const sortOrder = document.querySelector('#sort-order');
 
 const state = {
   category: 'общее',
@@ -202,23 +203,30 @@ document.addEventListener('DOMContentLoaded', () => {
   // восстановить значение при загрузке
   const savedValue = localStorage.getItem('selectedOption');
   if (savedValue) sortMenu.value = savedValue;
+  const savedOrder = localStorage.getItem('sortOrder');
+  if (sortOrder && savedOrder) sortOrder.value = savedOrder;
 
   // сортировать + обновить список без перезагрузки
-  sortMenu.addEventListener('change', async () => {
+  const applySort = async () => {
     const selectedValue = sortMenu.value;
+    const order = sortOrder ? sortOrder.value : 'asc';
+
     localStorage.setItem('selectedOption', selectedValue);
+    if (sortOrder) localStorage.setItem('sortOrder', order);
 
     if (!window.fsStorage || !window.fsStorage.isReady()) return;
 
     try {
-      // sortNotes возвращает уже отсортированный массив (и сохраняет в notes.json)
-      const sorted = await window.fsStorage.sortNotes(selectedValue);
+      const sorted = await window.fsStorage.sortNotes(selectedValue, order);
       allNotes = Array.isArray(sorted) ? sorted : await window.fsStorage.getNotes();
       renderNotes();
     } catch (e) {
       console.error('Ошибка сортировки заметок:', e);
     }
-  });
+  };
+
+  sortMenu.addEventListener('change', applySort);
+  if (sortOrder) sortOrder.addEventListener('change', applySort);
 });
 
 filter.addEventListener('click', (e) => {
