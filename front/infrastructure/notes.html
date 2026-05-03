@@ -68,6 +68,15 @@
 
           <nav class="categories">
             <ul id="categories-ul"></ul>
+
+            <template id="category-item-template">
+              <li>
+                <button class="delete-category" title="Удалить категорию">
+                  <img src="media/remove.png" alt="remove" />
+                </button>
+                <span></span>
+              </li>
+            </template>
           </nav>
         </div>
 
@@ -115,7 +124,6 @@
       </div>
     </div>
 
-    <!-- Стартовый запрос доступа -->
     <div id="startup-overlay" class="startup-overlay">
       <div class="startup-box">
         <h2>Разрешите доступ к папке с данными</h2>

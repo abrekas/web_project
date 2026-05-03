@@ -1,16 +1,149 @@
 const categoriesUl = document.getElementById('categories-ul');
 const newCategoryBtn = document.getElementById('folder-icon');
 
+let selectedCategory = 'общее';
+let selectedSite = null;
+
+async function getSitesInCategory(category) {
+  if (!window.fsStorage || !window.fsStorage.isReady()) return [];
+  
+  try {
+    const notes = await window.fsStorage.getNotes();
+    const sitesSet = new Set();
+        
+    notes.forEach(note => {
+      if (String(note.category || '').trim().toLowerCase() === String(category).trim().toLowerCase()) {
+        const site = String(note.site || '').trim();
+        if (site) {
+          sitesSet.add(site);
+        }
+      }
+    });
+    
+    return Array.from(sitesSet).sort();
+  } catch (e) {
+    console.error('Ошибка получения сайтов:', e);
+    return [];
+  }
+}
+
 async function renderCategory(category) {
-  const li = document.createElement('li');
-  li.textContent = category;
-  categoriesUl.appendChild(li);
+  const tmpl = document.getElementById('category-item-template');
+  if (!tmpl) {
+    const li = document.createElement('li');
+  li.className = 'category-item';
+    const span = document.createElement('span');
+    span.textContent = category;
+  li.dataset.category = category;
+  
+    li.appendChild(span);
+    categoriesUl.appendChild(li);
+  
+  const sites = await getSitesInCategory(category);
+  if (sites.length > 0) {
+    const sitesList = document.createElement('ul');
+    sitesList.className = 'sites-list';
+    
+    sites.forEach(site => {
+      const siteLi = document.createElement('li');
+      const siteDisplay = String(site || '').replace(/^https?:\/\//,  '').split('/')[0];
+      siteLi.textContent = siteDisplay;
+      siteLi.dataset.category = category;
+      siteLi.dataset.site = site;
+      sitesList.appendChild(siteLi);
+    });
+    
+    li.appendChild(sitesList);
+  }
+    return;
+  }
+
+  const node = tmpl.content.firstElementChild.cloneNode(true);
+  const span = node.querySelector('span');
+  span.textContent = category;
+  
+  node.dataset.category = category;
+
+  const delBtn = node.querySelector('.delete-category');
+  if (category === 'общее' && delBtn) delBtn.remove();
+
+  if (delBtn) {
+    delBtn.addEventListener('click', async (ev) => {
+      ev.stopPropagation();
+      if (!window.fsStorage || !window.fsStorage.isReady()) {
+        alert('Сначала разрешите доступ к папке');
+        return;
+      }
+
+      if (!confirm(`Удалить категорию "${category}"?`))
+        return;
+
+      try {
+        const ok = await window.fsStorage.deleteCategory(category);
+        if (!ok) {
+          alert('Не удалось удалить категорию');
+          return;
+        }
+        await loadAllCategories();
+        if (window.refreshNotes) {
+          await window.refreshNotes('общее');
+        }
+      } catch (e) {
+        console.error(e);
+        alert('Ошибка при удалении категории');
+      }
+    });
+  }
+
+  categoriesUl.appendChild(node);
+
+  const sites = await getSitesInCategory(category);
+  if (sites.length > 0) {
+    const sitesList = document.createElement('ul');
+    sitesList.className = 'sites-list';
+    
+    sites.forEach(site => {
+      const siteLi = document.createElement('li');
+      const siteDisplay = String(site || '').replace(/^https?:\/\//,  '').split('/')[0];
+      siteLi.textContent = siteDisplay;
+      siteLi.dataset.category = category;
+      siteLi.dataset.site = site;
+      sitesList.appendChild(siteLi);
+    });
+    
+    node.appendChild(sitesList);
+  }
 }
 
 async function loadAllCategories() {
-  categoriesUl.innerHTML = '<li class="active">общее</li>';
+  categoriesUl.innerHTML = '';
+  
+  const generalLi = document.createElement('li');
+  generalLi.textContent = 'общее';
+  generalLi.className = 'active category-item';
+  generalLi.dataset.category = 'общее';
+  categoriesUl.appendChild(generalLi);
+  
+  const generalSites = await getSitesInCategory('общее');
+  if (generalSites.length > 0) {
+    const sitesList = document.createElement('ul');
+    sitesList.className = 'sites-list';
+    
+    generalSites.forEach(site => {
+      const siteLi = document.createElement('li');
+      const siteDisplay = String(site || '').replace(/^https?:\/\//,  '').split('/')[0];
+      siteLi.textContent = siteDisplay;
+      siteLi.dataset.category = 'общее';
+      siteLi.dataset.site = site;
+      sitesList.appendChild(siteLi);
+    });
+    
+    generalLi.appendChild(sitesList);
+  }
 
-  if (!window.fsStorage || !window.fsStorage.isReady()) return;
+  if (!window.fsStorage || !window.fsStorage.isReady()) {
+    return;
+  }
 
   try {
     const list = await window.fsStorage.getCategories();
@@ -21,22 +154,48 @@ async function loadAllCategories() {
 }
 
 categoriesUl.addEventListener('click', (e) => {
-  const li = e.target.closest('li');
-  if (!li) return;
+  const targetLi = e.target.closest('li');
+  if (!targetLi || targetLi.querySelector('input')) return;
+  document.querySelectorAll('#categories-ul li').forEach(li => li.classList.remove('active'));
+  document.querySelectorAll('.sites-list li').forEach(li => li.classList.remove('active'));
+  
+  targetLi.classList.add('active');
 
-  state.category = li.textContent.trim();
+  const searchInput = document.getElementById('search-input');
+  const searchValue = searchInput ? searchInput.value : '';
+  
+  let currentCategory = selectedCategory;
+  let currentSite = selectedSite;
+  
+  if (targetLi.dataset.site) {
+    currentSite = targetLi.dataset.site;
+    currentCategory = targetLi.dataset.category;
+  } else {
+    currentCategory = targetLi.dataset.category;
+    currentSite = null;
+  }
 
-  document.querySelectorAll('#categories-ul li')
-      .forEach(x => x.classList.remove('active'));
+  selectedCategory = currentCategory;
+  selectedSite = currentSite;
 
-  li.classList.add('active');
+  loadAllNotes(currentCategory, searchValue, currentSite);
+});
 
-  renderNotes();
+categoriesUl.addEventListener('dblclick', (e) => {
+  const targetLi = e.target.closest('li');
+  if (!targetLi || targetLi.dataset.site) {
+    return;
+  }
+  
+  const sitesList = targetLi.querySelector('.sites-list');
+  if (sitesList) {
+    sitesList.classList.toggle('collapsed');
+  }
 });
 
 function createNewCategory() {
   if (!window.fsStorage || !window.fsStorage.isReady()) {
-    alert('Сначала разрешите доступ к папке данных');
+    alert('Сначала разрешите доступ к папке');
     return;
   }
 
@@ -60,13 +219,31 @@ function createNewCategory() {
 
     const added = await window.fsStorage.addCategory(val);
 
-    if (!added || val === "общее") {
-      alert('Такая категория уже есть');
-      li.remove();
+    if (!added || val === 'общее') {
+      alert('Такая категория уже существует');
+        li.remove();
       return;
     }
-
-    li.textContent = added;
+      await loadAllCategories();
+      
+      if (window.loadCategoriesForSelects) {
+        await window.loadCategoriesForSelects();
+      }
+      
+      const activeCategory = document.querySelector('#categories-ul li.active');
+      const selectedCategory = activeCategory ? activeCategory.dataset.category : 'общее';
+      
+      let selectedSite = null;
+      if (activeCategory && activeCategory.dataset.site) {
+        selectedSite = activeCategory.dataset.site;
+      }
+      
+      const searchInput = document.getElementById('search-input');
+      const searchValue = searchInput ? searchInput.value : '';
+      
+      if (window.loadAllNotes) {
+        window.loadAllNotes(selectedCategory, searchValue, selectedSite);
+      }
   };
 
   input.addEventListener('keydown', async (e) => {
@@ -83,6 +260,8 @@ function createNewCategory() {
 if (newCategoryBtn) {
   newCategoryBtn.addEventListener('click', createNewCategory);
 }
+
+window.loadAllCategories = loadAllCategories;
 
 window.addEventListener('DOMContentLoaded', loadAllCategories);
 window.addEventListener('fs-ready', loadAllCategories);
