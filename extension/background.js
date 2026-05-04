@@ -45,19 +45,24 @@ async function loadFolderHandle() {
 
 async function readNotesArray() {
   if (!folderHandle) throw new Error('Папка не выбрана');
+  
   try {
     const fileHandle = await folderHandle.getFileHandle(notesFileName, { create: false });
     const file = await fileHandle.getFile();
     const content = await file.text();
-    return JSON.parse(content);
+    const data = JSON.parse(content);
+    return Array.isArray(data) ? data : [];
   } catch (err) {
-    if (err.name === 'NotFoundError') return [];
+    if (err.name === 'NotFoundError') {
+      return [];
+    }
     throw err;
   }
 }
 
 async function writeNotesArray(notesArray) {
   if (!folderHandle) throw new Error('Папка не выбрана');
+  
   const fileHandle = await folderHandle.getFileHandle(notesFileName, { create: true });
   const writable = await fileHandle.createWritable();
   const content = JSON.stringify(notesArray, null, 2);
@@ -65,63 +70,102 @@ async function writeNotesArray(notesArray) {
   await writable.close();
 }
 
-async function addNote(noteData) {
+function formatDateForNote() {
+  const now = new Date();
+  const day = String(now.getDate()).padStart(2, '0');
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const year = now.getFullYear();
+  const hours = String(now.getHours()).padStart(2, '0');
+  const minutes = String(now.getMinutes()).padStart(2, '0');
+  return `${day}.${month}.${year} ${hours}:${minutes}`;
+}
+
+async function addTextNote(noteData) {
   const notes = await readNotesArray();
   const newNote = {
-    id: Date.now(),
+    id: String(Date.now()),
+    type: 'text',
     content: noteData.text,
-    site: noteData.url,
-    title: noteData.title,
-    savedAt: new Date().toISOString(),
-    category: 0
+    site: noteData.url || '',
+    time: formatDateForNote(),
+    category: noteData.category || 'общее'
   };
   notes.push(newNote);
   await writeNotesArray(notes);
-  console.log('Заметка добавлена, всего заметок:', notes.length);
+  console.log('Текстовая заметка добавлена, всего заметок:', notes.length);
+  return newNote;
+}
+
+async function addImageNote(imageData) {
+  const notes = await readNotesArray();
+  const newNote = {
+    id: String(Date.now()),
+    type: 'image',
+    imageUrl: imageData.imageUrl,
+    altText: imageData.altText || '',
+    content: imageData.altText || 'Изображение',
+    site: imageData.pageUrl || '',
+    time: formatDateForNote(),
+    category: 'общее'
+  };
+  notes.push(newNote);
+  await writeNotesArray(notes);
+  console.log('Картинка сохранена, всего заметок:', notes.length);
   return newNote;
 }
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.type === 'BUTTON_CLICKED') {
-    if (!folderHandle) {
-      sendResponse({ success: false, error: 'Folder not selected' });
-      return;
-    }
-    addNote({
-      text: message.selectedText,
+  if (!folderHandle) {
+    sendResponse({ success: false, error: 'Folder not selected' });
+    return true;
+  }
+  
+  if (message.type === 'SAVE_TEXT') {
+    addTextNote({
+      text: message.text,
       url: message.url || sender.tab?.url,
       title: message.title || sender.tab?.title
     }).then(() => {
       sendResponse({ success: true });
     }).catch(err => {
-      console.error('Ошибка сохранения:', err);
+      console.error('Ошибка сохранения текста:', err);
       sendResponse({ success: false, error: err.message });
     });
     return true;
   }
   
-  if (message.type === 'FOLDER_UPDATED') {
-    (async () => {
-      folderHandle = await loadFolderHandle();
-      console.log('Дескриптор перезагружен после обновления');
+  if (message.type === 'SAVE_IMAGE') {
+    addImageNote({
+      imageUrl: message.imageUrl,
+      altText: message.altText,
+      pageUrl: message.pageUrl,
+      pageTitle: message.pageTitle
+    }).then(() => {
       sendResponse({ success: true });
-    })();
+    }).catch(err => {
+      console.error('Ошибка сохранения картинки:', err);
+      sendResponse({ success: false, error: err.message });
+    });
     return true;
   }
+});
+
+chrome.runtime.onConnect.addListener((port) => {
+  port.onMessage.addListener(async (msg) => {
+    if (msg.type === 'FOLDER_HANDLE') {
+      folderHandle = msg.handle;
+      await saveFolderHandle(folderHandle);
+      console.log('Дескриптор папки получен и сохранён');
+      port.postMessage({ type: 'FOLDER_SAVED' });
+    }
+  });
 });
 
 (async () => {
   folderHandle = await loadFolderHandle();
   if (folderHandle) {
     console.log('Дескриптор папки восстановлен из IndexedDB');
-    try {
-      await folderHandle.queryPermission({ mode: 'readwrite' });
-    } catch (e) {
-      console.warn('Дескриптор недействителен');
-      folderHandle = null;
-      await saveFolderHandle(null);
-    }
   } else {
-    console.log('Папка не выбрана');
+    console.log('Папка не выбрана, откройте страницу настроек');
   }
 })();

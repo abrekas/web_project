@@ -1,4 +1,6 @@
 let button = null;
+let currentImageUrl = null;
+let currentImageAlt = null;
 
 function showNotification(message, isError = false) {
   const notification = document.createElement('div');
@@ -37,48 +39,96 @@ function showNotification(message, isError = false) {
   }, 2500);
 }
 
+function saveText(text) {
+  chrome.runtime.sendMessage({ 
+    type: 'SAVE_TEXT', 
+    text: text,
+    url: window.location.href,
+    title: document.title
+  }, (response) => {
+    if (response && response.success) {
+      showNotification('✓ Заметка сохранена!', false);
+      if (button) {
+        const originalText = button.innerHTML;
+        button.innerHTML = '✓ Сохранено!';
+        setTimeout(() => {
+          if (button) button.innerHTML = originalText;
+        }, 1000);
+      }
+    } else {
+      showNotification('❌ Ошибка при сохранении', true);
+      if (button) {
+        button.innerHTML = '❌ Ошибка';
+        setTimeout(() => {
+          if (button) button.innerHTML = '💾 Сохранить текст';
+        }, 1500);
+      }
+    }
+  });
+  hideButton();
+}
+
+function saveImage(imageUrl, altText) {
+  chrome.runtime.sendMessage({ 
+    type: 'SAVE_IMAGE', 
+    imageUrl: imageUrl,
+    altText: altText,
+    pageUrl: window.location.href,
+    pageTitle: document.title
+  }, (response) => {
+    if (response && response.success) {
+      showNotification('✓ Ссылка на картинку сохранена!', false);
+      if (button) {
+        const originalText = button.innerHTML;
+        button.innerHTML = '✓ Сохранено!';
+        setTimeout(() => {
+          if (button) button.innerHTML = originalText;
+        }, 1000);
+      }
+    } else {
+      showNotification('❌ Ошибка при сохранении картинки', true);
+      if (button) {
+        button.innerHTML = '❌ Ошибка';
+        setTimeout(() => {
+          if (button) button.innerHTML = '🖼️ Сохранить картинку';
+        }, 1500);
+      }
+    }
+  });
+  hideButton();
+}
+
 function createButton() {
   const btn = document.createElement('div');
   btn.id = 'highlight-save-btn';
-  btn.innerHTML = '💾 Сохранить';
   btn.addEventListener('click', (e) => {
     e.stopPropagation();
-    const selectedText = window.getSelection().toString();
-    if (selectedText) {
-      
-      chrome.runtime.sendMessage({ 
-        type: 'BUTTON_CLICKED', 
-        selectedText: selectedText,
-        url: window.location.href,
-        title: document.title
-      }, (response) => {
-        if (response && response.success) {
-          console.log('Заметка сохранена');
-          showNotification('✓ Заметка сохранена!', false);
-          const originalText = btn.innerHTML;
-          btn.innerHTML = '✓ Сохранено!';
-          setTimeout(() => {
-            if (button) btn.innerHTML = originalText;
-          }, 1000);
-        } else {
-          console.error('Ошибка сохранения:', response?.error);
-          showNotification('❌ Ошибка при сохранении', true);
-          btn.innerHTML = '❌ Ошибка';
-          setTimeout(() => {
-            if (button) btn.innerHTML = '💾 Сохранить';
-          }, 1500);
-        }
-      });
-      hideButton();
+    
+    if (currentImageUrl) {
+      saveImage(currentImageUrl, currentImageAlt);
+      currentImageUrl = null;
+      currentImageAlt = null;
+    } else {
+      const selectedText = window.getSelection().toString();
+      if (selectedText) {
+        saveText(selectedText);
+      }
     }
+    hideButton();
   });
   document.body.appendChild(btn);
   return btn;
 }
 
-
-function showButton(x, y) {
+function showButton(x, y, isImage = false, altText = '') {
   if (!button) button = createButton();
+  
+  if (isImage) {
+    button.innerHTML = '🖼️ Сохранить картинку';
+  } else {
+    button.innerHTML = '💾 Сохранить текст';
+  }
+  
   button.style.display = 'block';
   button.style.left = `${x + 10}px`;
   button.style.top = `${y + 10}px`;
@@ -86,6 +136,13 @@ function showButton(x, y) {
 
 function hideButton() {
   if (button) button.style.display = 'none';
+}
+
+function getEventCoordinates(e) {
+  return {
+    x: e.pageX,
+    y: e.pageY
+  };
 }
 
 function getSelectionCoordinates() {
@@ -99,26 +156,55 @@ function getSelectionCoordinates() {
   };
 }
 
+document.addEventListener('contextmenu', (e) => {
+  let target = e.target;
+  let imageElement = null;
+  
+  while (target && target !== document.body) {
+    if (target.tagName === 'IMG') {
+      imageElement = target;
+      break;
+    }
+    target = target.parentElement;
+  }
+  
+  if (imageElement) {
+    e.preventDefault();
+    currentImageUrl = imageElement.src;
+    currentImageAlt = imageElement.alt || '';
+    const coords = getEventCoordinates(e);
+    showButton(coords.x, coords.y, true, currentImageAlt);
+    return false;
+  }
+});
+
 function handleTextSelection() {
+  if (currentImageUrl) return;
+  
   const selectedText = window.getSelection().toString().trim();
   if (selectedText.length > 0) {
     const coords = getSelectionCoordinates();
-    if (coords) showButton(coords.x, coords.y);
+    if (coords) showButton(coords.x, coords.y, false);
   } else {
     hideButton();
   }
 }
 
-document.addEventListener('mouseup', handleTextSelection);
 document.addEventListener('mousedown', (e) => {
-  if (button && !button.contains(e.target)) hideButton();
+  if (button && !button.contains(e.target)) {
+    hideButton();
+  }
 });
+
+document.addEventListener('mouseup', handleTextSelection);
+
 document.addEventListener('keyup', (e) => {
   if (e.shiftKey && (e.key === 'ArrowLeft' || e.key === 'ArrowRight' || 
       e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
     setTimeout(handleTextSelection, 10);
   }
 });
+
 window.addEventListener('scroll', () => {
   if (button && button.style.display === 'block') hideButton();
 });
