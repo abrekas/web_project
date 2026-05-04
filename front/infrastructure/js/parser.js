@@ -197,6 +197,11 @@ async function changeNoteCategory(noteId, newCategory) {
     await window.fsStorage.updateNote(note);
 
     allNotes = await window.fsStorage.getNotes();
+    
+    if (window.loadAllCategories) {
+      await window.loadAllCategories();
+    }
+    
     renderNotes();
   } catch (e) {
     console.error('Ошибка смены категории заметки:', e);
