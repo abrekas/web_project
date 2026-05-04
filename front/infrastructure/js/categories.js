@@ -1,8 +1,8 @@
 const categoriesUl = document.getElementById('categories-ul');
 const newCategoryBtn = document.getElementById('folder-icon');
 
-let selectedCategory = 'общее';
-let selectedSite = null;
+let defaultCategory = 'общее';
+let defaultSite = null;
 
 async function getSitesInCategory(category) {
   if (!window.fsStorage || !window.fsStorage.isReady()) return [];
@@ -161,24 +161,28 @@ categoriesUl.addEventListener('click', (e) => {
   
   targetLi.classList.add('active');
 
+  // renderNotes();
   const searchInput = document.getElementById('search-input');
   const searchValue = searchInput ? searchInput.value : '';
   
-  let currentCategory = selectedCategory;
-  let currentSite = selectedSite;
+  let selectedCategory = defaultCategory;
+  let selectedSite = defaultSite;
   
   if (targetLi.dataset.site) {
-    currentSite = targetLi.dataset.site;
-    currentCategory = targetLi.dataset.category;
+    selectedSite = targetLi.dataset.site;
+    selectedCategory = targetLi.dataset.category;
   } else {
-    currentCategory = targetLi.dataset.category;
-    currentSite = null;
+    selectedCategory = targetLi.dataset.category;
+    selectedSite = null;
   }
 
-  selectedCategory = currentCategory;
-  selectedSite = currentSite;
+  state.category = selectedCategory;
+  state.site = selectedSite;
+  state.search = searchValue;
+  console.log(selectedSite);
 
-  loadAllNotes(currentCategory, searchValue, currentSite);
+  // loadAllFilteredNotes(currentCategory, searchValue, currentSite);
+  renderNotes();
 });
 
 categoriesUl.addEventListener('dblclick', (e) => {
@@ -241,8 +245,8 @@ function createNewCategory() {
       const searchInput = document.getElementById('search-input');
       const searchValue = searchInput ? searchInput.value : '';
       
-      if (window.loadAllNotes) {
-        window.loadAllNotes(selectedCategory, searchValue, selectedSite);
+      if (window.loadAllFilteredNotes) {
+        window.loadAllFilteredNotes(selectedCategory, searchValue, selectedSite);
       }
   };
 

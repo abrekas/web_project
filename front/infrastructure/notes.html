@@ -97,10 +97,20 @@
             />
             <img class="search-icon" src="media/search_icon.png" />
           </div>
+          <div class="sort-bar" aria-label="сортировка">
+            <select id="sort-menu" class="sort-select" aria-label="поле сортировки">
+              <option value="byDate">по дате</option>
+              <option value="bySite">по сайту</option>
+            </select>
+            <select id="sort-order" class="sort-select sort-order" aria-label="порядок сортировки">
+              <option value="asc">по возрастанию</option>
+              <option value="desc">по убыванию</option>
+            </select>
+          </div>
           <nav class="view-switch">
-            <button class="active">все</button>
-            <button>картинки</button>
-            <button>текст</button>
+            <button data-view="all" class="active">все</button>
+            <button data-view="image">картинки</button>
+            <button data-view="text">текст</button>
           </nav>
         </header>
 

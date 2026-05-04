@@ -6,6 +6,8 @@ const modalBody = document.getElementById('modal-body');
 
 let aboutInnerHTML = '<h3>О сайте</h3><p>Highliter.com — ваш помощник в работе с заметками.</p>';
 
+let fullImageInnerHTML = '';
+
 let colorInnerHTML = `<div class="color-container">
     <div>Выберите тему</div>
 
@@ -112,8 +114,15 @@ function applyTheme(themeName) {
 }
 
 function closeModal() {
-    modal.style.display = 'none';
+  const modalContent = modal.querySelector('.modal-content');
+
+  modal.style.display = 'none';
+
+  if (modalContent) {
+    modalContent.classList.remove('image-viewer');
+  }
 }
+
 
 function initThemeHandlers() {
     const mintBtn = document.getElementById('mint');
@@ -151,15 +160,18 @@ function initThemeHandlers() {
 }
 
 aboutBtn.addEventListener('click', () => {
+    modal.querySelector('.modal-content')?.classList.remove('image-viewer');
     modalBody.innerHTML = aboutInnerHTML;
     modal.style.display = 'flex';
 });
 
 colorBtn.addEventListener('click', () => {
+    modal.querySelector('.modal-content')?.classList.remove('image-viewer');
     modalBody.innerHTML = colorInnerHTML;
     modal.style.display = 'flex';
     initThemeHandlers();
 });
+
 
 // searchBtn.addEventListener('click', () => {
 //     modalBody.innerHTML = searchInnerHTML;

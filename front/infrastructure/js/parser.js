@@ -1,5 +1,15 @@
 const cardsList = document.getElementById('cards-list');
 const searchInput = document.getElementById('search-input');
+const filter = document.querySelector('.view-switch');
+const sortMenu = document.querySelector('#sort-menu');
+const sortOrder = document.querySelector('#sort-order');
+
+const state = {
+  category: 'общее',
+  search: '',
+  view: localStorage.getItem('currentView') || 'all',
+  site: null
+};
 
 let allNotes = [];
 let allCategories = [];
@@ -53,7 +63,7 @@ function buildCategoryOptions(currentCategory) {
   }).join('');
 }
 
-function renderNote(data) {
+function renderNoteHtml(data) {
   const safeSiteRaw = String(data.site || '').replace(/^https?:\/\//, '');
   const domainOnly = safeSiteRaw.split('/')[0];
   const safeContent = escapeHtml(data.content || '');
@@ -61,8 +71,18 @@ function renderNote(data) {
   const href = safeSiteRaw ? `https://${safeSiteRaw}` : '#';
   const noteId = escapeHtml(data.id || '');
   const currentCategory = data.category || 'общее';
+  const noteType = data.type;
+  const safeImageUrl = escapeHtml(data.imageUrl || '');
 
-  cardsList.innerHTML += `
+  let bodyContent = '';
+
+  if (noteType === 'image' && safeImageUrl) {
+    bodyContent = `<img class="note-image" id="${noteId}" src="${safeImageUrl}" alt="картинка записи"/>`;
+  } else {
+    bodyContent = `<p>${safeContent}</p>`
+  }
+
+  return `
     <article class="card" data-note-id="${noteId}">
       <header class="card-header">
         <select class="category-select" data-note-id="${noteId}">
@@ -79,52 +99,73 @@ function renderNote(data) {
         </div>  
       </header>
       <div class="card-content">
-        <div class="card-body"><p>${safeContent}</p></div>
+        <div class="card-body">
+            ${bodyContent}
+        </div>
         <footer class="card-footer"><time>${safeTime}</time></footer>
       </div>
     </article>
   `;
+
 }
 
-function filterNotes(category = 'общее', searchToken = '', site = null) {
+function filterNotes(category = 'общее', searchToken = '', view = 'all', site = null) {
   const cat = String(category).trim().toLowerCase();
   const search = String(searchToken).trim().toLowerCase();
   const selectedSite = site ? String(site).trim().toLowerCase() : null;
 
-  const filtered = allNotes.filter(note => {
+  return allNotes.filter(note => {
     const noteCategory = String(note.category || '').trim().toLowerCase();
     const noteContent = String(note.content || '').toLowerCase();
     const noteSite = String(note.site || '').toLowerCase();
 
-    const bySearch = !search || noteContent.includes(search) || noteSite.includes(search) || noteCategory.includes(search);
+    const byCategory = cat === 'общее' || noteCategory === cat;
 
-    if (selectedSite) {
-      const bySite = noteSite === selectedSite;
-      if (cat === 'общее') {
-        return bySite && bySearch;
-      }
-      return bySite && noteCategory === cat && bySearch;
+    const bySite = true;
+    if (selectedSite !== null) {
+      bySite = noteSite === selectedSite;
     }
 
-    if (cat === 'общее') {
-      return bySearch;
-    }
-    return noteCategory === cat && bySearch;
+    const bySearch =
+      !search ||
+      noteContent.includes(search) ||
+      noteSite.includes(search) ||
+      noteCategory.includes(search);
+
+    let byType = true;
+
+    if (view === 'text') byType = note.type != 'image';
+    
+    if (view === 'image') byType = note.type === 'image';
+
+    return byCategory && bySearch && byType && bySite;
   });
-
-  return filtered;
 }
 
-function loadAllNotes(category = 'общее', searchToken = '', site = null) {
-  cardsList.innerHTML = '';
-  const filtered = filterNotes(category, searchToken, site);
+function loadAllFilteredNotes(category = 'общее', searchToken = '', view = 'all', site = null) {
+  const filtered = filterNotes(category, searchToken, view, site);
 
   if (!filtered.length) {
     cardsList.innerHTML = `<p>Заметки не найдены</p>`;
     return;
   }
 
-  filtered.forEach(renderNote);
+  const html = filtered.map(renderNoteHtml).join('');
+  cardsList.innerHTML = html;
+}
+
+function getState() {
+  return {
+    category: state.category,
+    search: searchInput?.value || '',
+    view: state.view,
+    site: state.site
+  };
+}
+
+function renderNotes() {
+  const { category, search, view, site } = getState();
+  loadAllFilteredNotes(category, search, view, site);
 }
 
 async function refreshNotes(category = 'общее') {
@@ -136,13 +177,7 @@ async function refreshNotes(category = 'общее') {
   try {
     await loadCategoriesForSelects();
     allNotes = await window.fsStorage.getNotes();
-
-    if (window.loadAllCategories) {
-      await window.loadAllCategories();
-    }
-
-    const searchValue = searchInput ? searchInput.value : '';
-    loadAllNotes(category, searchValue);
+    renderNotes()
   } catch (e) {
     console.error(e);
     cardsList.innerHTML = `<p>Ошибка чтения notes.json</p>`;
@@ -171,12 +206,7 @@ async function changeNoteCategory(noteId, newCategory) {
     const searchValue = searchInput ? searchInput.value : '';
 
     allNotes = await window.fsStorage.getNotes();
-    
-    if (window.loadAllCategories) {
-      await window.loadAllCategories();
-    }
-    
-    loadAllNotes(selectedCategory, searchValue, selectedSite);
+    renderNotes();
   } catch (e) {
     console.error('Ошибка смены категории заметки:', e);
     alert('Не удалось изменить категорию');
@@ -185,22 +215,68 @@ async function changeNoteCategory(noteId, newCategory) {
 
 if (searchInput) {
   searchInput.addEventListener('input', () => {
-    const activeCategory = document.querySelector('#categories-ul li.active');
-    const selectedCategory = activeCategory ? activeCategory.dataset.category : 'общее';
-    
-    let selectedSite = null;
-    if (activeCategory && activeCategory.dataset.site) {
-      selectedSite = activeCategory.dataset.site;
-    }
-    
-    loadAllNotes(selectedCategory, searchInput.value, selectedSite);
+    state.search = searchInput.value;
+    renderNotes();
   });
 }
 
+function openImageModal(src) {
+  const modal = document.getElementById('universal-modal');
+  const modalBody = document.getElementById('modal-body');
+  const modalContent = modal.querySelector('.modal-content');
+
+  modalContent.classList.add('image-viewer');
+
+  modalBody.innerHTML = '';
+
+  const img = document.createElement('img');
+  img.src = src;
+  img.alt = 'изображение заметки';
+  img.className = 'full-modal-image';
+
+  img.addEventListener('load', () => {
+    const MIN_IMAGE_SIZE = 700; 
+    const MAX_SCALE = 3;
+
+    const naturalWidth = img.naturalWidth;
+    const naturalHeight = img.naturalHeight;
+
+    const availableWidth = window.innerWidth - 64;
+    const availableHeight = window.innerHeight - 64;
+
+    const longestSide = Math.max(naturalWidth, naturalHeight);
+
+    let scale = 1;
+
+    if (longestSide < MIN_IMAGE_SIZE) {
+      scale = MIN_IMAGE_SIZE / longestSide;
+    }
+
+    scale = Math.min(scale, MAX_SCALE);
+
+    const fitScale = Math.min(
+      availableWidth / naturalWidth,
+      availableHeight / naturalHeight
+    );
+
+    scale = Math.min(scale, fitScale);
+
+    img.style.width = `${naturalWidth * scale}px`;
+    img.style.height = `${naturalHeight * scale}px`;
+  });
+
+  modalBody.appendChild(img);
+
+  modal.style.display = 'flex';
+}
+
+
 cardsList.addEventListener('click', async (e) => {
   const deleteBtn = e.target.closest('.delete-note');
+
   if (deleteBtn) {
     const card = deleteBtn.closest('.card');
+
     if (confirm('Удалить заметку?')) {
       const noteId = card.getAttribute('data-note-id');
       allNotes = await window.fsStorage.deleteNote(noteId);
@@ -210,8 +286,82 @@ cardsList.addEventListener('click', async (e) => {
         await window.loadAllCategories();
       }
     }
+
+    return;
   }
-})
+  const image = e.target.closest('.note-image');
+
+  if (image) {
+    openImageModal(image.src);
+  }
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  if (!sortMenu) return;
+
+  const updateSortOrderLabels = () => {
+    if (!sortOrder) return;
+
+    const ascOpt = sortOrder.querySelector('option[value="asc"]');
+    const descOpt = sortOrder.querySelector('option[value="desc"]');
+    if (!ascOpt || !descOpt) return;
+
+    if (sortMenu.value === 'bySite') {
+      ascOpt.textContent = 'A → Z';
+      descOpt.textContent = 'Z ← A';
+      return;
+    }
+
+    ascOpt.textContent = 'сначала старые';
+    descOpt.textContent = 'сначала новые';
+  };
+
+  const savedValue = localStorage.getItem('selectedOption');
+  if (savedValue) sortMenu.value = savedValue;
+  const savedOrder = localStorage.getItem('sortOrder');
+  if (sortOrder && savedOrder) sortOrder.value = savedOrder;
+  updateSortOrderLabels();
+
+  
+  const applySort = async () => {
+    const selectedValue = sortMenu.value;
+    const order = sortOrder ? sortOrder.value : 'asc';
+
+    localStorage.setItem('selectedOption', selectedValue);
+    if (sortOrder) localStorage.setItem('sortOrder', order);
+
+    if (!window.fsStorage || !window.fsStorage.isReady()) return;
+
+    try {
+      const sorted = await window.fsStorage.sortNotes(selectedValue, order);
+      allNotes = Array.isArray(sorted) ? sorted : await window.fsStorage.getNotes();
+      renderNotes();
+    } catch (e) {
+      console.error('Ошибка сортировки заметок:', e);
+    }
+  };
+
+  sortMenu.addEventListener('change', () => {
+    updateSortOrderLabels();
+    void applySort();
+  });
+  if (sortOrder) sortOrder.addEventListener('change', applySort);
+});
+
+
+filter.addEventListener('click', (e) => {
+  const btn = e.target.closest('button');
+  if (!btn) return;
+
+  document.querySelectorAll('.view-switch button')
+    .forEach(b => b.classList.remove('active'));
+
+  btn.classList.add('active');
+
+  state.view = btn.dataset.view;
+  localStorage.setItem('currentView', state.view);
+  renderNotes();
+});
 
 cardsList.addEventListener('change', async (e) => {
   const select = e.target.closest('.category-select');
@@ -223,7 +373,9 @@ cardsList.addEventListener('change', async (e) => {
   await changeNoteCategory(noteId, newCategory);
 });
 
-window.loadAllNotes = loadAllNotes;
+
+
+window.loadAllFilteredNotes = loadAllFilteredNotes;
 window.refreshNotes = refreshNotes;
 window.loadCategoriesForSelects = loadCategoriesForSelects;
 window.updateAllCategorySelects = updateAllCategorySelects;
@@ -236,9 +388,7 @@ async function initParser() {
   }
   
   await refreshNotes();
+  filter.classList.add('ready');
 }
 
 window.addEventListener('DOMContentLoaded', initParser);
-window.addEventListener('fs-ready', async () => {
-  await refreshNotes();
-});

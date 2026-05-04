@@ -176,13 +176,17 @@
 
   async function addNote(note) {
     const notes = await getNotes();
+    const nowIso = new Date().toISOString();
 
     const newNote = {
       id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
+      type: note.type || 'text',
+      content: note.type === 'text' ? (note.content || '') : null,
+      imageUrl: note.type === 'image' ? (note.imageUrl || null) : null,
       category: note.category || 'общее',
       site: note.site || '',
-      content: note.content || '',
-      time: note.time || new Date().toLocaleString('ru-RU')
+      time: note.time || new Date().toLocaleString('ru-RU'),
+      savedAt: note.savedAt || nowIso
     };
 
     notes.unshift(newNote);
@@ -205,6 +209,35 @@
     const filtered = notes.filter(n => String(n.id) !== noteId);
     await saveNotes(filtered);
     return filtered;
+  }
+  
+  function parseNoteDate(note) {
+    if (!note) return new Date(0);
+
+    if (note.savedAt) {
+      const t = Date.parse(note.savedAt);
+      if (!Number.isNaN(t)) return new Date(t);
+    }
+
+    return new Date(0);
+  }
+
+  async function sortNotes(parameter, order = 'asc') {
+    const notes = await getNotes();
+    const dir = order === 'desc' ? -1 : 1;
+    switch (parameter) {
+      case "byDate":
+        notes.sort((a, b) => (parseNoteDate(a) - parseNoteDate(b)) * dir);
+        break;
+      case "bySite":
+        notes.sort((a, b) => (String(a.site || '').localeCompare(String(b.site || ''))) * dir);
+        break;
+      default:
+        notes.sort((a, b) => (parseNoteDate(a) - parseNoteDate(b)) * dir);
+        break;
+    }
+    await saveNotes(notes);
+    return notes;
   }
 
   // ---------------- Categories API ----------------
@@ -291,6 +324,7 @@
     addNote,
     updateNote,
     deleteNote,
+    sortNotes,
 
     getCategories,
     saveCategories,
