@@ -121,7 +121,7 @@ function filterNotes(category = 'общее', searchToken = '', view = 'all', si
 
     const byCategory = cat === 'общее' || noteCategory === cat;
 
-    const bySite = true;
+    let bySite = true;
     if (selectedSite !== null) {
       bySite = noteSite === selectedSite;
     }

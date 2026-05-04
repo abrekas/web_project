@@ -4,6 +4,8 @@ const newCategoryBtn = document.getElementById('folder-icon');
 let defaultCategory = 'общее';
 let defaultSite = null;
 
+let loadAllCategoriesRunId = 0;
+
 async function getSitesInCategory(category) {
   if (!window.fsStorage || !window.fsStorage.isReady()) return [];
   
@@ -116,6 +118,7 @@ async function renderCategory(category) {
 }
 
 async function loadAllCategories() {
+  const runId = ++loadAllCategoriesRunId;
   categoriesUl.innerHTML = '';
   
   const generalLi = document.createElement('li');
@@ -125,6 +128,7 @@ async function loadAllCategories() {
   categoriesUl.appendChild(generalLi);
   
   const generalSites = await getSitesInCategory('общее');
+  if (runId !== loadAllCategoriesRunId) return;
   if (generalSites.length > 0) {
     const sitesList = document.createElement('ul');
     sitesList.className = 'sites-list';
@@ -147,7 +151,11 @@ async function loadAllCategories() {
 
   try {
     const list = await window.fsStorage.getCategories();
-    list.forEach(category => renderCategory(category));
+    if (runId !== loadAllCategoriesRunId) return;
+    const filtered = (Array.isArray(list) ? list : []).filter(category => {
+      return String(category || '').trim().toLowerCase() !== 'общее';
+    });
+    filtered.forEach(category => renderCategory(category));
   } catch (e) {
     console.error('Ошибка загрузки категорий', e);
   }
