@@ -1,6 +1,6 @@
 let folderHandle = null;
 let notesFileName = 'notes.json';
-
+let restorePromise = null; 
 const DB_NAME = 'NotesExtensionDB';
 const STORE_NAME = 'folderHandle';
 const DB_VERSION = 1;
@@ -43,7 +43,23 @@ async function loadFolderHandle() {
   });
 }
 
+async function ensureFolderHandle() {
+  if (folderHandle) return folderHandle;
+  
+  if (restorePromise) {
+    await restorePromise;
+    return folderHandle;
+  }
+  
+  restorePromise = loadFolderHandle();
+  folderHandle = await restorePromise;
+  restorePromise = null;
+  
+  return folderHandle;
+}
+
 async function readNotesArray() {
+  await ensureFolderHandle();
   if (!folderHandle) throw new Error('Папка не выбрана');
   
   try {
@@ -61,6 +77,7 @@ async function readNotesArray() {
 }
 
 async function writeNotesArray(notesArray) {
+  await ensureFolderHandle();
   if (!folderHandle) throw new Error('Папка не выбрана');
   
   const fileHandle = await folderHandle.getFileHandle(notesFileName, { create: true });
@@ -115,39 +132,40 @@ async function addImageNote(imageData) {
 }
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (!folderHandle) {
-    sendResponse({ success: false, error: 'Folder not selected' });
-    return true;
-  }
-  
-  if (message.type === 'SAVE_TEXT') {
-    addTextNote({
-      text: message.text,
-      url: message.url || sender.tab?.url,
-      title: message.title || sender.tab?.title
-    }).then(() => {
-      sendResponse({ success: true });
-    }).catch(err => {
-      console.error('Ошибка сохранения текста:', err);
+  (async () => {
+    try {
+      await ensureFolderHandle();
+      
+      if (!folderHandle) {
+        sendResponse({ success: false, error: 'Folder not selected' });
+        return;
+      }
+      
+      if (message.type === 'SAVE_TEXT') {
+        await addTextNote({
+          text: message.text,
+          url: message.url || sender.tab?.url,
+          title: message.title || sender.tab?.title
+        });
+        sendResponse({ success: true });
+      } else if (message.type === 'SAVE_IMAGE') {
+        await addImageNote({
+          imageUrl: message.imageUrl,
+          altText: message.altText,
+          pageUrl: message.pageUrl,
+          pageTitle: message.pageTitle
+        });
+        sendResponse({ success: true });
+      } else {
+        sendResponse({ success: false, error: 'Unknown message type' });
+      }
+    } catch (err) {
+      console.error('Ошибка обработки сообщения:', err);
       sendResponse({ success: false, error: err.message });
-    });
-    return true;
-  }
+    }
+  })();
   
-  if (message.type === 'SAVE_IMAGE') {
-    addImageNote({
-      imageUrl: message.imageUrl,
-      altText: message.altText,
-      pageUrl: message.pageUrl,
-      pageTitle: message.pageTitle
-    }).then(() => {
-      sendResponse({ success: true });
-    }).catch(err => {
-      console.error('Ошибка сохранения картинки:', err);
-      sendResponse({ success: false, error: err.message });
-    });
-    return true;
-  }
+  return true;
 });
 
 chrome.runtime.onConnect.addListener((port) => {
@@ -162,7 +180,7 @@ chrome.runtime.onConnect.addListener((port) => {
 });
 
 (async () => {
-  folderHandle = await loadFolderHandle();
+  await ensureFolderHandle();
   if (folderHandle) {
     console.log('Дескриптор папки восстановлен из IndexedDB');
   } else {
