@@ -214,9 +214,12 @@
   function parseNoteDate(note) {
     if (!note) return new Date(0);
 
-    if (note.savedAt) {
-      const t = Date.parse(note.savedAt);
-      if (!Number.isNaN(t)) return new Date(t);
+    if (note.time) {
+      const [datePart, timePart] = note.time.split(' ');
+      const [day, month, year] = datePart.split('.').map(Number);
+      const [hours, minutes] = timePart.split(':').map(Number);
+      const utcTimestamp = Date.UTC(year, month - 1, day, hours, minutes);
+      return new Date(utcTimestamp);
     }
 
     return new Date(0);
