@@ -53,6 +53,7 @@ function buildCategoryOptions(currentCategory) {
 
 function renderNoteHtml(data) {
   const safeSiteRaw = String(data.site || '').replace(/^https?:\/\//, '');
+  const domainOnly = safeSiteRaw.split('/')[0];
   const safeContent = escapeHtml(data.content || '');
   const safeTime = escapeHtml(data.time || '');
   const href = safeSiteRaw ? `https://${safeSiteRaw}` : '#';
@@ -75,15 +76,15 @@ function renderNoteHtml(data) {
         <select class="category-select" data-note-id="${noteId}">
           ${buildCategoryOptions(currentCategory)}
         </select>
-        <button class="delete-note">
-            <img class="delete-icon" src="media/trash.png" alt="удалить запись">
-        </button>
         <div class="header-link">
           <img class="link-icon" src="media/link.png">
           <a href="${escapeHtml(href)}" class="source-link" target="_blank" rel="noopener noreferrer">
-            ${escapeHtml(safeSiteRaw.slice(0, 20) || 'нет ссылки')}
+            ${escapeHtml(domainOnly || 'нет ссылки')}
           </a>
-        </div>  
+        </div>
+        <button class="delete-note">
+            <img class="delete-icon" src="media/trash.png" alt="удалить запись">
+        </button>  
       </header>
       <div class="card-content">
         <div class="card-body">
@@ -96,9 +97,10 @@ function renderNoteHtml(data) {
 
 }
 
-function filterNotes(category = 'общее', searchToken = '', view) {
+function filterNotes(category = 'общее', searchToken = '', site = null, view = 'all') {
   const cat = String(category).trim().toLowerCase();
   const search = String(searchToken).trim().toLowerCase();
+  const selectedSite = site ? String(site).trim().toLowerCase() : null;
 
   return allNotes.filter(note => {
     const noteCategory = String(note.category || '').trim().toLowerCase();
@@ -112,18 +114,22 @@ function filterNotes(category = 'общее', searchToken = '', view) {
       noteSite.includes(search) ||
       noteCategory.includes(search);
 
+    let bySite = true;
+    if (selectedSite) {
+      bySite = noteSite === selectedSite;
+    }
+
     let byType = true;
 
     if (view === 'text') byType = note.type != 'image';
-    ;
     if (view === 'image') byType = note.type === 'image';
 
-    return byCategory && bySearch && byType;
+    return byCategory && bySearch && bySite && byType;
   });
 }
 
-function loadAllNotes(category = 'общее', searchToken = '', view = 'all') {
-  const filtered = filterNotes(category, searchToken, view);
+function loadAllNotes(category = 'общее', searchToken = '', site = null, view = 'all') {
+  const filtered = filterNotes(category, searchToken, site, view);
 
   if (!filtered.length) {
     cardsList.innerHTML = `<p>Заметки не найдены</p>`;
@@ -135,16 +141,21 @@ function loadAllNotes(category = 'общее', searchToken = '', view = 'all') {
 }
 
 function getState() {
+  const activeLi = document.querySelector('#categories-ul li.active');
+  const site = activeLi && activeLi.dataset.site ? activeLi.dataset.site : null;
+  const currentCategory = activeLi && activeLi.dataset.category ? activeLi.dataset.category : state.category;
+
   return {
-    category: state.category,
+    category: currentCategory,
     search: searchInput?.value || '',
+    site: site,
     view: state.view
   };
 }
 
 function renderNotes() {
-  const { category, search, view } = getState();
-  loadAllNotes(category, search, view);
+  const { category, search, site, view } = getState();
+  loadAllNotes(category, search, site, view);
 }
 
 async function refreshNotes(category = 'общее') {
@@ -340,6 +351,7 @@ cardsList.addEventListener('change', async (e) => {
 
 window.loadAllNotes = loadAllNotes;
 window.refreshNotes = refreshNotes;
+window.renderNotes = renderNotes;
 
 async function initParser() {
   await window.fsStorage.restoreFolder();

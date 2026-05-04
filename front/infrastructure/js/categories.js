@@ -5,7 +5,9 @@ let selectedCategory = 'общее';
 let selectedSite = null;
 
 async function getSitesInCategory(category) {
-  if (!window.fsStorage || !window.fsStorage.isReady()) return [];
+  if (!window.fsStorage || !window.fsStorage.isReady()) {
+    return [];
+  }
   
   try {
     const notes = await window.fsStorage.getNotes();
@@ -178,7 +180,11 @@ categoriesUl.addEventListener('click', (e) => {
   selectedCategory = currentCategory;
   selectedSite = currentSite;
 
-  loadAllNotes(currentCategory, searchValue, currentSite);
+  if (window.renderNotes) {
+    window.renderNotes();
+  } else {
+    loadAllNotes(currentCategory, searchValue, currentSite);
+  }
 });
 
 categoriesUl.addEventListener('dblclick', (e) => {
@@ -238,10 +244,9 @@ function createNewCategory() {
         selectedSite = activeCategory.dataset.site;
       }
       
-      const searchInput = document.getElementById('search-input');
-      const searchValue = searchInput ? searchInput.value : '';
-      
-      if (window.loadAllNotes) {
+      if (window.renderNotes) {
+        window.renderNotes();
+      } else if (window.loadAllNotes) {
         window.loadAllNotes(selectedCategory, searchValue, selectedSite);
       }
   };
