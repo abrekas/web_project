@@ -1,12 +1,4 @@
   :root {
-    --background-color: #353e57;
-    --second-color: #526593;
-    --third-color: #999999;
-    --link-color: #7A1DDB;
-    --accent-color: #181f34;
-    --notes-header-color: #000;
-    --card-bg: #F5F5F5;
-
     --blur: blur(5px);
 
     --first-radius: 16px;
