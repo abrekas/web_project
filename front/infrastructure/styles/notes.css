@@ -259,13 +259,15 @@
   }
 
   .content-header {
-    display: flex;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
     align-items: center;
-
+    gap: 16px;
   }
 
   .search-bar {
     position: relative;
+    justify-self: start;
   }
 
   .search-icon {
@@ -295,7 +297,13 @@
 
   .view-switch {
     display: flex;
-    margin-left: auto;
+    justify-self: end;
+    opacity: 0;
+    transition: opacity 0.1s ease;
+  }
+
+  .view-switch.ready {
+    opacity: 1;
   }
 
   .view-switch button {
@@ -313,7 +321,50 @@
     border-bottom: 2px solid var(--notes-text-color);
   }
 
-  /* NOTES */
+  .sort-bar {
+    display: inline-flex;
+    align-items: center;
+    justify-self: center;
+    height: 32px;
+    border-radius: var(--second-radius);
+    background-color: var(--card-bg);
+    box-shadow: var(--inside-shadow);
+    overflow: hidden;
+  }
+
+  .sort-select {
+    height: 32px;
+    padding: 0 12px;
+    border: none;
+    background: transparent;
+    font-family: var(--font-main);
+    font-size: var(--font-size);
+    color: var(--notes-text-color);
+    outline: none;
+    appearance: none;
+  }
+
+  .sort-select:hover{
+    cursor:pointer;
+  }
+
+  .sort-order {
+    text-align: center;
+    border-left: 1px solid rgba(0, 0, 0, 0.12);
+  }
+
+  .sort-order:hover{
+    cursor: pointer;
+  }
+
+  .note-image {
+    max-width: 100%;
+    height: auto;
+    max-height: 300px;
+    object-fit: contain;
+    display: block;
+    margin: 0 auto;
+  }
 
   .cards-list {
     flex: 1;
@@ -587,6 +638,38 @@
     margin-top: 8px;
     text-align: right;
     flex-shrink: 0;
+  }
+
+  .modal-content.image-viewer {
+    width: auto;
+    height: auto;
+    max-width: calc(100vw - 32px);
+    max-height: calc(100vh - 32px);
+    padding: 16px;
+  }
+
+  .modal-content.image-viewer #modal-body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    max-width: calc(100vw - 64px);
+    max-height: calc(100vh - 64px);
+
+    overflow: hidden;
+  }
+
+  .full-modal-image {
+    display: block;
+
+    width: auto;
+    height: auto;
+
+    max-width: calc(100vw - 64px);
+    max-height: calc(100vh - 64px);
+
+    object-fit: contain;
+    border-radius: 8px;
   }
 
   /* THEME PICKER */

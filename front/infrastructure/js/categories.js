@@ -11,18 +11,35 @@ async function getSitesInCategory(category) {
   
   try {
     const notes = await window.fsStorage.getNotes();
-    const sitesSet = new Set();
-        
-    notes.forEach(note => {
-      if (String(note.category || '').trim().toLowerCase() === String(category).trim().toLowerCase()) {
-        const site = String(note.site || '').trim();
-        if (site) {
-          sitesSet.add(site);
-        }
-      }
-    });
+    const sitesMap = new Map();
     
-    return Array.from(sitesSet).sort();
+    const lowerCaseCategory = String(category).trim().toLowerCase();
+
+    if (lowerCaseCategory === 'общее') {
+        notes.forEach(note => {
+            const site = String(note.site || '').trim();
+            if (site) {
+                const domain = site.replace(/^https?:\/\//, '').split('/')[0].toLowerCase();
+                if (!sitesMap.has(domain)) {
+                    sitesMap.set(domain, site);
+                }
+            }
+        });
+    } else {
+        notes.forEach(note => {
+          if (String(note.category || '').trim().toLowerCase() === lowerCaseCategory) {
+            const site = String(note.site || '').trim();
+            if (site) {
+              const domain = site.replace(/^https?:\/\//, '').split('/')[0].toLowerCase();
+              if (!sitesMap.has(domain)) {
+                  sitesMap.set(domain, site);
+              }
+            }
+          }
+        });
+    }
+    
+    return Array.from(sitesMap.values()).sort();
   } catch (e) {
     console.error('Ошибка получения сайтов:', e);
     return [];
