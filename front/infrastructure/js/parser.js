@@ -40,7 +40,7 @@ async function loadCategoriesForSelects() {
 }
 
 function buildCategoryOptions(currentCategory) {
-  const normalizedCurrent = String(currentCategory || 'без категории').trim();
+  const normalizedCurrent = String(currentCategory || 'общее').trim();
 
   const categoriesSet = new Set(['общее', ...allCategories, normalizedCurrent]);
   const categories = Array.from(categoriesSet);
@@ -58,7 +58,7 @@ function renderNoteHtml(data) {
   const safeTime = escapeHtml(data.time || '');
   const href = safeSiteRaw ? `https://${safeSiteRaw}` : '#';
   const noteId = escapeHtml(data.id || '');
-  const currentCategory = data.category || 'без категории';
+  const currentCategory = data.category || 'общее';
   const noteType = data.type;
   const safeImageUrl = escapeHtml(data.imageUrl || '');
 
@@ -76,15 +76,15 @@ function renderNoteHtml(data) {
         <select class="category-select" data-note-id="${noteId}">
           ${buildCategoryOptions(currentCategory)}
         </select>
+        <button class="delete-note">
+            <img class="delete-icon" src="media/trash.png" alt="удалить запись">
+        </button>  
         <div class="header-link">
           <img class="link-icon" src="media/link.png">
           <a href="${escapeHtml(href)}" class="source-link" target="_blank" rel="noopener noreferrer">
             ${escapeHtml(domainOnly || 'нет ссылки')}
           </a>
         </div>
-        <button class="delete-note">
-            <img class="delete-icon" src="media/trash.png" alt="удалить запись">
-        </button>  
       </header>
       <div class="card-content">
         <div class="card-body">
@@ -97,15 +97,28 @@ function renderNoteHtml(data) {
 
 }
 
+function getDomainFromUrl(url) {
+  const urlStr = String(url || '').toLowerCase().trim();
+  if (!urlStr) {
+    return '';
+  }
+  
+  const withoutProtocol = urlStr.replace(/^https?:\/\//, '');
+  const domain = withoutProtocol.split('/')[0];
+  return domain;
+}
+
 function filterNotes(category = 'общее', searchToken = '', site = null, view = 'all') {
   const cat = String(category).trim().toLowerCase();
   const search = String(searchToken).trim().toLowerCase();
   const selectedSite = site ? String(site).trim().toLowerCase() : null;
+  const selectedDomain = selectedSite ? getDomainFromUrl(selectedSite) : null;
 
   return allNotes.filter(note => {
     const noteCategory = String(note.category || '').trim().toLowerCase();
     const noteContent = String(note.content || '').toLowerCase();
     const noteSite = String(note.site || '').toLowerCase();
+    const noteDomain = getDomainFromUrl(noteSite);
 
     const byCategory = cat === 'общее' || noteCategory === cat;
     const bySearch =
@@ -115,8 +128,8 @@ function filterNotes(category = 'общее', searchToken = '', site = null, vie
       noteCategory.includes(search);
 
     let bySite = true;
-    if (selectedSite) {
-      bySite = noteSite === selectedSite;
+    if (selectedDomain) {
+      bySite = noteDomain === selectedDomain;
     }
 
     let byType = true;
@@ -184,6 +197,11 @@ async function changeNoteCategory(noteId, newCategory) {
     await window.fsStorage.updateNote(note);
 
     allNotes = await window.fsStorage.getNotes();
+    
+    if (window.loadAllCategories) {
+      await window.loadAllCategories();
+    }
+    
     renderNotes();
   } catch (e) {
     console.error('Ошибка смены категории заметки:', e);
