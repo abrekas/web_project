@@ -169,11 +169,10 @@ document.addEventListener('contextmenu', (e) => {
   }
   
   if (imageElement) {
-    e.preventDefault();
     currentImageUrl = imageElement.src;
     currentImageAlt = imageElement.alt || '';
     const coords = getEventCoordinates(e);
-    showButton(coords.x, coords.y, true, currentImageAlt);
+    showButton(coords.x, coords.y - 130, true, currentImageAlt);
     return false;
   }
 });
