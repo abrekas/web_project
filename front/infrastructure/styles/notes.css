@@ -159,10 +159,12 @@
     text-decoration: underline;
   }
   
-  .guide-name .arrow-icon svg {
-    transition: transform 150ms ease;
+  .guide-name .arrow-icon-down svg,
+  .guide-name .arrow-icon-up svg {
+    transition: transform 360ms ease;
   }
-  .guide-name.is-open .arrow-icon svg {
+  .guide-name.is-open .arrow-icon-down svg,
+  .guide-name.is-open .arrow-icon-up svg {
     transform: rotate(180deg);
   }
 

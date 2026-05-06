@@ -199,7 +199,6 @@ window.addEventListener("DOMContentLoaded", () => {
   const openGuideBtn = document.getElementById("open-guide-btn");
   const closeGuideBtn = document.getElementById("close-guide-btn");
   const guide = document.getElementById("startup-guide");
-  const guideGrid = document.getElementById("startup-guide-grid");
   const guideElements = document.querySelectorAll(".startup-guide-element");
   const chromeToggle = document.getElementById("guide-chrome-toggle");
   const firefoxToggle = document.getElementById("guide-firefox-toggle");
@@ -236,9 +235,9 @@ window.addEventListener("DOMContentLoaded", () => {
 
     const toggleGuideGrid = () => {
       if (!guideGrid) return;
-      const isHidden = guideGrid.style.display === 'none';
+      const isHidden = getComputedStyle(guideGrid).display === "none";
       guideGrid.style.display = isHidden ? "" : "none";
-      guideToggle.classList.toggle("is-open", isHidden);
+      if (guideName) guideName.classList.toggle("is-open", isHidden);
     };
 
     if (guideToggle) {
