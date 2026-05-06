@@ -266,6 +266,8 @@ function openImageModal(src) {
   modal.style.display = 'flex';
 }
 
+window.openImageModal = openImageModal;
+
 
 cardsList.addEventListener('click', async (e) => {
   const deleteBtn = e.target.closest('.delete-note');

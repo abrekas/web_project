@@ -19,6 +19,15 @@
         display: flex;
       }
       
+      .startup-layout {
+        display: flex;
+        gap: 16px;
+        align-items: flex-start;
+        justify-content: center;
+        width: min(1100px, calc(100vw - 32px));
+        max-height: calc(100vh - 64px);
+      }
+
       .startup-box {
         width: min(520px, calc(100vw - 32px));
         background: #fff;
@@ -26,6 +35,8 @@
         padding: 24px;
         box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
         font-family: system-ui, sans-serif;
+        max-height: calc(100vh - 64px);
+        overflow: auto;
       }
       .startup-box h2 {
         margin: 0 0 12px;
@@ -37,6 +48,7 @@
       .startup-actions {
         display: flex;
         gap: 12px;
+        flex-wrap: wrap;
       }
       .startup-actions button {
         padding: 10px 16px;
@@ -54,6 +66,51 @@
       #startup-error {
         color: #c00;
         margin-top: 12px;
+      }
+
+      .startup-guide {
+        width: min(520px, calc(100vw - 32px));
+        background: #fff;
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        font-family: system-ui, sans-serif;
+        max-height: calc(100vh - 64px);
+        overflow: auto;
+
+        display: none;
+      }
+      .startup-guide.show {
+        display: block;
+      }
+      .startup-guide-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 12px;
+      }
+      .startup-guide-header h3 {
+        margin: 0;
+      }
+      .startup-guide-close {
+        border: 0;
+        background: #eee;
+        border-radius: 10px;
+        cursor: pointer;
+        padding: 8px 12px;
+      }
+      .startup-guide-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+      }
+      .startup-guide-grid img {
+        width: 100%;
+        border-radius: 10px;
+        cursor: pointer;
+        display: block;
+        object-fit: cover;
       }
     </style>
   </head>
@@ -126,24 +183,42 @@
     </div>
 
     <div id="startup-overlay" class="startup-overlay">
-      <div class="startup-box">
-        <a href="extension.zip" download>Скачайте расширение</a>
-        <p>После скачивания распакуйте архив, откройте browser://extensions/, справа сверху включите режим разработчика, 
-          слева появится кнопка "Загрузить распакованное расширение" - нажмите её и выберите распакованный архив</p>
-        <p>Далее, после установки, в списке появится расширение "выдели и сохрани", под ним нажмите "сведения", откройте "Параметры расширений", выберите нужную папку для сохранения</p>
-        
-        <h2>Разрешите доступ к папке с данными</h2>
-        <p>
-          Сайт хранит ваши заметки и категории в выбранной вами папке. Будут
-          использоваться файлы <b>notes.json</b> и <b>categories.json</b>.
-        </p>
-        <div class="startup-actions">
-          <button id="grant-access-btn" class="primary-btn">
-            Разрешить доступ
-          </button>
-          <button id="startup-cancel-btn" class="secondary-btn">Позже</button>
+      <div class="startup-layout">
+        <div class="startup-box">
+          <a href="extension.zip" download>Скачайте расширение</a>
+          <p>После скачивания распакуйте архив, откройте browser://extensions/, справа сверху включите режим разработчика, 
+            слева появится кнопка "Загрузить распакованное расширение" - нажмите её и выберите распакованный архив</p>
+          <p>Далее, после установки, в списке появится расширение "выдели и сохрани", под ним нажмите "сведения", откройте "Параметры расширений", выберите нужную папку для сохранения</p>
+          
+          <h2>Разрешите доступ к папке с данными</h2>
+          <p>
+            Сайт хранит ваши заметки и категории в выбранной вами папке. Будут
+            использоваться файлы <b>notes.json</b> и <b>categories.json</b>.
+          </p>
+          <div class="startup-actions">
+            <button id="grant-access-btn" class="primary-btn">
+              Разрешить доступ
+            </button>
+            <button id="open-guide-btn" class="secondary-btn" type="button" aria-expanded="false">
+              открыть гайд
+            </button>
+            <button id="startup-cancel-btn" class="secondary-btn">Позже</button>
+          </div>
+          <div id="startup-error"></div>
         </div>
-        <div id="startup-error"></div>
+
+        <div id="startup-guide" class="startup-guide" aria-label="гайд">
+          <div class="startup-guide-header">
+            <h3>Гайд</h3>
+            <button id="close-guide-btn" class="startup-guide-close" type="button">Закрыть</button>
+          </div>
+          <div class="startup-guide-grid" id="startup-guide-grid">
+            <img class="startup-guide-image" src="media/theme1.png" alt="Шаг 1" />
+            <img class="startup-guide-image" src="media/theme2.png" alt="Шаг 2" />
+            <img class="startup-guide-image" src="media/theme3.png" alt="Шаг 3" />
+            <img class="startup-guide-image" src="media/theme4.png" alt="Шаг 4" />
+          </div>
+        </div>
       </div>
     </div>
 

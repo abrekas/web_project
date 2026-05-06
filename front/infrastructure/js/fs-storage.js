@@ -297,6 +297,10 @@
     const grantBtn = document.getElementById('grant-access-btn');
     const cancelBtn = document.getElementById('startup-cancel-btn');
     const err = document.getElementById('startup-error');
+    const openGuideBtn = document.getElementById('open-guide-btn');
+    const closeGuideBtn = document.getElementById('close-guide-btn');
+    const guide = document.getElementById('startup-guide');
+    const guideGrid = document.getElementById('startup-guide-grid');
 
     if (grantBtn) {
       grantBtn.addEventListener('click', async () => {
@@ -313,6 +317,43 @@
     if (cancelBtn) {
       cancelBtn.addEventListener('click', () => {
         hideStartupOverlay();
+      });
+    }
+
+    const setGuideVisible = (visible) => {
+      if (!guide) return;
+
+      guide.classList.toggle('show', visible);
+
+      if (openGuideBtn) {
+        openGuideBtn.setAttribute('aria-expanded', visible ? 'true' : 'false');
+      }
+    };
+
+    if (openGuideBtn) {
+      openGuideBtn.addEventListener('click', () => {
+        const next = !(guide && guide.classList.contains('show'));
+        setGuideVisible(next);
+      });
+    }
+
+    if (closeGuideBtn) {
+      closeGuideBtn.addEventListener('click', () => setGuideVisible(false));
+    }
+
+    if (guideGrid) {
+      guideGrid.addEventListener('click', (e) => {
+        const img = e.target.closest('.startup-guide-image');
+        if (!img) return;
+
+        const src = img.getAttribute('src');
+        if (!src) return;
+
+        if (typeof window.openImageModal === 'function') {
+          window.openImageModal(src);
+        } else {
+          console.warn('openImageModal не найден. Проверьте подключение js/parser.js');
+        }
       });
     }
   });
