@@ -151,6 +151,21 @@
     object-fit: cover;
   }
 
+  .guide-name {
+    color: #3A5DA9;
+  }
+  .guide-name:hover {
+    cursor: pointer;
+    text-decoration: underline;
+  }
+  
+  .guide-name .arrow-icon svg {
+    transition: transform 150ms ease;
+  }
+  .guide-name.is-open .arrow-icon svg {
+    transform: rotate(180deg);
+  }
+
 
 
   /* SIDEBAR */
