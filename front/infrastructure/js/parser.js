@@ -166,6 +166,16 @@ function getState() {
   };
 }
 
+async function getSortedNotes() {
+  const notes = await window.fsStorage.getNotes();
+  const savedSort = localStorage.getItem('selectedOption');
+  const savedOrder = localStorage.getItem('sortOrder') || 'asc';
+  if (savedSort) {
+    return await window.fsStorage.sortNotes(savedSort, savedOrder);
+  }
+  return notes;
+}
+
 function renderNotes() {
   const { category, search, site, view } = getState();
   loadAllNotes(category, search, site, view);
@@ -179,7 +189,7 @@ async function refreshNotes(category = 'общее') {
 
   try {
     await loadCategoriesForSelects();
-    allNotes = await window.fsStorage.getNotes();
+    allNotes = await getSortedNotes();
     renderNotes()
   } catch (e) {
     console.error(e);
@@ -196,7 +206,7 @@ async function changeNoteCategory(noteId, newCategory) {
 
     await window.fsStorage.updateNote(note);
 
-    allNotes = await window.fsStorage.getNotes();
+    allNotes = await getSortedNotes();
     
     if (window.loadAllCategories) {
       await window.loadAllCategories();
@@ -268,6 +278,58 @@ function openImageModal(src) {
 
 window.openImageModal = openImageModal;
 
+function updateSortOrderLabels () {
+  if (!sortOrder) return;
+
+  const ascOpt = sortOrder.querySelector('option[value="asc"]');
+  const descOpt = sortOrder.querySelector('option[value="desc"]');
+  if (!ascOpt || !descOpt) return;
+
+  if (sortMenu.value === 'bySite') {
+    ascOpt.textContent = 'A → Z';
+    descOpt.textContent = 'Z ← A';
+    return;
+  }
+
+  ascOpt.textContent = 'сначала старые';
+  descOpt.textContent = 'сначала новые';
+};
+
+async function applySort() {
+  const selectedValue = sortMenu.value;
+  const order = sortOrder ? sortOrder.value : 'asc';
+
+  localStorage.setItem('selectedOption', selectedValue);
+  if (sortOrder) localStorage.setItem('sortOrder', order);
+
+  if (!window.fsStorage || !window.fsStorage.isReady()) return;
+
+  try {
+    const sorted = await window.fsStorage.sortNotes(selectedValue, order);
+    allNotes = Array.isArray(sorted) ? sorted : await window.fsStorage.getNotes();
+    renderNotes();
+  } catch (e) {
+    console.error('Ошибка сортировки заметок:', e);
+  }
+  return sorted;
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+  if (!sortMenu) return;
+
+  const savedValue = localStorage.getItem('selectedOption');
+  if (savedValue) sortMenu.value = savedValue;
+  const savedOrder = localStorage.getItem('sortOrder');
+  if (sortOrder && savedOrder) sortOrder.value = savedOrder;
+  updateSortOrderLabels();
+
+  sortMenu.addEventListener('change', () => {
+    updateSortOrderLabels();
+    void applySort();
+  });
+  
+  if (sortOrder) sortOrder.addEventListener('change', applySort);
+});
 
 cardsList.addEventListener('click', async (e) => {
   const deleteBtn = e.target.closest('.delete-note');
@@ -288,58 +350,6 @@ cardsList.addEventListener('click', async (e) => {
   if (image) {
     openImageModal(image.src);
   }
-});
-
-document.addEventListener('DOMContentLoaded', () => {
-  if (!sortMenu) return;
-
-  const updateSortOrderLabels = () => {
-    if (!sortOrder) return;
-
-    const ascOpt = sortOrder.querySelector('option[value="asc"]');
-    const descOpt = sortOrder.querySelector('option[value="desc"]');
-    if (!ascOpt || !descOpt) return;
-
-    if (sortMenu.value === 'bySite') {
-      ascOpt.textContent = 'A → Z';
-      descOpt.textContent = 'Z ← A';
-      return;
-    }
-
-    ascOpt.textContent = 'сначала старые';
-    descOpt.textContent = 'сначала новые';
-  };
-
-  const savedValue = localStorage.getItem('selectedOption');
-  if (savedValue) sortMenu.value = savedValue;
-  const savedOrder = localStorage.getItem('sortOrder');
-  if (sortOrder && savedOrder) sortOrder.value = savedOrder;
-  updateSortOrderLabels();
-
-  
-  const applySort = async () => {
-    const selectedValue = sortMenu.value;
-    const order = sortOrder ? sortOrder.value : 'asc';
-
-    localStorage.setItem('selectedOption', selectedValue);
-    if (sortOrder) localStorage.setItem('sortOrder', order);
-
-    if (!window.fsStorage || !window.fsStorage.isReady()) return;
-
-    try {
-      const sorted = await window.fsStorage.sortNotes(selectedValue, order);
-      allNotes = Array.isArray(sorted) ? sorted : await window.fsStorage.getNotes();
-      renderNotes();
-    } catch (e) {
-      console.error('Ошибка сортировки заметок:', e);
-    }
-  };
-
-  sortMenu.addEventListener('change', () => {
-    updateSortOrderLabels();
-    void applySort();
-  });
-  if (sortOrder) sortOrder.addEventListener('change', applySort);
 });
 
 
