@@ -5,57 +5,6 @@
     <title>Highliter.com</title>
     <link rel="stylesheet" href="styles/notes.css" />
     <link rel="icon" href="media/logo.png" type="image/png" />
-    <style>
-      .startup-overlay {
-        position: fixed;
-        inset: 0;
-        background: rgba(0, 0, 0, 0.55);
-        display: none;
-        align-items: center;
-        justify-content: center;
-        z-index: 9999;
-      }
-      .startup-overlay.show {
-        display: flex;
-      }
-      
-      .startup-box {
-        width: min(520px, calc(100vw - 32px));
-        background: #fff;
-        border-radius: 16px;
-        padding: 24px;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-        font-family: system-ui, sans-serif;
-      }
-      .startup-box h2 {
-        margin: 0 0 12px;
-      }
-      .startup-box p {
-        margin: 0 0 16px;
-        line-height: 1.45;
-      }
-      .startup-actions {
-        display: flex;
-        gap: 12px;
-      }
-      .startup-actions button {
-        padding: 10px 16px;
-        border: 0;
-        border-radius: 10px;
-        cursor: pointer;
-      }
-      .primary-btn {
-        background: #111;
-        color: white;
-      }
-      .secondary-btn {
-        background: #eee;
-      }
-      #startup-error {
-        color: #c00;
-        margin-top: 12px;
-      }
-    </style>
   </head>
   <body>
     <div class="app-container">
@@ -126,24 +75,90 @@
     </div>
 
     <div id="startup-overlay" class="startup-overlay">
-      <div class="startup-box">
-        <a href="extension.zip" download>Скачайте расширение</a>
-        <p>После скачивания распакуйте архив, откройте browser://extensions/, справа сверху включите режим разработчика, 
-          слева появится кнопка "Загрузить распакованное расширение" - нажмите её и выберите распакованный архив</p>
-        <p>Далее, после установки, в списке появится расширение "выдели и сохрани", под ним нажмите "сведения", откройте "Параметры расширений", выберите нужную папку для сохранения</p>
-        
-        <h2>Разрешите доступ к папке с данными</h2>
-        <p>
-          Сайт хранит ваши заметки и категории в выбранной вами папке. Будут
-          использоваться файлы <b>notes.json</b> и <b>categories.json</b>.
-        </p>
-        <div class="startup-actions">
-          <button id="grant-access-btn" class="primary-btn">
-            Разрешить доступ
-          </button>
-          <button id="startup-cancel-btn" class="secondary-btn">Позже</button>
+      <div class="startup-layout">
+        <div class="startup-box">
+          <a href="extension.zip" download>Скачайте расширение</a>
+          <p>После скачивания распакуйте архив, откройте browser://extensions/, справа сверху включите режим разработчика, 
+            слева появится кнопка "Загрузить распакованное расширение" - нажмите её и выберите распакованный архив</p>
+          <p>Далее, после установки, в списке появится расширение "выдели и сохрани", под ним нажмите "сведения", откройте "Параметры расширений", выберите нужную папку для сохранения</p>
+          
+          <h2>Разрешите доступ к папке с данными</h2>
+          <p>
+            Сайт хранит ваши заметки и категории в выбранной вами папке. Будут
+            использоваться файлы <b>notes.json</b> и <b>categories.json</b>.
+          </p>
+          <div class="startup-actions">
+            <button id="grant-access-btn" class="primary-btn">
+              Разрешить доступ
+            </button>
+            <button id="open-guide-btn" class="secondary-btn" type="button" aria-expanded="false">
+              открыть гайд
+            </button>
+            <button id="startup-cancel-btn" class="secondary-btn">Позже</button>
+          </div>
+          <div id="startup-error"></div>
         </div>
-        <div id="startup-error"></div>
+
+        <div id="startup-guide" class="startup-guide" aria-label="гайд">
+          <div class="startup-guide-header">
+            <h3>Гайд</h3>
+            <button id="close-guide-btn" class="startup-guide-close" type="button">Закрыть</button>
+          </div>
+          <div class="startup-guide-list">
+            <div class="startup-guide-element">
+              <div class="expand-menu">
+                <span class="guide-name" id="guide-chrome-toggle">
+                  chrome
+                  <span class="arrow-icon-down">
+                    <svg data-tid="Icon__root" width="14" height="14" class="ui-parking-icon-base" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" aria-hidden="true" style="fill: currentcolor; margin-bottom: -0.1875em; flex-shrink: 0;">
+                      <path fill-rule="evenodd" clip-rule="evenodd" d="M2.97 5.47a.75.75 0 0 1 1.06 0l3.793 3.793a.25.25 0 0 0 .354 0L11.97 5.47a.75.75 0 1 1 1.06 1.06l-3.793 3.793a1.75 1.75 0 0 1-2.474 0L2.97 6.53a.75.75 0 0 1 0-1.06Z"></path>
+                    </svg>
+                  </span>
+                </span>
+              </div>
+              <div class="startup-guide-grid" id="startup-guide-chrome-grid">
+                <label>Шаг 1
+                  <img class="startup-guide-image" src="media/guide_pictures/chrome1.png" alt="Шаг 1" />
+                </label>
+                <label>Шаг 2
+                  <img class="startup-guide-image" src="media/guide_pictures/chrome2.png" alt="Шаг 2" />
+                </label>
+                <label>Шаг 3
+                  <img class="startup-guide-image" src="media/guide_pictures/chrome3.png" alt="Шаг 3" />
+                </label>
+                <label>Шаг 4
+                  <img class="startup-guide-image" src="media/guide_pictures/chrome4.png" alt="Шаг 4" />
+                </label>
+              </div>
+            </div>
+            <div class="startup-guide-element">
+              <div class="expand-menu">
+                <span class="guide-name" id="guide-firefox-toggle">
+                  firefox
+                  <span class="arrow-icon-down">
+                    <svg data-tid="Icon__root" width="14" height="14" class="ui-parking-icon-base" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" aria-hidden="true" style="fill: currentcolor; margin-bottom: -0.1875em; flex-shrink: 0;">
+                      <path fill-rule="evenodd" clip-rule="evenodd" d="M2.97 5.47a.75.75 0 0 1 1.06 0l3.793 3.793a.25.25 0 0 0 .354 0L11.97 5.47a.75.75 0 1 1 1.06 1.06l-3.793 3.793a1.75 1.75 0 0 1-2.474 0L2.97 6.53a.75.75 0 0 1 0-1.06Z"></path>
+                    </svg>
+                  </span>
+                </span>
+              </div>
+              <div class="startup-guide-grid" id="startup-firefox-guide-grid">
+                <label>Шаг 1
+                  <img class="startup-guide-image" src="media/guide_pictures/chrome1.png" alt="Шаг 1" />
+                </label>
+                <label>Шаг 2
+                  <img class="startup-guide-image" src="media/guide_pictures/chrome2.png" alt="Шаг 2" />
+                </label>
+                <label>Шаг 3
+                  <img class="startup-guide-image" src="media/guide_pictures/chrome3.png" alt="Шаг 3" />
+                </label>
+                <label>Шаг 4
+                  <img class="startup-guide-image" src="media/guide_pictures/chrome4.png" alt="Шаг 4" />
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
