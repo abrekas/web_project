@@ -363,6 +363,31 @@
     background-color: #87a0de;
   }
 
+  .help-btn {
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: var(--first-radius);
+    background-color: var(--second-color);
+    cursor: pointer;
+    box-shadow: var(--shadow);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+    transition: background 0.2s;
+  }
+  
+  .help-btn:hover {
+    background-color: #87a0de;
+  }
+  
+  .help-btn img {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+  }
+
   /* CONTENT */
 
   .content-area {
