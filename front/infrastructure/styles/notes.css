@@ -556,6 +556,8 @@
   .card-header {
     display: flex;
     height: 28px;
+    user-select: none;
+    -webkit-user-select: none;
   }
 
   .category-select {
@@ -569,6 +571,8 @@
     font-size: var(--font-size);
     overflow: hidden;
     margin-right: auto;
+    user-select: none;
+    -webkit-user-select: none;
   }
 
   .delete-note {
