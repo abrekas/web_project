@@ -76,11 +76,11 @@ const themes = {
   },
   rose: {
     "--background-color": "#ffffff",
-    "--notes-header-color": "#D5A7B6",
+    "--notes-header-color": "#e4c6d0",
     "--second-color": "#E2E2E2",
     "--text-color": "#000000",
     "--card-color": "#2b2b40",
-    "--accent-color": "#D5A7B6",
+    "--accent-color": "#cac1c6",
   },
   sky: {
     "--background-color": "#5980E6",
