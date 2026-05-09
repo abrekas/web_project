@@ -8,9 +8,10 @@
 
     --font-size: 12pt;
     --small-font-size: 8pt;
-
+    --link-color: #FFF;
     --text-color: #000000;
     --notes-text-color: #000000;
+    --card-content-bg: #ffffff;
 
     --font-main: 'Noto Sans', sans-serif;
 
@@ -64,9 +65,9 @@
 
   .startup-box {
     width: min(520px, calc(100vw - 32px));
-    background: #fff;
+    background-color: var(--second-color);
     border-radius: 16px;
-    padding: 24px;
+    padding: 16px;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
     font-family: system-ui, sans-serif;
     max-height: calc(100vh - 64px);
@@ -318,7 +319,7 @@
     border-radius: var(--second-radius);
     cursor: pointer;
     font-size: 11pt;
-    color: rgba(95, 67, 151, 0.8);
+    color: var(--link-color);
   }
 
   .sites-list li.active {
@@ -442,7 +443,7 @@
   }
 
   .search-bar-input::placeholder {
-    color: #818181;
+    color: var(--text-color);
     opacity: 1;
   }
 
@@ -612,7 +613,7 @@
     margin: 8px;
     max-width: 200px;
     overflow: hidden;
-    color: var(--notes-text-color);
+    color: var(--link-color);
     text-decoration: none;
     font-size: var(--font-size);
   }
@@ -621,7 +622,7 @@
      position: relative;
      padding: 12px 56px 25px 32px;
      border-radius: var(--second-radius);
-     background-color: #ffffff;
+     background-color: var(--card-content-bg);
      box-shadow: var(--shadow);
   }
 

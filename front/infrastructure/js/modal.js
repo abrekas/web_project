@@ -66,38 +66,50 @@ let colorInnerHTML = `<div class="color-container">
 // `;
 
 const themes = {
-  mint: {
-    "--background-color": "#ffffff",
-    "--notes-header-color": "#8cdec7",
-    "--second-color": "#E2E2E2",
-    "--text-color": "#000000",
-    "--card-color": "#2b2b40",
-    "--accent-color": "#8cdec7",
-  },
-  rose: {
-    "--background-color": "#ffffff",
-    "--notes-header-color": "#e4c6d0",
-    "--second-color": "#E2E2E2",
-    "--text-color": "#000000",
-    "--card-color": "#2b2b40",
-    "--accent-color": "#cac1c6",
-  },
-  sky: {
-    "--background-color": "#5980E6",
-    "--notes-header-color": "#000000",
-    "--second-color": "#8fa6e0",
-    "--text-color": "#fff700",
-    "--card-color": "#1e293b",
-    "--accent-color": "#5980E6",
-  },
-  gum: {
-    "--background-color": "#DB72B6",
-    "--notes-header-color": "#000000",
-    "--second-color": "#cd93b8",
-    "--text-color": "#fff700",
-    "--card-color": "#000000",
-    "--accent-color": "#DB72B6",
-  },
+    mint: {
+        '--background-color': '#ffffff',
+        '--notes-header-color': '#8cdec7',
+        '--second-color': '#E2E2E2',
+        '--text-color': '#000000',
+        '--card-color': '#2b2b40',
+        '--accent-color': '#8cdec7',
+        '--link-color': '#5757d0',
+        '--card-bg': '#ffffff',
+        '--card-content-bg': '#ffffff'
+    },
+    rose: {
+        '--background-color': '#ffffff',
+        '--notes-header-color': '#D5A7B6',
+        '--second-color': '#E2E2E2',
+        '--text-color': '#000000',
+        '--card-color': '#2b2b40',
+        '--accent-color': '#D5A7B6',
+        '--link-color': '#5757d0',
+        '--card-bg': '#ffffff',
+        '--card-content-bg': '#ffffff'
+    },
+    sky: {
+        '--background-color': '#415278',
+        '--notes-header-color': '#1e293b',
+        '--second-color': '#7790d1',
+        '--text-color': '#000000',
+        '--card-color': '#1e293b',
+        '--accent-color': '#415278',
+        '--link-color': '#e2d18d',
+        '--card-bg': '#7790d1',
+        '--card-content-bg': '#7790d1'
+    },
+    gum: {
+        '--background-color': '#EEE8D5',
+        '--notes-header-color': '#D3CBB7',
+        '--second-color': '#D3CBB7',
+        '--text-color': '#000000',
+        '--card-color': '#000000',
+        '--accent-color': '#EEE8D5',
+        '--link-color': '#89554D',
+        '--card-bg': '#FDF6E3',
+        '--card-content-bg': '#FDF6E3'
+    }
 };
 
 function applyTheme(themeName) {
