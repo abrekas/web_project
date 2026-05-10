@@ -66,38 +66,58 @@ let colorInnerHTML = `<div class="color-container">
 // `;
 
 const themes = {
-  mint: {
-    "--background-color": "#ffffff",
-    "--notes-header-color": "#8cdec7",
-    "--second-color": "#E2E2E2",
-    "--text-color": "#000000",
-    "--card-color": "#2b2b40",
-    "--accent-color": "#8cdec7",
-  },
-  rose: {
-    "--background-color": "#ffffff",
-    "--notes-header-color": "#D5A7B6",
-    "--second-color": "#E2E2E2",
-    "--text-color": "#000000",
-    "--card-color": "#2b2b40",
-    "--accent-color": "#D5A7B6",
-  },
-  sky: {
-    "--background-color": "#5980E6",
-    "--notes-header-color": "#000000",
-    "--second-color": "#8fa6e0",
-    "--text-color": "#fff700",
-    "--card-color": "#1e293b",
-    "--accent-color": "#5980E6",
-  },
-  gum: {
-    "--background-color": "#DB72B6",
-    "--notes-header-color": "#000000",
-    "--second-color": "#cd93b8",
-    "--text-color": "#fff700",
-    "--card-color": "#000000",
-    "--accent-color": "#DB72B6",
-  },
+    mint: {
+        '--background-color': '#ffffff',
+        '--notes-header-color': '#8cdec7',
+        '--second-color': '#E2E2E2',
+        '--text-color': '#000000',
+        '--notes-text-color': '#000000',
+        '--card-color': '#2b2b40',
+        '--accent-color': '#8cdec7',
+        '--link-color': '#5757d0',
+        '--card-bg': '#ffffff',
+        '--card-content-bg': '#ffffff',
+        '--icon-filter': 'none'
+    },
+    rose: {
+        '--background-color': '#ffffff',
+        '--notes-header-color': '#e8dfe2',
+      '--second-color': '#e8e5e6',
+        '--text-color': '#000000',
+        '--notes-text-color': '#000000',
+        '--card-color': '#515161',
+      '--accent-color': '#cfc9cb',
+        '--link-color': '#5757d0',
+        '--card-bg': '#ffffff',
+        '--card-content-bg': '#ffffff',
+        '--icon-filter': 'none'
+    },
+    sky: {
+      '--background-color': '#1B1B1D',
+      '--notes-header-color': '#222224',
+      '--second-color': '#161616',
+      '--text-color': '#ebebeb',
+      '--notes-text-color': '#d3d3d3',
+      '--card-color': '#3A3A3F',
+      '--accent-color': '#272729',
+      '--link-color': '#d3d3d3',
+      '--card-bg': '#333336',
+      '--card-content-bg': '#333336',
+      '--icon-filter': 'invert(1) brightness(2)'
+    },
+    gum: {
+        '--background-color': '#EEE8D5',
+        '--notes-header-color': '#D3CBB7',
+        '--second-color': '#D3CBB7',
+        '--text-color': '#171717',
+        '--notes-text-color': '#000000',
+        '--card-color': '#000000',
+        '--accent-color': '#EEE8D5',
+        '--link-color': '#89554D',
+        '--card-bg': '#FDF6E3',
+        '--card-content-bg': '#FDF6E3',
+        '--icon-filter': 'none'
+    }
 };
 
 function applyTheme(themeName) {

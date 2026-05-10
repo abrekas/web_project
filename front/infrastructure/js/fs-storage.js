@@ -297,6 +297,13 @@
     const grantBtn = document.getElementById('grant-access-btn');
     const cancelBtn = document.getElementById('startup-cancel-btn');
     const err = document.getElementById('startup-error');
+    const helpBtn = document.getElementById('help-btn');
+
+    if (helpBtn) {
+      helpBtn.addEventListener('click', () => {
+        showStartupOverlay();
+      });
+    }
 
     if (grantBtn) {
       grantBtn.addEventListener('click', async () => {
