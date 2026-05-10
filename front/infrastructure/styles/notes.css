@@ -105,7 +105,7 @@
 
   .startup-guide {
     width: min(520px, calc(100vw - 32px));
-    background: #fff;
+    background: var(--background-color);
     border-radius: 16px;
     padding: 24px;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
