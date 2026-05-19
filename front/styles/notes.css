@@ -883,3 +883,6 @@
   .delete-icon {
     filter: var(--icon-filter, none);
   }
+.color-modal { height: auto !important; max-height: 80% !important; width: 50% !important; }
+.color-modal #modal-body { overflow-y: auto !important; }
+.color-container { max-height: none !important; overflow-y: visible !important; }

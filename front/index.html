@@ -165,10 +165,29 @@
       </div>
     </div>
 
-    <script src="js/modal.js"></script>
-    <script src="js/fs-storage.js"></script>
-    <script src="js/parser.js"></script>
-    <script src="js/categories.js"></script>
-    <script src="js/themes.js"></script>
+    <template id="modal-about-template">
+      <h3>О сайте</h3>
+      <p>Highliter.com — ваш помощник в работе с заметками.</p>
+    </template>
+
+    <template id="modal-color-template">
+      <div class="color-container">
+        <div>Выберите тему</div>
+        <div class="grid-layout">
+          <img id="mint" class="grid-item" src="media/theme4.png" alt="Тема 1">
+          <img id="rose" class="grid-item" src="media/theme1.png" alt="Тема 2">
+          <img id="sky" class="grid-item" src="media/theme2.png" alt="Тема 3">
+          <img id="gum" class="grid-item" src="media/theme3.png" alt="Тема 4">
+        </div>
+      </div>
+    </template>
+
+    <script type="module" src="src/components/modal.js"></script>
+    <script type="module" src="src/components/theme.js"></script>
+    <script type="module" src="src/components/guide.js"></script>
+    <script type="module" src="src/services/fs-storage.js"></script>
+    <script type="module" src="src/services/parser.js"></script>
+    <script type="module" src="src/features/categories.js"></script>
+    <script type="module" src="src/features/note_save.js"></script>
   </body>
 </html>
