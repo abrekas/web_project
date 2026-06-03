@@ -545,6 +545,104 @@ body {
   cursor: pointer;
 }
 
+.create-note-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 32px;
+  padding: 0 16px;
+  border: none;
+  border-radius: var(--second-radius);
+  background-color: var(--accent-color);
+  color: var(--text-color);
+  font-family: var(--font-main);
+  font-size: var(--font-size);
+  cursor: pointer;
+  box-shadow: var(--shadow);
+  outline: none;
+}
+
+.create-note-btn:active {
+  transform: scale(0.98);
+}
+
+.modal-content.create-note-modal {
+  width: 500px;
+  height: auto;
+  max-height: 90vh;
+  padding: 0;
+  overflow: hidden;
+}
+
+.create-note-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 24px;
+}
+
+.create-note-form .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.create-note-form .form-group label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-color);
+}
+
+.create-note-form .form-control {
+  padding: 10px 12px;
+  border: none;
+  border-radius: var(--second-radius);
+  background-color: var(--card-bg);
+  color: var(--notes-text-color);
+  font-family: var(--font-main);
+  font-size: 14px;
+  box-shadow: var(--inside-shadow);
+}
+
+.create-note-form .form-control:focus {
+  outline: none;
+}
+
+.create-note-form select.form-control {
+  cursor: pointer;
+}
+
+.create-note-form .form-group.hidden {
+  display: none;
+}
+
+.create-note-form .form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.create-note-form .form-actions button {
+  padding: 8px 20px;
+  border: none;
+  border-radius: var(--second-radius);
+  font-family: var(--font-main);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.create-note-form .primary-btn {
+  background-color: var(--accent-color);
+  color: var(--text-color);
+  box-shadow: var(--shadow);
+}
+
+.create-note-form .secondary-btn {
+  background-color: var(--second-color);
+  color: var(--text-color);
+  box-shadow: var(--shadow);
+}
+
 .note-image {
   max-width: 100%;
   height: auto;
@@ -662,6 +760,7 @@ body {
   border-radius: var(--second-radius);
   background-color: var(--card-content-bg);
   box-shadow: var(--shadow);
+  overflow-wrap: break-word;
 }
 
 .card-body .main-link {
@@ -679,6 +778,7 @@ body {
   font-family: var(--font-main);
   font-size: var(--font-size);
   color: var(--notes-text-color);
+  overflow-wrap: break-word;
 }
 
 .card-footer {

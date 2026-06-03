@@ -60,6 +60,9 @@
               <option value="desc">по убыванию</option>
             </select>
           </div>
+
+          <button id="create-note-btn" class="create-note-btn">Создать заметку</button>
+
           <nav class="view-switch">
             <button data-view="all" class="active">все</button>
             <button data-view="image">картинки</button>
@@ -208,6 +211,48 @@
       </div>
     </template>
 
+    <!-- Модальное окно для создания заметки -->
+    <template id="modal-create-note-template">
+      <div class="create-note-form">
+        <h3>Создать заметку</h3>
+
+        <div class="form-group">
+          <label for="note-type">Тип заметки</label>
+          <select id="note-type" class="form-control">
+            <option value="text">Текст</option>
+            <option value="image">Изображение</option>
+          </select>
+        </div>
+
+        <div class="form-group" id="content-group">
+          <label for="note-content">Текст заметки</label>
+          <textarea id="note-content" class="form-control" rows="5" placeholder="Введите текст заметки..."></textarea>
+        </div>
+
+        <div class="form-group hidden" id="image-group">
+          <label for="note-image-url">URL изображения</label>
+          <input type="url" id="note-image-url" class="form-control" placeholder="https://example.com/image.jpg" />
+        </div>
+
+        <div class="form-group">
+          <label for="note-site">Сайт / источник</label>
+          <input type="url" id="note-site" class="form-control" placeholder="Необязательно" />
+        </div>
+
+        <div class="form-group">
+          <label for="note-category">Категория</label>
+          <select id="note-category" class="form-control">
+            <option value="общее">общее</option>
+          </select>
+        </div>
+
+        <div class="form-actions">
+          <button id="cancel-create-btn" class="secondary-btn">Отмена</button>
+          <button id="save-note-btn" class="primary-btn">Сохранить</button>
+        </div>
+      </div>
+    </template>
+
     <script type="module" src="src/components/modal.js"></script>
     <script type="module" src="src/components/theme.js"></script>
     <script type="module" src="src/components/guide.js"></script>
@@ -215,5 +260,6 @@
     <script type="module" src="src/services/parser.js"></script>
     <script type="module" src="src/features/categories.js"></script>
     <script type="module" src="src/features/note_save.js"></script>
+    <script type="module" src="src/components/create_note.js"></script>
   </body>
 </html>
