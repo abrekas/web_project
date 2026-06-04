@@ -313,13 +313,37 @@ if (searchInput) {
   });
 }
 
+const IMAGE_MODAL_PADDING = 16;
+const IMAGE_MODAL_MIN_LONGEST = 700;
+const IMAGE_MODAL_MAX_UPSCALE = 4;
+
+function fitImageInModal(img) {
+  const nw = img.naturalWidth;
+  const nh = img.naturalHeight;
+  if (!nw || !nh) return;
+
+  const maxW = window.innerWidth - IMAGE_MODAL_PADDING * 2;
+  const maxH = window.innerHeight - IMAGE_MODAL_PADDING * 2;
+  const longest = Math.max(nw, nh);
+
+  let scale = Math.min(maxW / nw, maxH / nh, 1);
+
+  if (longest * scale < IMAGE_MODAL_MIN_LONGEST) {
+    scale = Math.min(IMAGE_MODAL_MIN_LONGEST / longest, IMAGE_MODAL_MAX_UPSCALE);
+  }
+
+  scale = Math.min(scale, maxW / nw, maxH / nh);
+
+  img.style.width = `${Math.round(nw * scale)}px`;
+  img.style.height = `${Math.round(nh * scale)}px`;
+}
+
 function openImageModal(src) {
   const modal = document.getElementById('universal-modal');
   const modalBody = document.getElementById('modal-body');
   const modalContent = modal.querySelector('.modal-content');
 
-  modalContent.classList.add('image-viewer');
-
+  modalContent.className = 'modal-content image-viewer';
   modalBody.innerHTML = '';
 
   const img = document.createElement('img');
@@ -327,39 +351,11 @@ function openImageModal(src) {
   img.alt = 'изображение заметки';
   img.className = 'full-modal-image';
 
-  img.addEventListener('load', () => {
-    const MIN_IMAGE_SIZE = 700; 
-    const MAX_SCALE = 3;
-
-    const naturalWidth = img.naturalWidth;
-    const naturalHeight = img.naturalHeight;
-
-    const availableWidth = window.innerWidth - 64;
-    const availableHeight = window.innerHeight - 64;
-
-    const longestSide = Math.max(naturalWidth, naturalHeight);
-
-    let scale = 1;
-
-    if (longestSide < MIN_IMAGE_SIZE) {
-      scale = MIN_IMAGE_SIZE / longestSide;
-    }
-
-    scale = Math.min(scale, MAX_SCALE);
-
-    const fitScale = Math.min(
-      availableWidth / naturalWidth,
-      availableHeight / naturalHeight
-    );
-
-    scale = Math.min(scale, fitScale);
-
-    img.style.width = `${naturalWidth * scale}px`;
-    img.style.height = `${naturalHeight * scale}px`;
-  });
+  const onReady = () => fitImageInModal(img);
+  img.addEventListener('load', onReady);
+  if (img.complete) onReady();
 
   modalBody.appendChild(img);
-
   modal.style.display = 'flex';
 }
 

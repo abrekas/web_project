@@ -1041,6 +1041,7 @@ body {
   display: none;
   justify-content: center;
   align-items: center;
+  overflow: hidden;
   background: rgba(0, 0, 0, 0.562);
   backdrop-filter: var(--blur);
   -webkit-backdrop-filter: var(--blur);
@@ -1063,35 +1064,34 @@ body {
 
 
 .modal-content.image-viewer {
-  width: auto;
-  height: auto;
-  max-width: calc(100vw - 32px);
-  max-height: calc(100vh - 32px);
-  padding: 16px;
+  --image-modal-padding: 16px;
+  box-sizing: border-box;
+  width: max-content;
+  height: max-content;
+  max-width: 100vw;
+  max-height: 100vh;
+  padding: var(--image-modal-padding);
+  overflow: hidden;
 }
 
 .modal-content.image-viewer #modal-body {
   display: flex;
   align-items: center;
   justify-content: center;
-
-  max-width: calc(100vw - 64px);
-  max-height: calc(100vh - 64px);
-
+  width: max-content;
+  height: max-content;
   overflow: hidden;
 }
 
 .full-modal-image {
   display: block;
-
   width: auto;
   height: auto;
-
-  max-width: calc(100vw - 64px);
-  max-height: calc(100vh - 64px);
-
+  max-width: calc(100vw - var(--image-modal-padding) * 2);
+  max-height: calc(100vh - var(--image-modal-padding) * 2);
   object-fit: contain;
   border-radius: 8px;
+  flex-shrink: 0;
 }
 
 /* THEME PICKER */
