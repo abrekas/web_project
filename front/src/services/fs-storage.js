@@ -5,6 +5,7 @@
 
   const NOTES_FILE = 'notes.json';
   const CATEGORIES_FILE = 'categories.json';
+  const TAGS_FILE = 'tags.json';
 
   let folderHandle = null;
 
@@ -90,6 +91,7 @@
 
     await ensureFileExists(NOTES_FILE, []);
     await ensureFileExists(CATEGORIES_FILE, []);
+    await ensureFileExists(TAGS_FILE, []);
 
     hideStartupOverlay();
     return handle;
@@ -112,6 +114,7 @@
     folderHandle = saved;
     await ensureFileExists(NOTES_FILE, []);
     await ensureFileExists(CATEGORIES_FILE, []);
+    await ensureFileExists(TAGS_FILE, []);
     hideStartupOverlay();
 
     window.dispatchEvent(new CustomEvent('fs-ready')); // ВАЖНО
@@ -184,6 +187,7 @@
       content: note.type === 'text' ? (note.content || '') : null,
       imageUrl: note.type === 'image' ? (note.imageUrl || null) : null,
       category: note.category || 'общее',
+      tags: note.tags || [],
       site: note.site || '',
       time: note.time || new Date().toLocaleString('ru-RU'),
       savedAt: note.savedAt || nowIso
@@ -292,6 +296,56 @@
     return true;
   }
 
+  // ---------------- Tags API ----------------
+  async function getTags() {
+    return await readJsonFile(TAGS_FILE, []);
+  }
+
+  async function saveTags(tags) {
+    await writeJsonFile(TAGS_FILE, tags);
+  }
+
+  async function addTag(tagName) {
+    const value = String(tagName || '').trim().toLowerCase();
+    if (!value) return null;
+
+    const list = await getTags();
+    const exists = list.some(item => String(item).toLowerCase() === value);
+
+    if (exists) return null;
+
+    list.push(value);
+    await saveTags(list);
+    return value;
+  }
+
+  async function deleteTag(tagName) {
+    const value = String(tagName || '').trim().toLowerCase();
+    if (!value) return false;
+
+    const list = await getTags();
+    const idx = list.findIndex(item => String(item).toLowerCase() === value);
+    if (idx === -1) return false;
+
+    list.splice(idx, 1);
+    await saveTags(list);
+
+    const notes = await getNotes();
+    let changed = false;
+    const updated = notes.map(n => {
+      const tags = Array.isArray(n.tags) ? n.tags : [];
+      const filtered = tags.filter(t => String(t).toLowerCase() !== value);
+      if (filtered.length !== tags.length) {
+        changed = true;
+        return { ...n, tags: filtered };
+      }
+      return n;
+    });
+
+    if (changed) await saveNotes(updated);
+    return true;
+  }
+
   // ---------------- Events ----------------
   window.addEventListener('DOMContentLoaded', () => {
     const grantBtn = document.getElementById('grant-access-btn');
@@ -340,6 +394,11 @@
     saveCategories,
     addCategory,
     deleteCategory,
+
+    getTags,
+    saveTags,
+    addTag,
+    deleteTag,
 
     isReady: () => !!folderHandle
   };

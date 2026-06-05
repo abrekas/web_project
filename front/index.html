@@ -60,6 +60,11 @@
               <option value="desc">по убыванию</option>
             </select>
           </div>
+
+          <button id="tags-btn" class="tags-btn"><img id="tags-btn-icon" src="media/tag.png" alt="Тэги"></button>
+
+          <button id="create-note-btn" class="create-note-btn">Создать заметку</button>
+
           <nav class="view-switch">
             <button data-view="all" class="active">все</button>
             <button data-view="image">картинки</button>
@@ -88,7 +93,7 @@
           <h2>Разрешите доступ к папке с данными</h2>
           <p>
             Сайт хранит ваши заметки и категории в выбранной вами папке. Будут
-            использоваться файлы <b>notes.json</b> и <b>categories.json</b>.
+            использоваться файлы <b>notes.json</b>, <b>categories.json</b> и <b>tags.json</b>.
           </p>
           <div class="startup-actions">
             <button id="grant-access-btn" class="primary-btn">
@@ -191,10 +196,109 @@
       </div>
     </div>
 
-    <script src="js/modal.js"></script>
-    <script src="js/fs-storage.js"></script>
-    <script src="js/parser.js"></script>
-    <script src="js/categories.js"></script>
-    <script src="js/themes.js"></script>
+    <template id="modal-about-template">
+      <h3>О сайте</h3>
+      <p>Highliter.com — ваш помощник в работе с заметками.</p>
+    </template>
+
+    <template id="modal-color-template">
+      <div class="color-container">
+        <div>Выберите тему</div>
+        <div class="grid-layout">
+          <img id="mint" class="grid-item" src="media/theme4.png" alt="Тема 1">
+          <img id="rose" class="grid-item" src="media/theme1.png" alt="Тема 2">
+          <img id="sky" class="grid-item" src="media/theme2.png" alt="Тема 3">
+          <img id="gum" class="grid-item" src="media/theme3.png" alt="Тема 4">
+        </div>
+      </div>
+    </template>
+
+    <!-- Модальное окно для создания заметки -->
+    <template id="modal-create-note-template">
+      <div class="create-note-form">
+        <h3>Создать заметку</h3>
+
+        <div class="form-group">
+          <label for="note-type">Тип заметки</label>
+          <select id="note-type" class="form-control">
+            <option value="text">Текст</option>
+            <option value="image">Изображение</option>
+          </select>
+        </div>
+
+        <div class="form-group" id="content-group">
+          <label for="note-content">Текст заметки</label>
+          <textarea id="note-content" class="form-control" rows="5" placeholder="Введите текст заметки..."></textarea>
+        </div>
+
+        <div class="form-group hidden" id="image-group">
+          <label for="note-image-url">URL изображения</label>
+          <input type="url" id="note-image-url" class="form-control" placeholder="https://example.com/image.jpg" />
+        </div>
+
+        <div class="form-group">
+          <label for="note-site">Сайт / источник</label>
+          <input type="url" id="note-site" class="form-control" placeholder="Необязательно" />
+        </div>
+
+        <div class="form-group">
+          <label for="note-category">Категория</label>
+          <select id="note-category" class="form-control">
+            <option value="общее">общее</option>
+          </select>
+        </div>
+
+        <div class="form-actions">
+          <button id="save-note-btn" class="primary-btn">Сохранить</button>
+        </div>
+      </div>
+    </template>
+
+    <template id="modal-note-tags-template">
+      <div class="create-note-form tags-note-form">
+        <h3>Добавить тэги к заметке</h3>
+        <div class="form-group">
+          <div id="note-tags-list" class="form-tags-container"></div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" id="apply-note-tags-btn" class="primary-btn">Добавить</button>
+        </div>
+      </div>
+    </template>
+
+    <template id="modal-choose-tags-template">
+      <div class="create-note-form tags-filter-form">
+        <h3>Фильтр по тэгам</h3>
+
+        <div class="tag-input-row">
+          <input type="text" id="new-tag-input" class="form-control" placeholder="Новый тэг..." />
+          <button type="button" id="add-tag-form-btn" class="tag-add-input-btn" aria-label="Добавить тэг">
+            <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
+              <path d="M9 3v12M3 9h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </button>
+        </div>
+
+        <div class="form-group">
+          <div id="form-tags-list" class="form-tags-container"></div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" id="clear-tags-filter-btn" class="secondary-btn">Сбросить</button>
+          <button type="button" id="apply-tags-filter-btn" class="primary-btn">Применить</button>
+        </div>
+      </div>
+    </template>
+
+
+    <script type="module" src="src/components/modal.js"></script>
+    <script type="module" src="src/components/theme.js"></script>
+    <script type="module" src="src/components/guide.js"></script>
+    <script type="module" src="src/services/fs-storage.js"></script>
+    <script type="module" src="src/services/parser.js"></script>
+    <script type="module" src="src/features/categories.js"></script>
+    <script type="module" src="src/features/note_save.js"></script>
+    <script type="module" src="src/components/create_note.js"></script>
   </body>
 </html>
