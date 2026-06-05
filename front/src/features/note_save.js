@@ -19,5 +19,3 @@ function saveNoteIntoJson(time, content, url, category) {
         console.log("JSON file has been saved.");
     });
 }
-
-// saveNoteIntoJson("23.11.2018", "abobaamogus67691337", "https:", "aboba");
