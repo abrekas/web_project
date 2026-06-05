@@ -1,9 +1,16 @@
 let folderHandle = null;
 let notesFileName = 'notes.json';
-let restorePromise = null; 
+let categoriesFileName = 'categories.json';
+let restorePromise = null;
+
 const DB_NAME = 'NotesExtensionDB';
 const STORE_NAME = 'folderHandle';
 const DB_VERSION = 1;
+
+// Кэш категорий
+let categoriesCache = null;
+let categoriesCacheTime = 0;
+const CACHE_TTL = 10000; // 10 секунд
 
 function openDB() {
   return new Promise((resolve, reject) => {
@@ -45,23 +52,20 @@ async function loadFolderHandle() {
 
 async function ensureFolderHandle() {
   if (folderHandle) return folderHandle;
-  
   if (restorePromise) {
     await restorePromise;
     return folderHandle;
   }
-  
   restorePromise = loadFolderHandle();
   folderHandle = await restorePromise;
   restorePromise = null;
-  
   return folderHandle;
 }
 
 async function readNotesArray() {
   await ensureFolderHandle();
   if (!folderHandle) throw new Error('Папка не выбрана');
-  
+
   try {
     const fileHandle = await folderHandle.getFileHandle(notesFileName, { create: false });
     const file = await fileHandle.getFile();
@@ -69,9 +73,7 @@ async function readNotesArray() {
     const data = JSON.parse(content);
     return Array.isArray(data) ? data : [];
   } catch (err) {
-    if (err.name === 'NotFoundError') {
-      return [];
-    }
+    if (err.name === 'NotFoundError') return [];
     throw err;
   }
 }
@@ -79,7 +81,7 @@ async function readNotesArray() {
 async function writeNotesArray(notesArray) {
   await ensureFolderHandle();
   if (!folderHandle) throw new Error('Папка не выбрана');
-  
+
   const fileHandle = await folderHandle.getFileHandle(notesFileName, { create: true });
   const writable = await fileHandle.createWritable();
   const content = JSON.stringify(notesArray, null, 2);
@@ -109,7 +111,7 @@ async function addTextNote(noteData) {
   };
   notes.push(newNote);
   await writeNotesArray(notes);
-  console.log('Текстовая заметка добавлена, всего заметок:', notes.length);
+  console.log('Текстовая заметка добавлена, категория:', newNote.category);
   return newNote;
 }
 
@@ -123,29 +125,89 @@ async function addImageNote(imageData) {
     content: imageData.altText || 'Изображение',
     site: imageData.pageUrl || '',
     time: formatDateForNote(),
-    category: 'общее'
+    category: imageData.category || 'общее'
   };
   notes.push(newNote);
   await writeNotesArray(notes);
-  console.log('Картинка сохранена, всего заметок:', notes.length);
+  console.log('Картинка сохранена, категория:', newNote.category);
   return newNote;
+}
+
+// Чтение categories.json
+async function readCategoriesArray() {
+  await ensureFolderHandle();
+  if (!folderHandle) throw new Error('Папка не выбрана');
+
+  try {
+    const fileHandle = await folderHandle.getFileHandle(categoriesFileName, { create: false });
+    const file = await fileHandle.getFile();
+    const content = await file.text();
+    const data = JSON.parse(content);
+
+    // Приведение к массиву строк
+    if (Array.isArray(data)) {
+      if (data.length > 0 && typeof data[0] === 'object' && data[0].name) {
+        return data.map(item => item.name);
+      }
+      return data.filter(item => typeof item === 'string');
+    }
+    return ['общее'];
+  } catch (err) {
+    if (err.name === 'NotFoundError') return ['общее'];
+    throw err;
+  }
+}
+
+// Получение категорий с кэшированием
+async function getCategories() {
+  const now = Date.now();
+  if (categoriesCache && (now - categoriesCacheTime) < CACHE_TTL) {
+    return categoriesCache;
+  }
+  try {
+    categoriesCache = await readCategoriesArray();
+    categoriesCacheTime = now;
+    return categoriesCache;
+  } catch (err) {
+    console.error('Ошибка чтения categories.json:', err);
+    return ['общее'];
+  }
+}
+
+// Сброс кэша категорий (при смене папки)
+function invalidateCategoriesCache() {
+  categoriesCache = null;
+  categoriesCacheTime = 0;
 }
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   (async () => {
     try {
       await ensureFolderHandle();
-      
+
+      if (message.type === 'GET_CATEGORIES') {
+        const categories = await getCategories();
+        sendResponse({ success: true, categories });
+        return;
+      }
+
+      if (message.type === 'SAVE_LAST_CATEGORY') {
+        await chrome.storage.local.set({ lastCategory: message.category });
+        sendResponse({ success: true });
+        return;
+      }
+
       if (!folderHandle) {
         sendResponse({ success: false, error: 'Folder not selected' });
         return;
       }
-      
+
       if (message.type === 'SAVE_TEXT') {
         await addTextNote({
           text: message.text,
           url: message.url || sender.tab?.url,
-          title: message.title || sender.tab?.title
+          title: message.title || sender.tab?.title,
+          category: message.category || 'общее'
         });
         sendResponse({ success: true });
       } else if (message.type === 'SAVE_IMAGE') {
@@ -153,7 +215,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           imageUrl: message.imageUrl,
           altText: message.altText,
           pageUrl: message.pageUrl,
-          pageTitle: message.pageTitle
+          pageTitle: message.pageTitle,
+          category: message.category || 'общее'
         });
         sendResponse({ success: true });
       } else {
@@ -164,7 +227,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       sendResponse({ success: false, error: err.message });
     }
   })();
-  
   return true;
 });
 
@@ -173,12 +235,14 @@ chrome.runtime.onConnect.addListener((port) => {
     if (msg.type === 'FOLDER_HANDLE') {
       folderHandle = msg.handle;
       await saveFolderHandle(folderHandle);
+      invalidateCategoriesCache(); // сброс кэша при новой папке
       console.log('Дескриптор папки получен и сохранён');
       port.postMessage({ type: 'FOLDER_SAVED' });
     }
   });
 });
 
+// При старте восстанавливаем handle
 (async () => {
   await ensureFolderHandle();
   if (folderHandle) {
