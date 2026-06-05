@@ -7,11 +7,13 @@ const sortOrder = document.querySelector('#sort-order');
 const state = {
   category: 'общее',
   search: '',
-  view: localStorage.getItem('currentView') || 'all'
+  view: localStorage.getItem('currentView') || 'all',
+  activeFilterTags: JSON.parse(localStorage.getItem('activeFilterTags') || '[]')
 };
 
 let allNotes = [];
 let allCategories = [];
+let allTags = [];
 
 function escapeHtml(str = '') {
   return String(str).replace(/[&<>"']/g, (m) => {
@@ -39,6 +41,32 @@ async function loadCategoriesForSelects() {
   }
 }
 
+async function loadTagsForPicker() {
+  if (!window.fsStorage || !window.fsStorage.isReady()) {
+    allTags = [];
+    return;
+  }
+
+  try {
+    const tags = await window.fsStorage.getTags();
+    allTags = Array.isArray(tags) ? tags : [];
+  } catch (e) {
+    console.error('Ошибка загрузки тэгов:', e);
+    allTags = [];
+  }
+}
+
+function normalizeTagList(tags) {
+  if (!Array.isArray(tags)) return [];
+  return tags.map(t => String(t).trim().toLowerCase()).filter(Boolean);
+}
+
+function noteMatchesTagFilter(note, filterTags) {
+  if (!filterTags.length) return true;
+  const noteTags = normalizeTagList(note.tags);
+  return filterTags.some(tag => noteTags.includes(tag));
+}
+
 function buildCategoryOptions(currentCategory) {
   const normalizedCurrent = String(currentCategory || 'общее').trim();
 
@@ -51,6 +79,32 @@ function buildCategoryOptions(currentCategory) {
   }).join('');
 }
 
+function renderTags(tags, noteId) {
+  if (!Array.isArray(tags)) tags = [];
+  const safeId = escapeHtml(noteId || '');
+
+  const tagButtons = tags.map(tag => `
+    <button type="button" class="tag-note" data-note-id="${safeId}" data-tag="${escapeHtml(tag)}" title="Удалить тэг">
+      <span class="tag-note-text">#${escapeHtml(tag)}</span>
+      <span class="tag-note-remove" aria-hidden="true">×</span>
+    </button>
+  `).join('');
+
+  return `
+    ${tagButtons}
+    <button type="button" class="tag-add-btn" data-note-id="${safeId}" title="Добавить тэг">+</button>
+  `;
+}
+
+function getAvailableTagsForNote(noteId) {
+  const note = allNotes.find(item => String(item.id) === String(noteId));
+  if (!note) return [];
+
+  const currentTags = normalizeTagList(note.tags || []);
+  return allTags.filter(t => !currentTags.includes(String(t).toLowerCase()));
+}
+
+
 function renderNoteHtml(data) {
   const safeSiteRaw = String(data.site || '').replace(/^https?:\/\//, '');
   const domainOnly = safeSiteRaw.split('/')[0];
@@ -59,6 +113,7 @@ function renderNoteHtml(data) {
   const href = safeSiteRaw ? `https://${safeSiteRaw}` : '#';
   const noteId = escapeHtml(data.id || '');
   const currentCategory = data.category || 'общее';
+  const tags = data.tags || [];
   const noteType = data.type;
   const safeImageUrl = escapeHtml(data.imageUrl || '');
 
@@ -76,6 +131,9 @@ function renderNoteHtml(data) {
         <select class="category-select" data-note-id="${noteId}">
           ${buildCategoryOptions(currentCategory)}
         </select>
+        <div class="card-tags" data-note-id="${noteId}">
+          ${renderTags(tags, data.id)}
+        </div>
         <button class="delete-note">
             <img class="delete-icon" src="media/trash.png" alt="удалить запись">
         </button>  
@@ -108,11 +166,12 @@ function getDomainFromUrl(url) {
   return domain;
 }
 
-function filterNotes(category = 'общее', searchToken = '', site = null, view = 'all') {
+function filterNotes(category = 'общее', searchToken = '', site = null, view = 'all', filterTags = []) {
   const cat = String(category).trim().toLowerCase();
   const search = String(searchToken).trim().toLowerCase();
   const selectedSite = site ? String(site).trim().toLowerCase() : null;
   const selectedDomain = selectedSite ? getDomainFromUrl(selectedSite) : null;
+  const tagFilter = normalizeTagList(filterTags);
 
   return allNotes.filter(note => {
     const noteCategory = String(note.category || '').trim().toLowerCase();
@@ -137,12 +196,14 @@ function filterNotes(category = 'общее', searchToken = '', site = null, vie
     if (view === 'text') byType = note.type != 'image';
     if (view === 'image') byType = note.type === 'image';
 
-    return byCategory && bySearch && bySite && byType;
+    const byTags = noteMatchesTagFilter(note, tagFilter);
+
+    return byCategory && bySearch && bySite && byType && byTags;
   });
 }
 
-function loadAllNotes(category = 'общее', searchToken = '', site = null, view = 'all') {
-  const filtered = filterNotes(category, searchToken, site, view);
+function loadAllNotes(category = 'общее', searchToken = '', site = null, view = 'all', filterTags = state.activeFilterTags) {
+  const filtered = filterNotes(category, searchToken, site, view, filterTags);
 
   if (!filtered.length) {
     cardsList.innerHTML = `<p>Заметки не найдены</p>`;
@@ -162,7 +223,8 @@ function getState() {
     category: currentCategory,
     search: searchInput?.value || '',
     site: site,
-    view: state.view
+    view: state.view,
+    filterTags: state.activeFilterTags
   };
 }
 
@@ -177,8 +239,8 @@ async function getSortedNotes() {
 }
 
 function renderNotes() {
-  const { category, search, site, view } = getState();
-  loadAllNotes(category, search, site, view);
+  const { category, search, site, view, filterTags } = getState();
+  loadAllNotes(category, search, site, view, filterTags);
 }
 
 async function refreshNotes(category = 'общее') {
@@ -189,12 +251,37 @@ async function refreshNotes(category = 'общее') {
 
   try {
     await loadCategoriesForSelects();
+    await loadTagsForPicker();
     allNotes = await getSortedNotes();
     renderNotes()
   } catch (e) {
     console.error(e);
     cardsList.innerHTML = `<p>Ошибка чтения notes.json</p>`;
   }
+}
+
+async function changeNoteTags(noteId, newTags) {
+  try {
+    const note = allNotes.find(item => String(item.id) === String(noteId));
+    if (!note) return;
+
+    note.tags = normalizeTagList(newTags);
+
+    await window.fsStorage.updateNote(note);
+    allNotes = await getSortedNotes();
+    renderNotes();
+  } catch (e) {
+    console.error('Ошибка смены тэгов заметки:', e);
+    alert('Не удалось изменить тэги');
+  }
+}
+
+async function appendTagsToNote(noteId, tagsToAdd) {
+  const note = allNotes.find(item => String(item.id) === String(noteId));
+  if (!note) return;
+
+  const merged = [...new Set([...normalizeTagList(note.tags || []), ...normalizeTagList(tagsToAdd)])];
+  await changeNoteTags(noteId, merged);
 }
 
 async function changeNoteCategory(noteId, newCategory) {
@@ -226,13 +313,37 @@ if (searchInput) {
   });
 }
 
+const IMAGE_MODAL_PADDING = 16;
+const IMAGE_MODAL_MIN_LONGEST = 700;
+const IMAGE_MODAL_MAX_UPSCALE = 4;
+
+function fitImageInModal(img) {
+  const nw = img.naturalWidth;
+  const nh = img.naturalHeight;
+  if (!nw || !nh) return;
+
+  const maxW = window.innerWidth - IMAGE_MODAL_PADDING * 2;
+  const maxH = window.innerHeight - IMAGE_MODAL_PADDING * 2;
+  const longest = Math.max(nw, nh);
+
+  let scale = Math.min(maxW / nw, maxH / nh, 1);
+
+  if (longest * scale < IMAGE_MODAL_MIN_LONGEST) {
+    scale = Math.min(IMAGE_MODAL_MIN_LONGEST / longest, IMAGE_MODAL_MAX_UPSCALE);
+  }
+
+  scale = Math.min(scale, maxW / nw, maxH / nh);
+
+  img.style.width = `${Math.round(nw * scale)}px`;
+  img.style.height = `${Math.round(nh * scale)}px`;
+}
+
 function openImageModal(src) {
   const modal = document.getElementById('universal-modal');
   const modalBody = document.getElementById('modal-body');
   const modalContent = modal.querySelector('.modal-content');
 
-  modalContent.classList.add('image-viewer');
-
+  modalContent.className = 'modal-content image-viewer';
   modalBody.innerHTML = '';
 
   const img = document.createElement('img');
@@ -240,39 +351,11 @@ function openImageModal(src) {
   img.alt = 'изображение заметки';
   img.className = 'full-modal-image';
 
-  img.addEventListener('load', () => {
-    const MIN_IMAGE_SIZE = 700; 
-    const MAX_SCALE = 3;
-
-    const naturalWidth = img.naturalWidth;
-    const naturalHeight = img.naturalHeight;
-
-    const availableWidth = window.innerWidth - 64;
-    const availableHeight = window.innerHeight - 64;
-
-    const longestSide = Math.max(naturalWidth, naturalHeight);
-
-    let scale = 1;
-
-    if (longestSide < MIN_IMAGE_SIZE) {
-      scale = MIN_IMAGE_SIZE / longestSide;
-    }
-
-    scale = Math.min(scale, MAX_SCALE);
-
-    const fitScale = Math.min(
-      availableWidth / naturalWidth,
-      availableHeight / naturalHeight
-    );
-
-    scale = Math.min(scale, fitScale);
-
-    img.style.width = `${naturalWidth * scale}px`;
-    img.style.height = `${naturalHeight * scale}px`;
-  });
+  const onReady = () => fitImageInModal(img);
+  img.addEventListener('load', onReady);
+  if (img.complete) onReady();
 
   modalBody.appendChild(img);
-
   modal.style.display = 'flex';
 }
 
@@ -331,7 +414,36 @@ document.addEventListener('DOMContentLoaded', () => {
   if (sortOrder) sortOrder.addEventListener('change', applySort);
 });
 
+window.getActiveTagFilter = () => [...state.activeFilterTags];
+
+window.setActiveTagFilter = (tags) => {
+  state.activeFilterTags = normalizeTagList(tags);
+  localStorage.setItem('activeFilterTags', JSON.stringify(state.activeFilterTags));
+  window.updateTagsBtnState?.();
+  renderNotes();
+};
+
 cardsList.addEventListener('click', async (e) => {
+  const addTagBtn = e.target.closest('.tag-add-btn');
+  if (addTagBtn) {
+    e.stopPropagation();
+    const noteId = addTagBtn.dataset.noteId;
+    await window.openNoteTagsModal?.(noteId);
+    return;
+  }
+
+  const tagBtn = e.target.closest('.tag-note');
+  if (tagBtn) {
+    const noteId = tagBtn.dataset.noteId;
+    const tag = tagBtn.dataset.tag;
+    const note = allNotes.find(item => String(item.id) === String(noteId));
+    if (!note) return;
+
+    const tags = normalizeTagList(note.tags || []).filter(t => t !== String(tag).toLowerCase());
+    await changeNoteTags(noteId, tags);
+    return;
+  }
+
   const deleteBtn = e.target.closest('.delete-note');
 
   if (deleteBtn) {
@@ -382,10 +494,14 @@ cardsList.addEventListener('change', async (e) => {
 window.loadAllNotes = loadAllNotes;
 window.refreshNotes = refreshNotes;
 window.renderNotes = renderNotes;
+window.loadTagsForPicker = loadTagsForPicker;
+window.getAvailableTagsForNote = getAvailableTagsForNote;
+window.appendTagsToNote = appendTagsToNote;
 
 async function initParser() {
   await window.fsStorage.restoreFolder();
   await refreshNotes();
+  window.updateTagsBtnState?.();
   filter.classList.add('ready');
 }
 

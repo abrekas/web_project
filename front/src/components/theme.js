@@ -2,6 +2,10 @@ import { closeModal, openModal } from './modal.js';
 
 const colorBtn = document.getElementById("color-btn");
 
+const TAG_ICON_LIGHT = 'media/tag.png';
+const TAG_ICON_DARK = 'media/tag white.png';
+const DARK_THEMES = new Set(['sky']);
+
 const themes = {
     mint: {
         '--background-color': '#ffffff',
@@ -37,7 +41,7 @@ const themes = {
         '--notes-text-color': '#d3d3d3',
         '--card-color': '#3A3A3F',
         '--accent-color': '#272729',
-        '--link-color': '#d3d3d3',
+        '--link-color': '#b9b9b9',
         '--card-bg': '#333336',
         '--card-content-bg': '#333336',
         '--icon-filter': 'invert(1) brightness(2)'
@@ -92,6 +96,12 @@ function initThemeHandlers() {
     }
 }
 
+function updateTagIcon(themeName) {
+    const img = document.getElementById('tags-btn-icon');
+    if (!img) return;
+    img.src = DARK_THEMES.has(themeName) ? TAG_ICON_DARK : TAG_ICON_LIGHT;
+}
+
 function applyTheme(themeName) {
     const theme = themes[themeName];
 
@@ -101,6 +111,7 @@ function applyTheme(themeName) {
         root.style.setProperty(variable, theme[variable]);
     });
 
+    updateTagIcon(themeName);
     localStorage.setItem("selectedTheme", themeName);
 }
 
