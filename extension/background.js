@@ -7,10 +7,9 @@ const DB_NAME = 'NotesExtensionDB';
 const STORE_NAME = 'folderHandle';
 const DB_VERSION = 1;
 
-// Кэш категорий
 let categoriesCache = null;
 let categoriesCacheTime = 0;
-const CACHE_TTL = 10000; // 10 секунд
+const CACHE_TTL = 10000;
 
 function openDB() {
   return new Promise((resolve, reject) => {
@@ -133,7 +132,6 @@ async function addImageNote(imageData) {
   return newNote;
 }
 
-// Чтение categories.json
 async function readCategoriesArray() {
   await ensureFolderHandle();
   if (!folderHandle) throw new Error('Папка не выбрана');
@@ -144,7 +142,6 @@ async function readCategoriesArray() {
     const content = await file.text();
     const data = JSON.parse(content);
 
-    // Приведение к массиву строк
     if (Array.isArray(data)) {
       if (data.length > 0 && typeof data[0] === 'object' && data[0].name) {
         return data.map(item => item.name);
@@ -158,7 +155,6 @@ async function readCategoriesArray() {
   }
 }
 
-// Получение категорий с кэшированием
 async function getCategories() {
   const now = Date.now();
   if (categoriesCache && (now - categoriesCacheTime) < CACHE_TTL) {
@@ -174,7 +170,6 @@ async function getCategories() {
   }
 }
 
-// Сброс кэша категорий (при смене папки)
 function invalidateCategoriesCache() {
   categoriesCache = null;
   categoriesCacheTime = 0;
@@ -235,14 +230,13 @@ chrome.runtime.onConnect.addListener((port) => {
     if (msg.type === 'FOLDER_HANDLE') {
       folderHandle = msg.handle;
       await saveFolderHandle(folderHandle);
-      invalidateCategoriesCache(); // сброс кэша при новой папке
+      invalidateCategoriesCache();
       console.log('Дескриптор папки получен и сохранён');
       port.postMessage({ type: 'FOLDER_SAVED' });
     }
   });
 });
 
-// При старте восстанавливаем handle
 (async () => {
   await ensureFolderHandle();
   if (folderHandle) {
