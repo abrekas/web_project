@@ -287,7 +287,7 @@ async function changeCategoryDescription() {
       });
       
       if (categoryObj) {
-        await window.fsStorage.setCategoryDescription(currentCategory, newDescription);
+        await fsStorage.setCategoryDescription(currentCategory, newDescription);
         
         if (categoryObj.description !== undefined) {
           categoryObj.description = newDescription;
@@ -299,7 +299,7 @@ async function changeCategoryDescription() {
       console.error('Ошибка сохранения описания:', e);
       alert('Не удалось сохранить описание');
     }
-    
+
     editDiv.remove();
     changeBtn.style.display = 'block';
     textSpan.style.display = 'block';
@@ -415,7 +415,6 @@ async function changeNoteCategory(noteId, newCategory) {
     note.category = newCategory;
 
     await fsStorage.updateNote(note);
-
     allNotes = await getSortedNotes();
     
     loadAllCategories();
