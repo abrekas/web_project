@@ -6,7 +6,7 @@ let selectedCategory = 'общее';
 let selectedSite = null;
 
 async function getSitesInCategory(category) {
-  if (!fsStorage || !fsStorage.isReady()) {
+  if (!fsStorage || !fsStorage.isReady) {
     return [];
   }
   
@@ -90,7 +90,7 @@ async function renderCategory(category) {
   if (delBtn) {
     delBtn.addEventListener('click', async (ev) => {
       ev.stopPropagation();
-      if (!fsStorage || !fsStorage.isReady()) {
+      if (!fsStorage || !fsStorage.isReady) {
         alert('Сначала разрешите доступ к папке');
         return;
       }
@@ -161,7 +161,7 @@ async function loadAllCategories() {
     generalLi.appendChild(sitesList);
   }
 
-  if (!fsStorage || !fsStorage.isReady()) {
+  if (!fsStorage || !fsStorage.isReady) {
     return;
   }
 
@@ -218,7 +218,7 @@ categoriesUl.addEventListener('dblclick', (e) => {
 });
 
 function createNewCategory() {
-  if (!fsStorage || !fsStorage.isReady()) {
+  if (!fsStorage || !fsStorage.isReady) {
     alert('Сначала разрешите доступ к папке');
     return;
   }

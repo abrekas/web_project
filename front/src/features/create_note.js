@@ -15,8 +15,7 @@ function escapeHtml(str) {
 }
 
 async function loadCategoriesForForm() {
-    const ready = await fsStorage?.isReady();
-    if (!ready) return;
+    if (!fsStorage || !fsStorage.isReady) return;
 
     const categorySelect = document.getElementById('note-category');
     if (!categorySelect) return;
@@ -109,8 +108,7 @@ async function saveNewNote() {
 }
 
 export async function openCreateNoteModal() {
-    const ready = await fsStorage.isReady(); 
-    if (!ready) {
+    if (!fsStorage || !fsStorage.isReady) {
         alert('Сначала разрешите доступ к папке с данными');
         return;
     }

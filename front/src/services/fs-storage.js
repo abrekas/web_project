@@ -6,7 +6,9 @@
   const CATEGORIES_FILE = 'categories.json';
   const TAGS_FILE = 'tags.json';
 
-  let folderHandle = null;
+let folderHandle = null;
+let isFsReady = false;
+
 
   // ---------------- IndexedDB ----------------
   function openDB() {
@@ -70,12 +72,6 @@
   function hideStartupOverlay() {
     const overlay = document.getElementById('startup-overlay');
     if (overlay) overlay.classList.remove('show');
-}
-  
-let isFsReady = false;
-
-export function isReady() {
-  return isFsReady && !!folderHandle;
 }
 
   // ---------------- Folder init ----------------
@@ -407,5 +403,8 @@ export async function deleteTag(tagName) {
     saveTags,
     addTag,
     deleteTag,
-    isReady
+
+    get isReady() {
+      return isFsReady && !!folderHandle;
+    },
   };

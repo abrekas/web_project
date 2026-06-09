@@ -1,4 +1,5 @@
 import { fsStorage } from '../services/fs-storage.js';
+
 const cardsList = document.getElementById('cards-list');
 const searchInput = document.getElementById('search-input');
 const filter = document.querySelector('.view-switch');
@@ -28,7 +29,7 @@ function escapeHtml(str = '') {
 }
 
 async function loadCategoriesForSelects() {
-  if (!fsStorage || !fsStorage.isReady()) {
+  if (!fsStorage || !fsStorage.isReady) {
     allCategories = [];
     return;
   }
@@ -43,7 +44,7 @@ async function loadCategoriesForSelects() {
 }
 
 async function loadTagsForPicker() {
-  if (!fsStorage || !fsStorage.isReady()) {
+  if (!fsStorage || !fsStorage.isReady) {
     allTags = [];
     return;
   }
@@ -245,7 +246,7 @@ function renderNotes() {
 }
 
 async function refreshNotes(category = 'общее') {
-  if (!fsStorage || !fsStorage.isReady()) {
+  if (!fsStorage || !fsStorage.isReady) {
     cardsList.innerHTML = `<p>Сначала разрешите доступ к папке с данными</p>`;
     return;
   }
@@ -386,7 +387,7 @@ async function applySort() {
   localStorage.setItem('selectedOption', selectedValue);
   if (sortOrder) localStorage.setItem('sortOrder', order);
 
-  if (!fsStorage || !fsStorage.isReady()) return;
+  if (!fsStorage || !fsStorage.isReady) return;
 
   try {
     const sorted = await fsStorage.sortNotes(selectedValue, order);

@@ -9,7 +9,7 @@ let noteTagsModalNoteId = null;
 const escapeHtml = (str) => String(str).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
 
 async function loadSystemTags() {
-    if (!fsStorage?.isReady()) {
+    if (!fsStorage || !fsStorage.isReady) {
         allSystemTags = [];
         return;
     }
@@ -65,8 +65,7 @@ export function updateTagsBtnState() {
 }
 
 export async function openTagsFilterModal() {
-    const ready = await fsStorage.isReady();
-    if (!ready) {
+    if (!fsStorage || !fsStorage.isReady) {
         alert('Сначала разрешите доступ к папке');
         return;
     }
@@ -79,7 +78,7 @@ export async function openTagsFilterModal() {
 }
 
 export async function openNoteTagsModal(noteId) {
-    if (!fsStorage?.isReady()) {
+    if (!fsStorage || !fsStorage.isReady) {
         alert('Сначала разрешите доступ к папке');
         return;
     }
@@ -152,7 +151,7 @@ modalBody.addEventListener('click', async (e) => {
         const input = document.getElementById('new-tag-input');
         const tagText = input?.value.trim().toLowerCase();
 
-        if (tagText && fsStorage?.isReady()) {
+        if (tagText && fsStorage?.isReady) {
             const added = await fsStorage.addTag(tagText);
             const tag = added || tagText;
 
