@@ -1,3 +1,4 @@
+import { fsStorage } from '../services/fs-storage.js';
 import { openModal, closeModal } from '../components/modal.js';
 
 const createNoteBtn = document.getElementById('create-note-btn');
@@ -14,13 +15,14 @@ function escapeHtml(str) {
 }
 
 async function loadCategoriesForForm() {
-    if (!window.fsStorage || !window.fsStorage.isReady()) return;
+    const ready = await fsStorage?.isReady();
+    if (!ready) return;
 
     const categorySelect = document.getElementById('note-category');
     if (!categorySelect) return;
 
     try {
-        const categories = await window.fsStorage.getCategories();
+        const categories = await fsStorage.getCategories();
         const options = ['общее', ...categories];
 
         categorySelect.innerHTML = options
@@ -85,7 +87,7 @@ async function saveNewNote() {
             time: new Date().toLocaleString('ru-RU')
         };
 
-        await window.fsStorage.addNote(newNote);
+        await fsStorage.addNote(newNote);
 
         const activeCategoryLi = document.querySelector('#categories-ul li.active');
         const selectedCategory = activeCategoryLi?.dataset?.category || 'общее';
@@ -107,7 +109,8 @@ async function saveNewNote() {
 }
 
 export async function openCreateNoteModal() {
-    if (!window.fsStorage?.isReady()) {
+    const ready = await fsStorage.isReady(); 
+    if (!ready) {
         alert('Сначала разрешите доступ к папке с данными');
         return;
     }

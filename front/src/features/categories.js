@@ -1,3 +1,4 @@
+import { fsStorage } from '../services/fs-storage.js';
 const categoriesUl = document.getElementById('categories-ul');
 const newCategoryBtn = document.getElementById('folder-icon');
 
@@ -5,12 +6,12 @@ let selectedCategory = 'общее';
 let selectedSite = null;
 
 async function getSitesInCategory(category) {
-  if (!window.fsStorage || !window.fsStorage.isReady()) {
+  if (!fsStorage || !fsStorage.isReady()) {
     return [];
   }
   
   try {
-    const notes = await window.fsStorage.getNotes();
+    const notes = await fsStorage.getNotes();
     const sitesMap = new Map();
     
     const lowerCaseCategory = String(category).trim().toLowerCase();
@@ -89,7 +90,7 @@ async function renderCategory(category) {
   if (delBtn) {
     delBtn.addEventListener('click', async (ev) => {
       ev.stopPropagation();
-      if (!window.fsStorage || !window.fsStorage.isReady()) {
+      if (!fsStorage || !fsStorage.isReady()) {
         alert('Сначала разрешите доступ к папке');
         return;
       }
@@ -98,7 +99,7 @@ async function renderCategory(category) {
         return;
 
       try {
-        const ok = await window.fsStorage.deleteCategory(category);
+        const ok = await fsStorage.deleteCategory(category);
         if (!ok) {
           alert('Не удалось удалить категорию');
           return;
@@ -160,12 +161,12 @@ async function loadAllCategories() {
     generalLi.appendChild(sitesList);
   }
 
-  if (!window.fsStorage || !window.fsStorage.isReady()) {
+  if (!fsStorage || !fsStorage.isReady()) {
     return;
   }
 
   try {
-    const list = await window.fsStorage.getCategories();
+    const list = await fsStorage.getCategories();
     list.forEach(category => renderCategory(category));
   } catch (e) {
     console.error('Ошибка загрузки категорий', e);
@@ -217,7 +218,7 @@ categoriesUl.addEventListener('dblclick', (e) => {
 });
 
 function createNewCategory() {
-  if (!window.fsStorage || !window.fsStorage.isReady()) {
+  if (!fsStorage || !fsStorage.isReady()) {
     alert('Сначала разрешите доступ к папке');
     return;
   }
@@ -240,7 +241,7 @@ function createNewCategory() {
       return;
     }
 
-    const added = await window.fsStorage.addCategory(val);
+    const added = await fsStorage.addCategory(val);
 
     if (!added || val === 'общее') {
       alert('Такая категория уже существует');

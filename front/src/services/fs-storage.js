@@ -1,4 +1,3 @@
-(() => {
   const DB_NAME = 'HighliterDB';
   const STORE_NAME = 'appStore';
   const DB_VERSION = 1;
@@ -71,10 +70,16 @@
   function hideStartupOverlay() {
     const overlay = document.getElementById('startup-overlay');
     if (overlay) overlay.classList.remove('show');
-  }
+}
+  
+let isFsReady = false;
+
+export function isReady() {
+  return isFsReady && !!folderHandle;
+}
 
   // ---------------- Folder init ----------------
-  async function chooseFolderByUser() {
+  export async function chooseFolderByUser() {
     if (!window.showDirectoryPicker) {
       throw new Error('Браузер не поддерживает File System Access API');
     }
@@ -87,6 +92,7 @@
     }
 
     folderHandle = handle;
+    isFsReady = true;
     await dbSet('dataFolderHandle', handle);
 
     await ensureFileExists(NOTES_FILE, []);
@@ -97,10 +103,11 @@
     return handle;
   }
 
-  async function restoreFolder() {
+  export async function restoreFolder() {
   const saved = await dbGet('dataFolderHandle');
   if (!saved) {
     showStartupOverlay();
+    isFsReady = false;
     return null;
   }
 
@@ -108,6 +115,7 @@
     const ok = await verifyPermission(saved, 'readwrite');
     if (!ok) {
       showStartupOverlay('Нужно заново разрешить доступ к папке.');
+      isFsReady = false;
       return null;
     }
 
@@ -117,11 +125,13 @@
     await ensureFileExists(TAGS_FILE, []);
     hideStartupOverlay();
 
+    isFsReady = true; 
     window.dispatchEvent(new CustomEvent('fs-ready')); // ВАЖНО
 
     return saved;
   } catch (e) {
     showStartupOverlay('Не удалось восстановить доступ к папке.');
+    isFsReady = false;
     return null;
   }
 }
@@ -169,15 +179,15 @@
   }
 
   // ---------------- Notes API ----------------
-  async function getNotes() {
+  export async function getNotes() {
     return await readJsonFile(NOTES_FILE, []);
   }
 
-  async function saveNotes(notesArray) {
+  export async function saveNotes(notesArray) {
     await writeJsonFile(NOTES_FILE, notesArray);
   }
 
-  async function addNote(note) {
+  export async function addNote(note) {
     const notes = await getNotes();
     const nowIso = new Date().toISOString();
 
@@ -198,7 +208,7 @@
     return newNote;
   }
 
-  async function updateNote(updatedNote) {
+  export async function updateNote(updatedNote) {
     const notes = await getNotes();
     const index = notes.findIndex(n => n.id === updatedNote.id);
     if (index === -1) throw new Error('Заметка не найдена');
@@ -208,7 +218,7 @@
     return notes[index];
   }
 
-  async function deleteNote(noteId) {
+  export async function deleteNote(noteId) {
     const notes = await getNotes();
     const filtered = notes.filter(n => String(n.id) !== noteId);
     await saveNotes(filtered);
@@ -229,7 +239,7 @@
     return new Date(0);
   }
 
-  async function sortNotes(parameter, order = 'asc') {
+  export async function sortNotes(parameter, order = 'asc') {
     const notes = await getNotes();
     const dir = order === 'desc' ? -1 : 1;
     switch (parameter) {
@@ -248,15 +258,15 @@
   }
 
   // ---------------- Categories API ----------------
-  async function getCategories() {
+  export async function getCategories() {
     return await readJsonFile(CATEGORIES_FILE, []);
   }
 
-  async function saveCategories(categories) {
+export async function saveCategories(categories) {
     await writeJsonFile(CATEGORIES_FILE, categories);
   }
 
-  async function addCategory(categoryName) {
+export async function addCategory(categoryName) {
     const value = String(categoryName || '').trim();
     if (!value) return null;
 
@@ -270,7 +280,7 @@
     return value;
   }
 
-  async function deleteCategory(categoryName) {
+export async function deleteCategory(categoryName) {
     const value = String(categoryName || '').trim();
     if (!value) return false;
     if (value.toLowerCase() === 'общее') return false;
@@ -297,15 +307,15 @@
   }
 
   // ---------------- Tags API ----------------
-  async function getTags() {
+export async function getTags() {
     return await readJsonFile(TAGS_FILE, []);
   }
 
-  async function saveTags(tags) {
+export async function saveTags(tags) {
     await writeJsonFile(TAGS_FILE, tags);
   }
 
-  async function addTag(tagName) {
+export async function addTag(tagName) {
     const value = String(tagName || '').trim().toLowerCase();
     if (!value) return null;
 
@@ -319,7 +329,7 @@
     return value;
   }
 
-  async function deleteTag(tagName) {
+export async function deleteTag(tagName) {
     const value = String(tagName || '').trim().toLowerCase();
     if (!value) return false;
 
@@ -347,7 +357,7 @@
   }
 
   // ---------------- Events ----------------
-  window.addEventListener('DOMContentLoaded', () => {
+  export function initFsStorage() {
     const grantBtn = document.getElementById('grant-access-btn');
     const cancelBtn = document.getElementById('startup-cancel-btn');
     const err = document.getElementById('startup-error');
@@ -376,30 +386,26 @@
         hideStartupOverlay();
       });
     }
-  });
+  }
 
-  // ---------------- Public API ----------------
-  window.fsStorage = {
+  window.addEventListener('DOMContentLoaded', initFsStorage);
+
+  export const fsStorage = {
     restoreFolder,
     chooseFolderByUser,
-
     getNotes,
     saveNotes,
     addNote,
     updateNote,
     deleteNote,
     sortNotes,
-
     getCategories,
     saveCategories,
     addCategory,
     deleteCategory,
-
     getTags,
     saveTags,
     addTag,
     deleteTag,
-
-    isReady: () => !!folderHandle
+    isReady
   };
-})();

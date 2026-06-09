@@ -1,3 +1,4 @@
+import { fsStorage } from '../services/fs-storage.js';
 const cardsList = document.getElementById('cards-list');
 const searchInput = document.getElementById('search-input');
 const filter = document.querySelector('.view-switch');
@@ -27,13 +28,13 @@ function escapeHtml(str = '') {
 }
 
 async function loadCategoriesForSelects() {
-  if (!window.fsStorage || !window.fsStorage.isReady()) {
+  if (!fsStorage || !fsStorage.isReady()) {
     allCategories = [];
     return;
   }
 
   try {
-    const categories = await window.fsStorage.getCategories();
+    const categories = await fsStorage.getCategories();
     allCategories = Array.isArray(categories) ? categories : [];
   } catch (e) {
     console.error('Ошибка загрузки категорий:', e);
@@ -42,13 +43,13 @@ async function loadCategoriesForSelects() {
 }
 
 async function loadTagsForPicker() {
-  if (!window.fsStorage || !window.fsStorage.isReady()) {
+  if (!fsStorage || !fsStorage.isReady()) {
     allTags = [];
     return;
   }
 
   try {
-    const tags = await window.fsStorage.getTags();
+    const tags = await fsStorage.getTags();
     allTags = Array.isArray(tags) ? tags : [];
   } catch (e) {
     console.error('Ошибка загрузки тэгов:', e);
@@ -229,11 +230,11 @@ function getState() {
 }
 
 async function getSortedNotes() {
-  const notes = await window.fsStorage.getNotes();
+  const notes = await fsStorage.getNotes();
   const savedSort = localStorage.getItem('selectedOption');
   const savedOrder = localStorage.getItem('sortOrder') || 'asc';
   if (savedSort) {
-    return await window.fsStorage.sortNotes(savedSort, savedOrder);
+    return await fsStorage.sortNotes(savedSort, savedOrder);
   }
   return notes;
 }
@@ -244,7 +245,7 @@ function renderNotes() {
 }
 
 async function refreshNotes(category = 'общее') {
-  if (!window.fsStorage || !window.fsStorage.isReady()) {
+  if (!fsStorage || !fsStorage.isReady()) {
     cardsList.innerHTML = `<p>Сначала разрешите доступ к папке с данными</p>`;
     return;
   }
@@ -267,7 +268,7 @@ async function changeNoteTags(noteId, newTags) {
 
     note.tags = normalizeTagList(newTags);
 
-    await window.fsStorage.updateNote(note);
+    await fsStorage.updateNote(note);
     allNotes = await getSortedNotes();
     renderNotes();
   } catch (e) {
@@ -291,7 +292,7 @@ async function changeNoteCategory(noteId, newCategory) {
 
     note.category = newCategory;
 
-    await window.fsStorage.updateNote(note);
+    await fsStorage.updateNote(note);
 
     allNotes = await getSortedNotes();
     
@@ -385,11 +386,11 @@ async function applySort() {
   localStorage.setItem('selectedOption', selectedValue);
   if (sortOrder) localStorage.setItem('sortOrder', order);
 
-  if (!window.fsStorage || !window.fsStorage.isReady()) return;
+  if (!fsStorage || !fsStorage.isReady()) return;
 
   try {
-    const sorted = await window.fsStorage.sortNotes(selectedValue, order);
-    allNotes = Array.isArray(sorted) ? sorted : await window.fsStorage.getNotes();
+    const sorted = await fsStorage.sortNotes(selectedValue, order);
+    allNotes = Array.isArray(sorted) ? sorted : await fsStorage.getNotes();
     renderNotes();
   } catch (e) {
     console.error('Ошибка сортировки заметок:', e);
@@ -451,7 +452,7 @@ cardsList.addEventListener('click', async (e) => {
 
     if (confirm('Удалить заметку?')) {
       const noteId = card.getAttribute('data-note-id');
-      allNotes = await window.fsStorage.deleteNote(noteId);
+      allNotes = await fsStorage.deleteNote(noteId);
       card.remove();
     }
 
@@ -499,7 +500,7 @@ window.getAvailableTagsForNote = getAvailableTagsForNote;
 window.appendTagsToNote = appendTagsToNote;
 
 async function initParser() {
-  await window.fsStorage.restoreFolder();
+  await fsStorage.restoreFolder();
   await refreshNotes();
   window.updateTagsBtnState?.();
   filter.classList.add('ready');
