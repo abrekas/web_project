@@ -1,7 +1,7 @@
 import { fsStorage } from '../services/fs-storage.js';
 import { updateTagsBtnState, openNoteTagsModal } from '../features/tags.js';
 import { loadAllCategories } from '../features/categories.js'
-
+import { switchLayout } from './layout.js'
 
 const cardsList = document.getElementById('cards-list');
 const searchInput = document.getElementById('search-input');
@@ -181,6 +181,7 @@ function getDomainFromUrl(url) {
 function filterNotes(category = 'общее', searchToken = '', site = null, view = 'all', filterTags = []) {
   const cat = String(category).trim().toLowerCase();
   const search = String(searchToken).trim().toLowerCase();
+  const searchInverted = switchLayout(search);
   const selectedSite = site ? String(site).trim().toLowerCase() : null;
   const selectedDomain = selectedSite ? getDomainFromUrl(selectedSite) : null;
   const tagFilter = normalizeTagList(filterTags);
@@ -192,12 +193,19 @@ function filterNotes(category = 'общее', searchToken = '', site = null, vie
     const noteDomain = getDomainFromUrl(noteSite);
 
     const byCategory = cat === 'общее' || noteCategory === cat;
-    const bySearch = !search || noteContent.includes(search) || noteSite.includes(search) || noteCategory.includes(search);
+    const bySearch = !search ||
+      noteContent.includes(search) || noteContent.includes(searchInverted) ||
+      noteSite.includes(search) || noteSite.includes(searchInverted) ||
+      noteCategory.includes(search) || noteCategory.includes(searchInverted);
+    
     let bySite = true;
-    if (selectedDomain) bySite = noteDomain === selectedDomain;
+    if (selectedDomain)
+      bySite = noteDomain === selectedDomain;
     let byType = true;
-    if (view === 'text') byType = note.type != 'image';
-    if (view === 'image') byType = note.type === 'image';
+    if (view === 'text')
+      byType = note.type != 'image';
+    if (view === 'image')
+      byType = note.type === 'image';
     const byTags = noteMatchesTagFilter(note, tagFilter);
 
     return byCategory && bySearch && bySite && byType && byTags;
