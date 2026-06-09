@@ -51,19 +51,31 @@
             <img class="search-icon" src="media/search_icon.png" />
           </div>
           <div class="sort-bar" aria-label="сортировка">
-            <select id="sort-menu" class="sort-select" aria-label="поле сортировки">
+            <select
+              id="sort-menu"
+              class="sort-select"
+              aria-label="поле сортировки"
+            >
               <option value="byDate">по дате</option>
               <option value="bySite">по сайту</option>
             </select>
-            <select id="sort-order" class="sort-select sort-order" aria-label="порядок сортировки">
+            <select
+              id="sort-order"
+              class="sort-select sort-order"
+              aria-label="порядок сортировки"
+            >
               <option value="asc">по возрастанию</option>
               <option value="desc">по убыванию</option>
             </select>
           </div>
 
-          <button id="tags-btn" class="tags-btn"><img id="tags-btn-icon" src="media/tag.png" alt="Тэги"></button>
+          <button id="tags-btn" class="tags-btn">
+            <img id="tags-btn-icon" src="media/tag.png" alt="Тэги" />
+          </button>
 
-          <button id="create-note-btn" class="create-note-btn">Создать заметку</button>
+          <button id="create-note-btn" class="create-note-btn">
+            Создать заметку
+          </button>
 
           <nav class="view-switch">
             <button data-view="all" class="active">все</button>
@@ -71,7 +83,7 @@
             <button data-view="text">текст</button>
           </nav>
         </header>
-
+        <div id="category-description" class="category-description"></div>
         <section id="cards-list" class="cards-list"></section>
       </main>
     </div>
@@ -86,20 +98,34 @@
       <div class="startup-layout">
         <div class="startup-box">
           <a href="extension.zip" download>Скачайте расширение</a>
-          <p>После скачивания распакуйте архив, откройте browser://extensions/, справа сверху включите режим разработчика, 
-            слева появится кнопка "Загрузить распакованное расширение" - нажмите её и выберите распакованный архив</p>
-          <p>Далее, после установки, в списке появится расширение "выдели и сохрани", под ним нажмите "сведения", откройте "Параметры расширений", выберите нужную папку для сохранения</p>
-          
+          <p>
+            После скачивания распакуйте архив, откройте browser://extensions/,
+            справа сверху включите режим разработчика, слева появится кнопка
+            "Загрузить распакованное расширение" - нажмите её и выберите
+            распакованный архив
+          </p>
+          <p>
+            Далее, после установки, в списке появится расширение "выдели и
+            сохрани", под ним нажмите "сведения", откройте "Параметры
+            расширений", выберите нужную папку для сохранения
+          </p>
+
           <h2>Разрешите доступ к папке с данными</h2>
           <p>
             Сайт хранит ваши заметки и категории в выбранной вами папке. Будут
-            использоваться файлы <b>notes.json</b>, <b>categories.json</b> и <b>tags.json</b>.
+            использоваться файлы <b>notes.json</b>, <b>categories.json</b> и
+            <b>tags.json</b>.
           </p>
           <div class="startup-actions">
             <button id="grant-access-btn" class="primary-btn">
               Разрешить доступ
             </button>
-            <button id="open-guide-btn" class="secondary-btn" type="button" aria-expanded="false">
+            <button
+              id="open-guide-btn"
+              class="secondary-btn"
+              type="button"
+              aria-expanded="false"
+            >
               открыть гайд
             </button>
             <button id="startup-cancel-btn" class="secondary-btn">Позже</button>
@@ -110,7 +136,13 @@
         <div id="startup-guide" class="startup-guide" aria-label="гайд">
           <div class="startup-guide-header">
             <h3>Гайд</h3>
-            <button id="close-guide-btn" class="startup-guide-close" type="button">Закрыть</button>
+            <button
+              id="close-guide-btn"
+              class="startup-guide-close"
+              type="button"
+            >
+              Закрыть
+            </button>
           </div>
           <div class="startup-guide-list">
             <div class="startup-guide-element">
@@ -118,24 +150,61 @@
                 <span class="guide-name" id="guide-chrome-toggle">
                   chrome
                   <span class="arrow-icon-down">
-                    <svg data-tid="Icon__root" width="14" height="14" class="ui-parking-icon-base" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" aria-hidden="true" style="fill: currentcolor; margin-bottom: -0.1875em; flex-shrink: 0;">
-                      <path fill-rule="evenodd" clip-rule="evenodd" d="M2.97 5.47a.75.75 0 0 1 1.06 0l3.793 3.793a.25.25 0 0 0 .354 0L11.97 5.47a.75.75 0 1 1 1.06 1.06l-3.793 3.793a1.75 1.75 0 0 1-2.474 0L2.97 6.53a.75.75 0 0 1 0-1.06Z"></path>
+                    <svg
+                      data-tid="Icon__root"
+                      width="14"
+                      height="14"
+                      class="ui-parking-icon-base"
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 16 16"
+                      aria-hidden="true"
+                      style="
+                        fill: currentcolor;
+                        margin-bottom: -0.1875em;
+                        flex-shrink: 0;
+                      "
+                    >
+                      <path
+                        fill-rule="evenodd"
+                        clip-rule="evenodd"
+                        d="M2.97 5.47a.75.75 0 0 1 1.06 0l3.793 3.793a.25.25 0 0 0 .354 0L11.97 5.47a.75.75 0 1 1 1.06 1.06l-3.793 3.793a1.75 1.75 0 0 1-2.474 0L2.97 6.53a.75.75 0 0 1 0-1.06Z"
+                      ></path>
                     </svg>
                   </span>
                 </span>
               </div>
               <div class="startup-guide-grid" id="startup-guide-chrome-grid">
-                <label>Шаг 1
-                  <img class="startup-guide-image" src="media/guide_pictures/chrome1.png" alt="Шаг 1" />
+                <label
+                  >Шаг 1
+                  <img
+                    class="startup-guide-image"
+                    src="media/guide_pictures/chrome1.png"
+                    alt="Шаг 1"
+                  />
                 </label>
-                <label>Шаг 2
-                  <img class="startup-guide-image" src="media/guide_pictures/chrome2.png" alt="Шаг 2" />
+                <label
+                  >Шаг 2
+                  <img
+                    class="startup-guide-image"
+                    src="media/guide_pictures/chrome2.png"
+                    alt="Шаг 2"
+                  />
                 </label>
-                <label>Шаг 3
-                  <img class="startup-guide-image" src="media/guide_pictures/chrome3.png" alt="Шаг 3" />
+                <label
+                  >Шаг 3
+                  <img
+                    class="startup-guide-image"
+                    src="media/guide_pictures/chrome3.png"
+                    alt="Шаг 3"
+                  />
                 </label>
-                <label>Шаг 4
-                  <img class="startup-guide-image" src="media/guide_pictures/chrome4.png" alt="Шаг 4" />
+                <label
+                  >Шаг 4
+                  <img
+                    class="startup-guide-image"
+                    src="media/guide_pictures/chrome4.png"
+                    alt="Шаг 4"
+                  />
                 </label>
               </div>
             </div>
@@ -144,24 +213,61 @@
                 <span class="guide-name" id="guide-firefox-toggle">
                   яндекс
                   <span class="arrow-icon-down">
-                    <svg data-tid="Icon__root" width="14" height="14" class="ui-parking-icon-base" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" aria-hidden="true" style="fill: currentcolor; margin-bottom: -0.1875em; flex-shrink: 0;">
-                      <path fill-rule="evenodd" clip-rule="evenodd" d="M2.97 5.47a.75.75 0 0 1 1.06 0l3.793 3.793a.25.25 0 0 0 .354 0L11.97 5.47a.75.75 0 1 1 1.06 1.06l-3.793 3.793a1.75 1.75 0 0 1-2.474 0L2.97 6.53a.75.75 0 0 1 0-1.06Z"></path>
+                    <svg
+                      data-tid="Icon__root"
+                      width="14"
+                      height="14"
+                      class="ui-parking-icon-base"
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 16 16"
+                      aria-hidden="true"
+                      style="
+                        fill: currentcolor;
+                        margin-bottom: -0.1875em;
+                        flex-shrink: 0;
+                      "
+                    >
+                      <path
+                        fill-rule="evenodd"
+                        clip-rule="evenodd"
+                        d="M2.97 5.47a.75.75 0 0 1 1.06 0l3.793 3.793a.25.25 0 0 0 .354 0L11.97 5.47a.75.75 0 1 1 1.06 1.06l-3.793 3.793a1.75 1.75 0 0 1-2.474 0L2.97 6.53a.75.75 0 0 1 0-1.06Z"
+                      ></path>
                     </svg>
                   </span>
                 </span>
               </div>
               <div class="startup-guide-grid" id="startup-firefox-guide-grid">
-                <label>Шаг 1
-                  <img class="startup-guide-image" src="media/guide_pictures/yandex1.jpg" alt="Шаг 1" />
+                <label
+                  >Шаг 1
+                  <img
+                    class="startup-guide-image"
+                    src="media/guide_pictures/yandex1.jpg"
+                    alt="Шаг 1"
+                  />
                 </label>
-                <label>Шаг 2
-                  <img class="startup-guide-image" src="media/guide_pictures/yandex2.jpg" alt="Шаг 2" />
+                <label
+                  >Шаг 2
+                  <img
+                    class="startup-guide-image"
+                    src="media/guide_pictures/yandex2.jpg"
+                    alt="Шаг 2"
+                  />
                 </label>
-                <label>Шаг 3
-                  <img class="startup-guide-image" src="media/guide_pictures/yandex3.jpg" alt="Шаг 3" />
+                <label
+                  >Шаг 3
+                  <img
+                    class="startup-guide-image"
+                    src="media/guide_pictures/yandex3.jpg"
+                    alt="Шаг 3"
+                  />
                 </label>
-                <label>Шаг 4
-                  <img class="startup-guide-image" src="media/guide_pictures/yandex4.jpg" alt="Шаг 4" />
+                <label
+                  >Шаг 4
+                  <img
+                    class="startup-guide-image"
+                    src="media/guide_pictures/yandex4.jpg"
+                    alt="Шаг 4"
+                  />
                 </label>
               </div>
             </div>
@@ -170,24 +276,61 @@
                 <span class="guide-name" id="guide-firefox-toggle">
                   edge
                   <span class="arrow-icon-down">
-                    <svg data-tid="Icon__root" width="14" height="14" class="ui-parking-icon-base" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" aria-hidden="true" style="fill: currentcolor; margin-bottom: -0.1875em; flex-shrink: 0;">
-                      <path fill-rule="evenodd" clip-rule="evenodd" d="M2.97 5.47a.75.75 0 0 1 1.06 0l3.793 3.793a.25.25 0 0 0 .354 0L11.97 5.47a.75.75 0 1 1 1.06 1.06l-3.793 3.793a1.75 1.75 0 0 1-2.474 0L2.97 6.53a.75.75 0 0 1 0-1.06Z"></path>
+                    <svg
+                      data-tid="Icon__root"
+                      width="14"
+                      height="14"
+                      class="ui-parking-icon-base"
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 16 16"
+                      aria-hidden="true"
+                      style="
+                        fill: currentcolor;
+                        margin-bottom: -0.1875em;
+                        flex-shrink: 0;
+                      "
+                    >
+                      <path
+                        fill-rule="evenodd"
+                        clip-rule="evenodd"
+                        d="M2.97 5.47a.75.75 0 0 1 1.06 0l3.793 3.793a.25.25 0 0 0 .354 0L11.97 5.47a.75.75 0 1 1 1.06 1.06l-3.793 3.793a1.75 1.75 0 0 1-2.474 0L2.97 6.53a.75.75 0 0 1 0-1.06Z"
+                      ></path>
                     </svg>
                   </span>
                 </span>
               </div>
               <div class="startup-guide-grid" id="startup-firefox-guide-grid">
-                <label>Шаг 1
-                  <img class="startup-guide-image" src="media/guide_pictures/edge1.png" alt="Шаг 1" />
+                <label
+                  >Шаг 1
+                  <img
+                    class="startup-guide-image"
+                    src="media/guide_pictures/edge1.png"
+                    alt="Шаг 1"
+                  />
                 </label>
-                <label>Шаг 2
-                  <img class="startup-guide-image" src="media/guide_pictures/edge2.png" alt="Шаг 2" />
+                <label
+                  >Шаг 2
+                  <img
+                    class="startup-guide-image"
+                    src="media/guide_pictures/edge2.png"
+                    alt="Шаг 2"
+                  />
                 </label>
-                <label>Шаг 3
-                  <img class="startup-guide-image" src="media/guide_pictures/edge3.png" alt="Шаг 3" />
+                <label
+                  >Шаг 3
+                  <img
+                    class="startup-guide-image"
+                    src="media/guide_pictures/edge3.png"
+                    alt="Шаг 3"
+                  />
                 </label>
-                <label>Шаг 4
-                  <img class="startup-guide-image" src="media/guide_pictures/edge4.png" alt="Шаг 4" />
+                <label
+                  >Шаг 4
+                  <img
+                    class="startup-guide-image"
+                    src="media/guide_pictures/edge4.png"
+                    alt="Шаг 4"
+                  />
                 </label>
               </div>
             </div>
@@ -205,10 +348,20 @@
       <div class="color-container">
         <div>Выберите тему</div>
         <div class="grid-layout">
-          <img id="mint" class="grid-item" src="media/theme4.png" alt="Тема 1">
-          <img id="rose" class="grid-item" src="media/theme1.png" alt="Тема 2">
-          <img id="sky" class="grid-item" src="media/theme2.png" alt="Тема 3">
-          <img id="gum" class="grid-item" src="media/theme3.png" alt="Тема 4">
+          <img
+            id="mint"
+            class="grid-item"
+            src="media/theme4.png"
+            alt="Тема 1"
+          />
+          <img
+            id="rose"
+            class="grid-item"
+            src="media/theme1.png"
+            alt="Тема 2"
+          />
+          <img id="sky" class="grid-item" src="media/theme2.png" alt="Тема 3" />
+          <img id="gum" class="grid-item" src="media/theme3.png" alt="Тема 4" />
         </div>
       </div>
     </template>
@@ -228,17 +381,32 @@
 
         <div class="form-group" id="content-group">
           <label for="note-content">Текст заметки</label>
-          <textarea id="note-content" class="form-control" rows="5" placeholder="Введите текст заметки..."></textarea>
+          <textarea
+            id="note-content"
+            class="form-control"
+            rows="5"
+            placeholder="Введите текст заметки..."
+          ></textarea>
         </div>
 
         <div class="form-group hidden" id="image-group">
           <label for="note-image-url">URL изображения</label>
-          <input type="url" id="note-image-url" class="form-control" placeholder="https://example.com/image.jpg" />
+          <input
+            type="url"
+            id="note-image-url"
+            class="form-control"
+            placeholder="https://example.com/image.jpg"
+          />
         </div>
 
         <div class="form-group">
           <label for="note-site">Сайт / источник</label>
-          <input type="url" id="note-site" class="form-control" placeholder="Необязательно" />
+          <input
+            type="url"
+            id="note-site"
+            class="form-control"
+            placeholder="Необязательно"
+          />
         </div>
 
         <div class="form-group">
@@ -262,7 +430,9 @@
         </div>
 
         <div class="form-actions">
-          <button type="button" id="apply-note-tags-btn" class="primary-btn">Добавить</button>
+          <button type="button" id="apply-note-tags-btn" class="primary-btn">
+            Добавить
+          </button>
         </div>
       </div>
     </template>
@@ -272,10 +442,25 @@
         <h3>Фильтр по тэгам</h3>
 
         <div class="tag-input-row">
-          <input type="text" id="new-tag-input" class="form-control" placeholder="Новый тэг..." />
-          <button type="button" id="add-tag-form-btn" class="tag-add-input-btn" aria-label="Добавить тэг">
+          <input
+            type="text"
+            id="new-tag-input"
+            class="form-control"
+            placeholder="Новый тэг..."
+          />
+          <button
+            type="button"
+            id="add-tag-form-btn"
+            class="tag-add-input-btn"
+            aria-label="Добавить тэг"
+          >
             <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
-              <path d="M9 3v12M3 9h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <path
+                d="M9 3v12M3 9h12"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
             </svg>
           </button>
         </div>
@@ -285,12 +470,19 @@
         </div>
 
         <div class="form-actions">
-          <button type="button" id="clear-tags-filter-btn" class="secondary-btn">Сбросить</button>
-          <button type="button" id="apply-tags-filter-btn" class="primary-btn">Применить</button>
+          <button
+            type="button"
+            id="clear-tags-filter-btn"
+            class="secondary-btn"
+          >
+            Сбросить
+          </button>
+          <button type="button" id="apply-tags-filter-btn" class="primary-btn">
+            Применить
+          </button>
         </div>
       </div>
     </template>
-
 
     <script type="module" src="src/components/modal.js"></script>
     <script type="module" src="src/components/theme.js"></script>

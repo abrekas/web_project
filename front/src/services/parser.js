@@ -13,6 +13,7 @@ const state = {
 
 let allNotes = [];
 let allCategories = [];
+
 let allTags = [];
 
 function escapeHtml(str = '') {
@@ -39,6 +40,7 @@ async function loadCategoriesForSelects() {
     console.error('Ошибка загрузки категорий:', e);
     allCategories = [];
   }
+  console.log(allCategories)
 }
 
 async function loadTagsForPicker() {
@@ -69,8 +71,13 @@ function noteMatchesTagFilter(note, filterTags) {
 
 function buildCategoryOptions(currentCategory) {
   const normalizedCurrent = String(currentCategory || 'общее').trim();
-
-  const categoriesSet = new Set(['общее', ...allCategories, normalizedCurrent]);
+  
+  const categoryNames = allCategories.map(cat => {
+    if (typeof cat === 'string') return cat;
+    return cat.name || 'общее';
+  });
+  
+  const categoriesSet = new Set(['общее', ...categoryNames, normalizedCurrent]);
   const categories = Array.from(categoriesSet);
 
   return categories.map(category => {
@@ -103,7 +110,6 @@ function getAvailableTagsForNote(noteId) {
   const currentTags = normalizeTagList(note.tags || []);
   return allTags.filter(t => !currentTags.includes(String(t).toLowerCase()));
 }
-
 
 function renderNoteHtml(data) {
   const safeSiteRaw = String(data.site || '').replace(/^https?:\/\//, '');
@@ -152,14 +158,11 @@ function renderNoteHtml(data) {
       </div>
     </article>
   `;
-
 }
 
 function getDomainFromUrl(url) {
   const urlStr = String(url || '').toLowerCase().trim();
-  if (!urlStr) {
-    return '';
-  }
+  if (!urlStr) return '';
   
   const withoutProtocol = urlStr.replace(/^https?:\/\//, '');
   const domain = withoutProtocol.split('/')[0];
@@ -180,26 +183,137 @@ function filterNotes(category = 'общее', searchToken = '', site = null, vie
     const noteDomain = getDomainFromUrl(noteSite);
 
     const byCategory = cat === 'общее' || noteCategory === cat;
-    const bySearch =
-      !search ||
-      noteContent.includes(search) ||
-      noteSite.includes(search) ||
-      noteCategory.includes(search);
-
+    const bySearch = !search || noteContent.includes(search) || noteSite.includes(search) || noteCategory.includes(search);
     let bySite = true;
-    if (selectedDomain) {
-      bySite = noteDomain === selectedDomain;
-    }
-
+    if (selectedDomain) bySite = noteDomain === selectedDomain;
     let byType = true;
-
     if (view === 'text') byType = note.type != 'image';
     if (view === 'image') byType = note.type === 'image';
-
     const byTags = noteMatchesTagFilter(note, tagFilter);
 
     return byCategory && bySearch && bySite && byType && byTags;
   });
+}
+
+function updateCategoryDescription() {
+  const descElement = document.getElementById('category-description');
+  if (!descElement) return;
+  
+  const activeLi = document.querySelector('#categories-ul li.active');
+  const currentCategory = activeLi ? activeLi.dataset.category : 'общее';
+  
+  const changeBtn = descElement.querySelector('#category-description-change-btn');
+  const textSpan = descElement.querySelector('.category-description-text');
+  
+  if (currentCategory === 'общее') {
+    if (changeBtn) changeBtn.style.display = 'none';
+    if (textSpan) {
+      textSpan.textContent = 'Папка для всех заметок';
+      textSpan.className = 'category-description-text';
+    }
+    return;
+  }
+  
+  if (changeBtn) changeBtn.style.display = 'block';
+  
+  const categoryObj = allCategories.find(cat => {
+    const catName = typeof cat === 'string' ? cat : cat.name;
+    return catName.toLowerCase() === String(currentCategory).trim().toLowerCase();
+  });
+  
+  const description = categoryObj ? (categoryObj.description || '') : '';
+  
+  if (textSpan) {
+    if (description) {
+      textSpan.textContent = description;
+      textSpan.className = 'category-description-text';
+    } else {
+      textSpan.textContent = 'Нет описания';
+      textSpan.className = 'category-description-text category-description-empty';
+    }
+  }
+}
+
+async function changeCategoryDescription() {
+  const activeLi = document.querySelector('#categories-ul li.active');
+  const currentCategory = activeLi ? activeLi.dataset.category : 'общее';
+  
+  if (currentCategory === 'общее') {
+    alert('Нельзя изменить описание категории "общее"');
+    return;
+  }
+  
+  const descElement = document.getElementById('category-description');
+  const currentText = descElement.querySelector('.category-description-text')?.textContent || '';
+  const actualDesc = currentText === 'Нет описания' ? '' : currentText;
+  
+  const editHtml = `
+    <div class="category-description-edit">
+      <input type="text" id="category-description-input" value="${escapeHtml(actualDesc)}" placeholder="Введите описание категории">
+      <button id="save-description-btn">Сохранить</button>
+      <button id="cancel-description-btn">Отмена</button>
+    </div>
+  `;
+  
+  const changeBtn = descElement.querySelector('#category-description-change-btn');
+  const textSpan = descElement.querySelector('.category-description-text');
+  
+  changeBtn.style.display = 'none';
+  textSpan.style.display = 'none';
+  
+  const editDiv = document.createElement('div');
+  editDiv.innerHTML = editHtml;
+  descElement.insertBefore(editDiv, changeBtn);
+  
+  const input = document.getElementById('category-description-input');
+  input.focus();
+  
+  document.getElementById('save-description-btn').onclick = async () => {
+    const newDescription = input.value.trim();
+    
+    try {
+      const categoryObj = allCategories.find(cat => {
+        const catName = typeof cat === 'string' ? cat : cat.name;
+        return catName.toLowerCase() === currentCategory.toLowerCase();
+      });
+      
+      if (categoryObj) {
+        await window.fsStorage.setCategoryDescription(currentCategory, newDescription);
+        
+        if (categoryObj.description !== undefined) {
+          categoryObj.description = newDescription;
+        }
+        
+        updateCategoryDescription();
+      }
+    } catch (e) {
+      console.error('Ошибка сохранения описания:', e);
+      alert('Не удалось сохранить описание');
+    }
+    
+    editDiv.remove();
+    changeBtn.style.display = 'block';
+    textSpan.style.display = 'block';
+  };
+  
+  document.getElementById('cancel-description-btn').onclick = () => {
+    editDiv.remove();
+    changeBtn.style.display = 'block';
+    textSpan.style.display = 'block';
+  };
+}
+
+function initCategoryDescription() {
+  const descElement = document.getElementById('category-description');
+  if (!descElement) return;
+  
+  descElement.innerHTML = `
+    <span class="category-description-text"></span>
+    <button id="category-description-change-btn" class="">Изменить</button>
+  `;
+  
+  document.getElementById('category-description-change-btn').addEventListener('click', changeCategoryDescription);
+  updateCategoryDescription();
 }
 
 function loadAllNotes(category = 'общее', searchToken = '', site = null, view = 'all', filterTags = state.activeFilterTags) {
@@ -209,9 +323,9 @@ function loadAllNotes(category = 'общее', searchToken = '', site = null, vi
     cardsList.innerHTML = `<p>Заметки не найдены</p>`;
     return;
   }
-
-  const html = filtered.map(renderNoteHtml).join('');
-  cardsList.innerHTML = html;
+  
+  updateCategoryDescription();
+  cardsList.innerHTML = filtered.map(renderNoteHtml).join('');
 }
 
 function getState() {
@@ -266,7 +380,6 @@ async function changeNoteTags(noteId, newTags) {
     if (!note) return;
 
     note.tags = normalizeTagList(newTags);
-
     await window.fsStorage.updateNote(note);
     allNotes = await getSortedNotes();
     renderNotes();
@@ -290,9 +403,7 @@ async function changeNoteCategory(noteId, newCategory) {
     if (!note) return;
 
     note.category = newCategory;
-
     await window.fsStorage.updateNote(note);
-
     allNotes = await getSortedNotes();
     
     if (window.loadAllCategories) {
@@ -394,7 +505,6 @@ async function applySort() {
   } catch (e) {
     console.error('Ошибка сортировки заметок:', e);
   }
-  return sorted;
 };
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -489,8 +599,6 @@ cardsList.addEventListener('change', async (e) => {
   await changeNoteCategory(noteId, newCategory);
 });
 
-
-
 window.loadAllNotes = loadAllNotes;
 window.refreshNotes = refreshNotes;
 window.renderNotes = renderNotes;
@@ -501,8 +609,9 @@ window.appendTagsToNote = appendTagsToNote;
 async function initParser() {
   await window.fsStorage.restoreFolder();
   await refreshNotes();
+  initCategoryDescription();
   window.updateTagsBtnState?.();
-  filter.classList.add('ready');
+  if (filter) filter.classList.add('ready');
 }
 
 window.addEventListener('DOMContentLoaded', initParser);

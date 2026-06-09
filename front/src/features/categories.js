@@ -46,45 +46,52 @@ async function getSitesInCategory(category) {
   }
 }
 
+function getCategoryName(category) {
+  if (typeof category === 'string') return category;
+  return category.name || 'общее';
+}
+
 async function renderCategory(category) {
+  const categoryName = getCategoryName(category);
+  
   const tmpl = document.getElementById('category-item-template');
   if (!tmpl) {
     const li = document.createElement('li');
-  li.className = 'category-item';
+    li.className = 'category-item';
     const span = document.createElement('span');
-    span.textContent = category;
-  li.dataset.category = category;
+    span.textContent = categoryName;
+    li.dataset.category = categoryName;
   
     li.appendChild(span);
     categoriesUl.appendChild(li);
   
-  const sites = await getSitesInCategory(category);
-  if (sites.length > 0) {
-    const sitesList = document.createElement('ul');
-    sitesList.className = 'sites-list';
-    
-    sites.forEach(site => {
-      const siteLi = document.createElement('li');
-      const siteDisplay = String(site || '').replace(/^https?:\/\//,  '').split('/')[0];
-      siteLi.textContent = siteDisplay;
-      siteLi.dataset.category = category;
-      siteLi.dataset.site = site;
-      sitesList.appendChild(siteLi);
-    });
-    
-    li.appendChild(sitesList);
-  }
+    const sites = await getSitesInCategory(categoryName);
+    if (sites.length > 0) {
+      const sitesList = document.createElement('ul');
+      sitesList.className = 'sites-list';
+      
+      sites.forEach(site => {
+        const siteLi = document.createElement('li');
+        const siteDisplay = String(site || '').replace(/^https?:\/\//, '').split('/')[0];
+        siteLi.textContent = siteDisplay;
+        siteLi.dataset.category = categoryName;
+        siteLi.dataset.site = site;
+        sitesList.appendChild(siteLi);
+      });
+      
+      li.appendChild(sitesList);
+    }
     return;
   }
 
   const node = tmpl.content.firstElementChild.cloneNode(true);
   const span = node.querySelector('span');
-  span.textContent = category;
+  span.textContent = categoryName;
   
-  node.dataset.category = category;
+  node.dataset.category = categoryName;
 
   const delBtn = node.querySelector('.delete-category');
-  if (category === 'общее' && delBtn) delBtn.remove();
+  if (categoryName === 'общее' && delBtn) delBtn.remove();
 
   if (delBtn) {
     delBtn.addEventListener('click', async (ev) => {
@@ -94,11 +101,11 @@ async function renderCategory(category) {
         return;
       }
 
-      if (!confirm(`Удалить категорию "${category}"?`))
+      if (!confirm(`Удалить категорию "${categoryName}"?`))
         return;
 
       try {
-        const ok = await window.fsStorage.deleteCategory(category);
+        const ok = await window.fsStorage.deleteCategory(categoryName);
         if (!ok) {
           alert('Не удалось удалить категорию');
           return;
@@ -116,16 +123,16 @@ async function renderCategory(category) {
 
   categoriesUl.appendChild(node);
 
-  const sites = await getSitesInCategory(category);
+  const sites = await getSitesInCategory(categoryName);
   if (sites.length > 0) {
     const sitesList = document.createElement('ul');
     sitesList.className = 'sites-list';
     
     sites.forEach(site => {
       const siteLi = document.createElement('li');
-      const siteDisplay = String(site || '').replace(/^https?:\/\//,  '').split('/')[0];
+      const siteDisplay = String(site || '').replace(/^https?:\/\//, '').split('/')[0];
       siteLi.textContent = siteDisplay;
-      siteLi.dataset.category = category;
+      siteLi.dataset.category = categoryName;
       siteLi.dataset.site = site;
       sitesList.appendChild(siteLi);
     });
@@ -150,7 +157,7 @@ async function loadAllCategories() {
     
     generalSites.forEach(site => {
       const siteLi = document.createElement('li');
-      const siteDisplay = String(site || '').replace(/^https?:\/\//,  '').split('/')[0];
+      const siteDisplay = String(site || '').replace(/^https?:\/\//, '').split('/')[0];
       siteLi.textContent = siteDisplay;
       siteLi.dataset.category = 'общее';
       siteLi.dataset.site = site;

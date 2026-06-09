@@ -21,7 +21,8 @@ async function loadCategoriesForForm() {
 
     try {
         const categories = await window.fsStorage.getCategories();
-        const options = ['общее', ...categories];
+        const categoryNames = categories.map(cat => typeof cat === 'string' ? cat : cat.name);
+        const options = ['общее', ...categoryNames];
 
         categorySelect.innerHTML = options
             .map(cat => `<option value="${escapeHtml(cat)}">${escapeHtml(cat)}</option>`)

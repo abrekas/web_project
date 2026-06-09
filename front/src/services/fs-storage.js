@@ -248,53 +248,138 @@
   }
 
   // ---------------- Categories API ----------------
-  async function getCategories() {
-    return await readJsonFile(CATEGORIES_FILE, []);
+  // ---------------- Categories API (с описанием) ----------------
+async function getCategories() {
+  const categories = await readJsonFile(CATEGORIES_FILE, []);
+  
+  // Миграция: если категории хранятся как строки, конвертируем в объекты
+  if (categories.length > 0 && typeof categories[0] === 'string') {
+    const migrated = categories.map(name => ({
+      name: name,
+      description: ''
+    }));
+    await saveCategories(migrated);
+    return migrated;
   }
+  
+  return categories;
+}
 
-  async function saveCategories(categories) {
-    await writeJsonFile(CATEGORIES_FILE, categories);
-  }
+async function saveCategories(categories) {
+  await writeJsonFile(CATEGORIES_FILE, categories);
+}
 
-  async function addCategory(categoryName) {
-    const value = String(categoryName || '').trim();
-    if (!value) return null;
+async function addCategory(categoryName, description = '') {
+  const name = String(categoryName || '').trim();
+  if (!name) return null;
 
-    const list = await getCategories();
-    const exists = list.some(item => String(item).toLowerCase() === value.toLowerCase());
+  const list = await getCategories();
+  const exists = list.some(item => item.name.toLowerCase() === name.toLowerCase());
 
-    if (exists) return null;
+  if (exists) return null;
 
-    list.push(value);
-    await saveCategories(list);
-    return value;
-  }
+  const newCategory = {
+    name: name,
+    description: description || ''
+  };
+  
+  list.push(newCategory);
+  await saveCategories(list);
+  return newCategory;
+}
 
-  async function deleteCategory(categoryName) {
-    const value = String(categoryName || '').trim();
-    if (!value) return false;
-    if (value.toLowerCase() === 'общее') return false;
+async function updateCategory(oldName, newName, newDescription) {
+  const list = await getCategories();
+  const index = list.findIndex(item => item.name.toLowerCase() === String(oldName).trim().toLowerCase());
+  
+  if (index === -1) return false;
+  
+  const newNameTrimmed = String(newName).trim();
+  if (!newNameTrimmed) return false;
+  
+  // Проверка, что новое имя не конфликтует с другими категориями
+  const nameConflict = list.some((item, idx) => 
+    idx !== index && item.name.toLowerCase() === newNameTrimmed.toLowerCase()
+  );
+  
+  if (nameConflict) return false;
+  
+  // Обновляем категорию
+  list[index] = {
+    name: newNameTrimmed,
+    description: newDescription !== undefined ? newDescription : list[index].description
+  };
+  
+  await saveCategories(list);
+  
+  // Обновляем все заметки, у которых была эта категория
+  const notes = await getNotes();
+  let changed = false;
+  const updatedNotes = notes.map(note => {
+    if ((note.category || '').toLowerCase() === String(oldName).trim().toLowerCase()) {
+      changed = true;
+      return { ...note, category: newNameTrimmed };
+    }
+    return note;
+  });
+  
+  if (changed) await saveNotes(updatedNotes);
+  
+  return true;
+}
 
-    const list = await getCategories();
-    const idx = list.findIndex(item => String(item).toLowerCase() === value.toLowerCase());
-    if (idx === -1) return false;
+async function deleteCategory(categoryName) {
+  const name = String(categoryName || '').trim();
+  if (!name) return false;
+  if (name.toLowerCase() === 'общее') return false;
 
-    list.splice(idx, 1);
-    await saveCategories(list);
+  const list = await getCategories();
+  const idx = list.findIndex(item => item.name.toLowerCase() === name.toLowerCase());
+  if (idx === -1) return false;
 
-    const notes = await getNotes();
-    let changed = false;
-    const updated = notes.map(n => {
-      if ((n.category || '').toLowerCase() === value.toLowerCase()) {
-        changed = true;
-        return { ...n, category: 'общее' };
-      }
-      return n;
-    });
+  list.splice(idx, 1);
+  await saveCategories(list);
 
-    if (changed) await saveNotes(updated);
-    return true;
-  }
+  const notes = await getNotes();
+  let changed = false;
+  const updated = notes.map(n => {
+    if ((n.category || '').toLowerCase() === name.toLowerCase()) {
+      changed = true;
+      return { ...n, category: 'общее' };
+    }
+    return n;
+  });
+
+  if (changed) await saveNotes(updated);
+  return true;
+}
+
+async function getCategoryDescription(categoryName) {
+  const categories = await getCategories();
+  const category = categories.find(c => c.name.toLowerCase() === String(categoryName).trim().toLowerCase());
+  return category ? category.description : '';
+}
+
+async function setCategoryDescription(categoryName, description) {
+  const categories = await getCategories();
+  const index = categories.findIndex(c => c.name.toLowerCase() === String(categoryName).trim().toLowerCase());
+  
+  if (index === -1) return false;
+  
+  categories[index].description = description || '';
+  await saveCategories(categories);
+  return true;
+}
+
+async function getCategoryByName(categoryName) {
+  const categories = await getCategories();
+  return categories.find(c => c.name.toLowerCase() === String(categoryName).trim().toLowerCase()) || null;
+}
+
+async function getAllCategoryNames() {
+  const categories = await getCategories();
+  return categories.map(c => c.name);
+}
 
   // ---------------- Tags API ----------------
   async function getTags() {
@@ -391,6 +476,8 @@
     sortNotes,
 
     getCategories,
+    getCategoryDescription,
+    setCategoryDescription,
     saveCategories,
     addCategory,
     deleteCategory,
