@@ -1,5 +1,7 @@
 import { fsStorage } from '../services/fs-storage.js';
 import { openModal, closeModal, modalBody } from '../components/modal.js';
+import { loadTagsForPicker, setActiveTagFilter, refreshNotes, appendTagsToNote, getActiveTagFilter, getAvailableTagsForNote } from '../services/parser.js';
+
 
 let allSystemTags = [];
 let selectedFilterTags = [];
@@ -60,7 +62,7 @@ function renderFormTags() {
 export function updateTagsBtnState() {
     const btn = document.getElementById('tags-btn');
     if (!btn) return;
-    const active = window.getActiveTagFilter?.().length > 0;
+    const active = getActiveTagFilter().length > 0;
     btn.classList.toggle('filter-active', active);
 }
 
@@ -69,7 +71,7 @@ export async function openTagsFilterModal() {
         alert('Сначала разрешите доступ к папке');
         return;
     }
-    selectedFilterTags = [...(window.getActiveTagFilter?.() || [])];
+    selectedFilterTags = [...getActiveTagFilter() || []];
     await loadSystemTags();
 
     openModal("modal-choose-tags-template", "create-note-modal");
@@ -82,7 +84,7 @@ export async function openNoteTagsModal(noteId) {
         alert('Сначала разрешите доступ к папке');
         return;
     }
-    const available = window.getAvailableTagsForNote?.(noteId) || [];
+    const available = getAvailableTagsForNote(noteId) || [];
     noteTagsModalNoteId = noteId;
     selectedNoteTags = [];
 
@@ -93,7 +95,6 @@ export async function openNoteTagsModal(noteId) {
 document.getElementById("tags-btn")?.addEventListener("click", openTagsFilterModal);
 
 modalBody.addEventListener('click', async (e) => {
-    // 1. Удаление тега
     const deleteTagBtn = e.target.closest('.form-tag-delete');
     if (deleteTagBtn && document.getElementById('form-tags-list')) {
         const tag = deleteTagBtn.dataset.tag;
@@ -101,10 +102,10 @@ modalBody.addEventListener('click', async (e) => {
             if (await fsStorage.deleteTag(tag)) {
                 allSystemTags = allSystemTags.filter(t => t !== tag);
                 selectedFilterTags = selectedFilterTags.filter(t => t !== tag);
-                window.setActiveTagFilter?.([...selectedFilterTags]);
+                setActiveTagFilter(selectedFilterTags);
                 renderFormTags();
-                await window.loadTagsForPicker?.();
-                await window.refreshNotes?.();
+                await loadTagsForPicker();
+                await refreshNotes();
             }
         }
         return;
@@ -135,8 +136,8 @@ modalBody.addEventListener('click', async (e) => {
     }
 
     if (e.target.closest('#apply-note-tags-btn')) {
-        if (noteTagsModalNoteId && selectedNoteTags.length) {
-            await window.appendTagsToNote?.(noteTagsModalNoteId, selectedNoteTags);
+        if (selectedNoteTags.length) {
+            await appendTagsToNote(noteTagsModalNoteId, selectedNoteTags);
         }
         closeModal();
         return;
@@ -164,13 +165,13 @@ modalBody.addEventListener('click', async (e) => {
             }
             input.value = '';
             renderFormTags();
-            await window.loadTagsForPicker?.();
+            await loadTagsForPicker();
         }
         return;
     }
 
     if (e.target.closest('#apply-tags-filter-btn')) {
-        window.setActiveTagFilter?.(selectedFilterTags);
+        setActiveTagFilter(selectedFilterTags);
         updateTagsBtnState();
         closeModal();
         return;
@@ -178,12 +179,9 @@ modalBody.addEventListener('click', async (e) => {
 
     if (e.target.closest('#clear-tags-filter-btn')) {
         selectedFilterTags = [];
-        window.setActiveTagFilter?.([]);
+        setActiveTagFilter([]);
         renderFormTags();
         updateTagsBtnState();
         return;
     }
 });
-
-window.updateTagsBtnState = updateTagsBtnState;
-window.openNoteTagsModal = openNoteTagsModal;

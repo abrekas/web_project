@@ -1,4 +1,7 @@
 import { fsStorage } from '../services/fs-storage.js';
+import { updateTagsBtnState, openNoteTagsModal } from '../features/tags.js';
+import { loadAllCategories } from '../features/categories.js'
+
 
 const cardsList = document.getElementById('cards-list');
 const searchInput = document.getElementById('search-input');
@@ -12,6 +15,10 @@ const state = {
   view: localStorage.getItem('currentView') || 'all',
   activeFilterTags: JSON.parse(localStorage.getItem('activeFilterTags') || '[]')
 };
+
+export function getActiveTagFilter() {
+  return state.activeFilterTags;
+}
 
 let allNotes = [];
 let allCategories = [];
@@ -28,7 +35,7 @@ function escapeHtml(str = '') {
   });
 }
 
-async function loadCategoriesForSelects() {
+export async function loadCategoriesForSelects() {
   if (!fsStorage || !fsStorage.isReady) {
     allCategories = [];
     return;
@@ -43,7 +50,7 @@ async function loadCategoriesForSelects() {
   }
 }
 
-async function loadTagsForPicker() {
+export async function loadTagsForPicker() {
   if (!fsStorage || !fsStorage.isReady) {
     allTags = [];
     return;
@@ -98,7 +105,7 @@ function renderTags(tags, noteId) {
   `;
 }
 
-function getAvailableTagsForNote(noteId) {
+export function getAvailableTagsForNote(noteId) {
   const note = allNotes.find(item => String(item.id) === String(noteId));
   if (!note) return [];
 
@@ -204,7 +211,7 @@ function filterNotes(category = 'общее', searchToken = '', site = null, vie
   });
 }
 
-function loadAllNotes(category = 'общее', searchToken = '', site = null, view = 'all', filterTags = state.activeFilterTags) {
+export function loadAllNotes(category = 'общее', searchToken = '', site = null, view = 'all', filterTags = state.activeFilterTags) {
   const filtered = filterNotes(category, searchToken, site, view, filterTags);
 
   if (!filtered.length) {
@@ -240,12 +247,12 @@ async function getSortedNotes() {
   return notes;
 }
 
-function renderNotes() {
+export function renderNotes() {
   const { category, search, site, view, filterTags } = getState();
   loadAllNotes(category, search, site, view, filterTags);
 }
 
-async function refreshNotes(category = 'общее') {
+export async function refreshNotes(category = 'общее') {
   if (!fsStorage || !fsStorage.isReady) {
     cardsList.innerHTML = `<p>Сначала разрешите доступ к папке с данными</p>`;
     return;
@@ -278,7 +285,7 @@ async function changeNoteTags(noteId, newTags) {
   }
 }
 
-async function appendTagsToNote(noteId, tagsToAdd) {
+export async function appendTagsToNote(noteId, tagsToAdd) {
   const note = allNotes.find(item => String(item.id) === String(noteId));
   if (!note) return;
 
@@ -297,10 +304,7 @@ async function changeNoteCategory(noteId, newCategory) {
 
     allNotes = await getSortedNotes();
     
-    if (window.loadAllCategories) {
-      await window.loadAllCategories();
-    }
-    
+    loadAllCategories();
     renderNotes();
   } catch (e) {
     console.error('Ошибка смены категории заметки:', e);
@@ -361,8 +365,6 @@ function openImageModal(src) {
   modal.style.display = 'flex';
 }
 
-window.openImageModal = openImageModal;
-
 function updateSortOrderLabels () {
   if (!sortOrder) return;
 
@@ -416,21 +418,19 @@ document.addEventListener('DOMContentLoaded', () => {
   if (sortOrder) sortOrder.addEventListener('change', applySort);
 });
 
-window.getActiveTagFilter = () => [...state.activeFilterTags];
-
-window.setActiveTagFilter = (tags) => {
+export function setActiveTagFilter(tags) {
   state.activeFilterTags = normalizeTagList(tags);
   localStorage.setItem('activeFilterTags', JSON.stringify(state.activeFilterTags));
-  window.updateTagsBtnState?.();
+  updateTagsBtnState();
   renderNotes();
-};
+}
 
 cardsList.addEventListener('click', async (e) => {
   const addTagBtn = e.target.closest('.tag-add-btn');
   if (addTagBtn) {
     e.stopPropagation();
     const noteId = addTagBtn.dataset.noteId;
-    await window.openNoteTagsModal?.(noteId);
+    openNoteTagsModal(noteId);
     return;
   }
 
@@ -491,20 +491,20 @@ cardsList.addEventListener('change', async (e) => {
   await changeNoteCategory(noteId, newCategory);
 });
 
-
-
-window.loadAllNotes = loadAllNotes;
-window.refreshNotes = refreshNotes;
-window.renderNotes = renderNotes;
-window.loadTagsForPicker = loadTagsForPicker;
-window.getAvailableTagsForNote = getAvailableTagsForNote;
-window.appendTagsToNote = appendTagsToNote;
-
 async function initParser() {
   await fsStorage.restoreFolder();
   await refreshNotes();
-  window.updateTagsBtnState?.();
+  updateTagsBtnState();
   filter.classList.add('ready');
 }
 
 window.addEventListener('DOMContentLoaded', initParser);
+window.addEventListener('fs-ready', async () => {
+  try {
+    await loadAllCategories();       
+    await loadCategoriesForSelects(); 
+    await renderNotes();              
+  } catch (err) {
+    console.error("Ошибка при старте приложения:", err);
+  }
+});

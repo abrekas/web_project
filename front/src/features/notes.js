@@ -1,5 +1,7 @@
 import { fsStorage } from '../services/fs-storage.js';
 import { openModal, closeModal } from '../components/modal.js';
+import { refreshNotes } from '../services/parser.js';
+import { loadAllCategories } from './categories.js';
 
 const createNoteBtn = document.getElementById('create-note-btn');
 
@@ -91,13 +93,9 @@ async function saveNewNote() {
         const activeCategoryLi = document.querySelector('#categories-ul li.active');
         const selectedCategory = activeCategoryLi?.dataset?.category || 'общее';
 
-        if (window.refreshNotes) {
-            await window.refreshNotes(selectedCategory);
-        }
+        await refreshNotes(selectedCategory);
 
-        if (window.loadAllCategories) {
-            await window.loadAllCategories();
-        }
+        await loadAllCategories();
 
         closeModal();
 
@@ -124,3 +122,10 @@ export async function openCreateNoteModal() {
 if (createNoteBtn) {
     createNoteBtn.addEventListener('click', openCreateNoteModal);
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+    const createBtn = document.getElementById('create-note-btn');
+    if (createBtn) {
+        createBtn.addEventListener('click', openCreateNoteModal);
+    }
+});

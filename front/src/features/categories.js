@@ -1,4 +1,7 @@
 import { fsStorage } from '../services/fs-storage.js';
+import { renderNotes, loadCategoriesForSelects, refreshNotes } from '../services/parser.js';
+
+
 const categoriesUl = document.getElementById('categories-ul');
 const newCategoryBtn = document.getElementById('folder-icon');
 
@@ -105,9 +108,7 @@ async function renderCategory(category) {
           return;
         }
         await loadAllCategories();
-        if (window.refreshNotes) {
-          await window.refreshNotes('общее');
-        }
+        await refreshNotes('общее');
       } catch (e) {
         console.error(e);
         alert('Ошибка при удалении категории');
@@ -135,7 +136,7 @@ async function renderCategory(category) {
   }
 }
 
-async function loadAllCategories() {
+export async function loadAllCategories() {
   categoriesUl.innerHTML = '';
   
   const generalLi = document.createElement('li');
@@ -173,7 +174,7 @@ async function loadAllCategories() {
   }
 }
 
-categoriesUl.addEventListener('click', (e) => {
+categoriesUl.addEventListener('click', async (e) => {
   const targetLi = e.target.closest('li');
   if (!targetLi || targetLi.querySelector('input')) return;
   document.querySelectorAll('#categories-ul li').forEach(li => li.classList.remove('active'));
@@ -198,11 +199,8 @@ categoriesUl.addEventListener('click', (e) => {
   selectedCategory = currentCategory;
   selectedSite = currentSite;
 
-  if (window.renderNotes) {
-    window.renderNotes();
-  } else {
-    loadAllNotes(currentCategory, searchValue, currentSite);
-  }
+  await loadCategoriesForSelects();
+  renderNotes();
 });
 
 categoriesUl.addEventListener('dblclick', (e) => {
@@ -249,11 +247,7 @@ function createNewCategory() {
       return;
     }
       await loadAllCategories();
-      
-      if (window.loadCategoriesForSelects) {
-        await window.loadCategoriesForSelects();
-      }
-      
+            
       const activeCategory = document.querySelector('#categories-ul li.active');
       const selectedCategory = activeCategory ? activeCategory.dataset.category : 'общее';
       
@@ -262,11 +256,8 @@ function createNewCategory() {
         selectedSite = activeCategory.dataset.site;
       }
       
-      if (window.renderNotes) {
-        window.renderNotes();
-      } else if (window.loadAllNotes) {
-        window.loadAllNotes(selectedCategory, searchValue, selectedSite);
-      }
+      await loadCategoriesForSelects();
+      renderNotes();
   };
 
   input.addEventListener('keydown', async (e) => {
@@ -283,8 +274,6 @@ function createNewCategory() {
 if (newCategoryBtn) {
   newCategoryBtn.addEventListener('click', createNewCategory);
 }
-
-window.loadAllCategories = loadAllCategories;
 
 window.addEventListener('DOMContentLoaded', loadAllCategories);
 window.addEventListener('fs-ready', loadAllCategories);
