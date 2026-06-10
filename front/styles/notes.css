@@ -856,6 +856,92 @@ body {
   color: #fff; /* Белый текст для контраста */
 }
 
+/* Блок кода */
+.code-wrapper {
+  margin: 12px 0;
+  border-radius: 8px;
+  background-color: #2d2d2d;
+  overflow: hidden;
+  font-family: 'Courier New', 'SF Mono', Monaco, monospace;
+  font-size: 13px;
+}
+
+.code-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background-color: #1e1e1e;
+  border-bottom: 1px solid #3d3d3d;
+}
+
+.code-language {
+  color: #e06c75;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: lowercase;
+}
+
+.copy-code-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border: none;
+  border-radius: 6px;
+  background-color: #3d3d3d;
+  color: #e0e0e0;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.copy-code-btn:hover {
+  background-color: #4d4d4d;
+}
+
+.copy-code-btn:active {
+  transform: scale(0.97);
+}
+
+.copy-icon {
+  width: 14px;
+  height: 14px;
+  filter: invert(1) brightness(1.5);
+}
+
+.code-block {
+  margin: 0;
+  padding: 14px;
+  overflow-x: auto;
+  background-color: #2d2d2d;
+  color: #e0e0e0;
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.code-block code {
+  font-family: inherit;
+  font-size: inherit;
+  background: transparent;
+  padding: 0;
+  white-space: pre-wrap;
+}
+
+.note-text-content {
+  line-height: 1.5;
+}
+
+.note-text-content p {
+  margin: 0 0 12px 0;
+}
+.note-text-content p:last-child {
+  margin-bottom: 0;
+}
+
 
 .note-image {
   max-width: 100%;
@@ -876,7 +962,6 @@ body {
   overflow-y: auto;
   color: var(--notes-text-color);
   scrollbar-width: thin;
-  scrollbar-color: var(--third-color) transparent;
 }
 
 .cards-list::-webkit-scrollbar {

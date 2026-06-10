@@ -121,9 +121,10 @@ export function getAvailableTagsForNote(noteId) {
 }
 
 function renderNoteHtml(data) {
+  const rawContent = data.content || '';
+  const parsedContent = parseCodeBlocks(rawContent);
   const safeSiteRaw = String(data.site || '').replace(/^https?:\/\//, '');
   const domainOnly = safeSiteRaw.split('/')[0];
-  const safeContent = escapeHtml(data.content || '');
   const safeTime = escapeHtml(data.time || '');
   const href = safeSiteRaw ? `https://${safeSiteRaw}` : '#';
   const noteId = escapeHtml(data.id || '');
@@ -137,7 +138,7 @@ function renderNoteHtml(data) {
   if (noteType === 'image' && safeImageUrl) {
     bodyContent = `<img class="note-image" id="${noteId}" src="${safeImageUrl}" alt="картинка записи"/>`;
   } else {
-    bodyContent = `<p>${safeContent}</p>`
+    bodyContent = `<div class="note-text-content">${parsedContent}</div>`;
   }
 
   return `
@@ -586,6 +587,73 @@ cardsList.addEventListener('click', async (e) => {
   }
 });
 
+function parseCodeBlocks(text) {
+  if (!text) return escapeHtml(text);
+
+  const codeBlockRegex = /```\n([\s\S]*?)\n```/g;
+
+  let lastIndex = 0;
+  let result = '';
+  let match;
+
+  while ((match = codeBlockRegex.exec(text)) !== null) {
+    const beforeText = text.slice(lastIndex, match.index);
+    result += escapeHtml(beforeText);
+
+    const code = match[1];
+
+    const blockId = 'code-block-' + Date.now() + '-' + Math.random().toString(36).substr(2, 6);
+
+    result += `
+            <div class="code-wrapper" data-code-id="${blockId}">
+                <div class="code-header">
+                    <button class="copy-code-btn" data-code-id="${blockId}" data-code-text="${code.replace(/"/g, '&quot;')}">
+                        <img class="copy-icon" src="media/copy.png" alt="копировать">
+                        Копировать
+                    </button>
+                </div>
+                <pre class="code-block" id="${blockId}"><code>${code}</code></pre>
+            </div>
+        `;
+
+    lastIndex = match.index + match[0].length;
+  }
+
+  const remainingText = text.slice(lastIndex);
+  result += escapeHtml(remainingText);
+
+  return result;
+}
+
+cardsList.addEventListener('click', async (e) => {
+  const copyBtn = e.target.closest('.copy-code-btn');
+  if (copyBtn) {
+    e.stopPropagation();
+
+    let codeText = copyBtn.dataset.codeText;
+    if (codeText) {
+      codeText = codeText.replace(/&quot;/g, '"');
+      try {
+        await navigator.clipboard.writeText(codeText);
+
+        const originalText = copyBtn.innerHTML;
+        copyBtn.innerHTML = '<img class="copy-icon" src="media/copy.png"> Скопировано!';
+        copyBtn.style.backgroundColor = '#4caf50';
+
+        setTimeout(() => {
+          copyBtn.innerHTML = originalText;
+          copyBtn.style.backgroundColor = '';
+        }, 2000);
+      } catch (err) {
+        console.error('Не удалось скопировать:', err);
+        copyBtn.innerHTML = '<img class="copy-icon" src="media/copy.png"> Ошибка';
+        setTimeout(() => {
+          copyBtn.innerHTML = originalText;
+        }, 2000);
+      }
+    }
+  }
+});
 
 filter.addEventListener('click', (e) => {
   const btn = e.target.closest('button');
