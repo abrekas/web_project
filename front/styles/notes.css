@@ -871,7 +871,7 @@ body {
   justify-content: space-between;
   align-items: center;
   padding: 8px 12px;
-  background-color: #1e1e1e;
+  background-color: var(--notes-header-color);
   border-bottom: 1px solid #3d3d3d;
 }
 
@@ -889,11 +889,11 @@ body {
   padding: 4px 10px;
   border: none;
   border-radius: 6px;
-  background-color: #3d3d3d;
-  color: #e0e0e0;
+  background-color: var(--second-color);
   font-size: 12px;
   cursor: pointer;
   transition: background-color 0.2s;
+  color: var(--text-color);
 }
 
 .copy-code-btn:hover {
@@ -914,8 +914,7 @@ body {
   margin: 0;
   padding: 14px;
   overflow-x: auto;
-  background-color: #2d2d2d;
-  color: #e0e0e0;
+  background-color: var(--second-color);
   font-family: inherit;
   font-size: 13px;
   line-height: 1.5;
