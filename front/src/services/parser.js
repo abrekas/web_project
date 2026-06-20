@@ -140,6 +140,12 @@ function renderNoteHtml(data) {
   } else {
     bodyContent = `<div class="note-text-content">${parsedContent}</div>`;
   }
+  function highlightText(text, query) {
+    if (!query || query.trim() === '') return text;
+    const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(`(${escapedQuery})`, 'gi');
+    return text.replace(regex, '<mark>$1</mark>');
+  }
 
   return `
     <article class="card" data-note-id="${noteId}">
@@ -162,7 +168,7 @@ function renderNoteHtml(data) {
       </header>
       <div class="card-content">
         <div class="card-body">
-            ${bodyContent}
+            ${highlightText(bodyContent, searchInput.value)}
         </div>
         <footer class="card-footer"><time>${safeTime}</time></footer>
       </div>
