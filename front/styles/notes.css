@@ -227,9 +227,26 @@ body {
   font-weight: 700;
 }
 
+.folder-icon{
+  border-radius: var(--second-radius);
+  border: none;
+  background-color: var(--background-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+}
+
+.folder-icon:hover{
+  background-color: #87a0de;
+}
+
 .folder-icon img {
   width: 20px;
-  margin-left: 16px;
   filter: var(--icon-filter, none);
 }
 
@@ -262,6 +279,7 @@ body {
   padding: 0;
   list-style: none;
 }
+
 
 .categories li {
   margin-bottom: 4px;
@@ -380,7 +398,13 @@ body {
   border-radius: 50%;
   flex-shrink: 0;
   cursor: pointer;
-  background: conic-gradient(hsl(0, 71%, 74%), #ecc483, #eff097, #a4d58f, #94d4d3, #96ade0, #c0a3db, rgb(232, 143, 143));
+  background: conic-gradient(hsl(0, 83%, 74%), #f4c271, #eff17f, #abe891, #88dfde, #91b3fc, #b37ee5, rgb(232, 128, 128));
+  transition: transform 1s ease, opacity 1s ease; 
+}
+
+.gradient-circle:hover{
+  opacity: 50%;
+  transform: rotate(-90deg);
 }
 
 .about-btn {
@@ -444,9 +468,13 @@ body {
   background: var(--notes-header-color);
   color: var(--text-color);
   border: none;
-  border-radius: 5px;
+  border-radius: var(--second-radius);
   cursor: pointer;
   transition: background 0.2s;
+}
+
+#category-description-change-btn:hover{
+  background-color: #87a0de;
 }
 
 .category-description-edit {
@@ -502,6 +530,7 @@ body {
 .search-bar {
   position: relative;
   justify-self: start;
+  margin-left: 2px;
 }
 
 .search-icon {
@@ -596,17 +625,23 @@ body {
 .tags-btn {
   border-radius: var(--second-radius);
   border: none;
-  background: none;
+  background-color: var(--background-color);
   display: flex;
   align-items: center;
   justify-content: center;
   box-shadow: var(--shadow);
   cursor: pointer;
-  padding: 2px;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+}
+
+.tags-btn:hover{
+  background-color: #87a0de;
 }
 
 .tags-btn img {
-  width: 24px;
+  width: 62%;
   filter: none;
 }
 
@@ -696,6 +731,10 @@ body {
   opacity: 0.75;
 }
 
+.form-tag-delete:hover{
+  background-color:hsl(0, 71%, 74%);
+}
+
 .form-tag-chip.active .form-tag-delete {
   border-left-color: rgba(255, 255, 255, 0.25);
   background-color: var(--accent-color, #587cff);
@@ -735,6 +774,7 @@ body {
 .create-note-btn:hover {
   transform: translateY(-2px); /* Кнопка слегка приподнимается */
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); /* Тень становится глубже */
+  background-color: #87a0de;
 }
 
 
@@ -897,7 +937,7 @@ body {
 }
 
 .copy-code-btn:hover {
-  background-color: #4d4d4d;
+  background-color: #87a0de;
 }
 
 .copy-code-btn:active {
@@ -984,6 +1024,7 @@ body {
   border-radius: var(--second-radius);
   background-color: var(--notes-header-color);
   color: var(--notes-text-color);
+  margin-left: 2px;
 }
 
 .card-header {
@@ -1037,6 +1078,10 @@ body {
   color: var(--text-color);
 }
 
+.tag-note:hover{
+  background-color: #daa9a9;
+}
+
 .tag-note-remove {
   font-size: 14px;
   line-height: 1;
@@ -1069,8 +1114,15 @@ body {
 }
 
 
-.delete-note {
+.card-actions {
+  display: flex;
+  gap: 4px;
   margin-left: auto;
+}
+
+.delete-note,
+.edit-note,
+.save-note {
   border-radius: var(--second-radius);
   border: none;
   background-color: var(--second-color);
@@ -1079,11 +1131,53 @@ body {
   justify-content: center;
   box-shadow: var(--shadow);
   cursor: pointer;
+  width: 28px;
+  height: 28px;
+  padding: 0;
 }
 
-.delete-note:hover {
-  background-color: #587cff;
+.delete-note:hover,
+.edit-note:hover,
+.save-note:hover {
+  background-color: #87a0de;
+}
+
+.delete-note:hover{
+  background-color: #daa9a9;
+
+}
+
+.edit-icon,
+.delete-icon,
+.save-icon {
+  filter: var(--icon-filter, none);
+  width: 62%;
+}
+
+.card-editing .note-edit-text {
+  width: 100%;
+  min-height: 120px;
+  padding: 10px;
   border: none;
+  border-radius: var(--second-radius);
+  background: var(--card-bg);
+  color: var(--notes-text-color);
+  font-family: var(--font-main);
+  font-size: var(--font-size);
+  resize: vertical;
+  box-shadow: var(--inside-shadow);
+}
+
+.card-editing .note-edit-link {
+  flex: 1;
+  min-width: 0;
+  padding: 2px 6px;
+  border: none;
+  border-radius: var(--second-radius);
+  background: var(--card-bg);
+  color: var(--text-color);
+  font-family: var(--font-main);
+  font-size: var(--font-size);
 }
 
 .header-link {
@@ -1095,6 +1189,10 @@ body {
   background-color: var(--second-color);
   box-shadow: var(--shadow);
   cursor: pointer;
+}
+
+.header-link:hover{
+  background-color: #87a0de;
 }
 
 .link-icon {

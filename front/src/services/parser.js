@@ -156,9 +156,14 @@ function renderNoteHtml(data) {
         <div class="card-tags" data-note-id="${noteId}">
           ${renderTags(tags, data.id)}
         </div>
-        <button class="delete-note">
+        <div class="card-actions">
+          ${noteType !== 'image' ? `<button type="button" class="edit-note" data-note-id="${noteId}">
+            <img class="edit-icon" src="media/pencil.png" alt="изменить запись">
+          </button>` : ''}
+          <button type="button" class="delete-note">
             <img class="delete-icon" src="media/trash.png" alt="удалить запись">
-        </button>  
+          </button>
+        </div>
         <div class="header-link">
           <img class="link-icon" src="media/link.png">
           <a href="${escapeHtml(href)}" class="source-link" target="_blank" rel="noopener noreferrer">
@@ -422,6 +427,57 @@ export async function appendTagsToNote(noteId, tagsToAdd) {
   await changeNoteTags(noteId, merged);
 }
 
+const saveIconHtml = '<svg class="save-icon" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5 6.5 12 13 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+function startNoteEdit(card, note) {
+  document.querySelector('.card-editing')?.classList.remove('card-editing');
+  card.classList.add('card-editing');
+
+  const body = card.querySelector('.card-body');
+  const linkWrap = card.querySelector('.header-link');
+  const editBtn = card.querySelector('.edit-note');
+
+  const ta = document.createElement('textarea');
+  ta.className = 'note-edit-text';
+  ta.value = note.content || '';
+  body.replaceChildren(ta);
+
+  const site = String(note.site || '').replace(/^https?:\/\//, '');
+  linkWrap.innerHTML = `<img class="link-icon" src="media/link.png" alt=""><input class="note-edit-link" value="${escapeHtml(site)}" placeholder="site.com">`;
+
+  editBtn.className = 'save-note';
+  editBtn.innerHTML = saveIconHtml;
+  ta.focus();
+}
+
+async function saveNoteEdit(card) {
+  const noteId = card.dataset.noteId;
+  const note = allNotes.find(item => String(item.id) === String(noteId));
+  if (!note) return;
+
+  const content = card.querySelector('.note-edit-text')?.value.trim() ?? '';
+  const siteRaw = card.querySelector('.note-edit-link')?.value.trim() ?? '';
+  if (!content) {
+    alert('Текст заметки не может быть пустым');
+    return;
+  }
+
+  note.content = content;
+  note.site = siteRaw.replace(/^https?:\/\//, '');
+
+  try {
+    await fsStorage.updateNote(note);
+    allNotes = await getSortedNotes();
+    const fresh = allNotes.find(item => String(item.id) === String(noteId)) || note;
+    const wrap = document.createElement('div');
+    wrap.innerHTML = renderNoteHtml(fresh);
+    card.replaceWith(wrap.firstElementChild);
+  } catch (e) {
+    console.error(e);
+    alert('Не удалось сохранить заметку');
+  }
+}
+
 async function changeNoteCategory(noteId, newCategory) {
   try {
     const note = allNotes.find(item => String(item.id) === String(noteId));
@@ -570,6 +626,20 @@ cardsList.addEventListener('click', async (e) => {
 
     const tags = normalizeTagList(note.tags || []).filter(t => t !== String(tag).toLowerCase());
     await changeNoteTags(noteId, tags);
+    return;
+  }
+
+  const editBtn = e.target.closest('.edit-note');
+  if (editBtn) {
+    const card = editBtn.closest('.card');
+    const note = allNotes.find(item => String(item.id) === String(card?.dataset.noteId));
+    if (card && note) startNoteEdit(card, note);
+    return;
+  }
+
+  const saveBtn = e.target.closest('.save-note');
+  if (saveBtn) {
+    await saveNoteEdit(saveBtn.closest('.card'));
     return;
   }
 
