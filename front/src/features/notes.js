@@ -3,7 +3,7 @@ import { openModal, closeModal } from '../components/modal.js';
 import { refreshNotes } from '../services/parser.js';
 import { loadAllCategories } from './categories.js';
 
-const createNoteBtn = document.getElementById('create-note-btn');
+const createNoteBtn = document.getElementById('create-note-btn-top');
 
 function escapeHtml(str) {
     return String(str).replace(/[&<>"']/g, (m) => {
@@ -125,7 +125,7 @@ if (createNoteBtn) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    const createBtn = document.getElementById('create-note-btn');
+    const createBtn = document.getElementById('create-note-btn-top');
     if (createBtn) {
         createBtn.addEventListener('click', openCreateNoteModal);
     }

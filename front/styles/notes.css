@@ -1,0 +1,400 @@
+.modal-content.create-note-modal {
+    width: 700px;
+    height: auto;
+    max-height: 90vh;
+    padding: 0;
+    overflow: hidden;
+}
+
+.create-note-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 24px;
+}
+
+.create-note-form h3 {
+    margin-top: 0px;
+    font-size: var(--font-size-md);
+}
+
+.create-note-form .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.create-note-form .form-group label {
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    color: var(--text-color);
+}
+
+.create-note-form .form-control {
+    padding: 10px 12px;
+    border: none;
+    border-radius: var(--second-radius);
+    background-color: var(--card-bg);
+    color: var(--notes-text-color);
+    font-family: var(--font-main);
+    font-size: var(--font-size-sm);
+    box-shadow: var(--inside-shadow);
+}
+
+.create-note-form .form-control:focus {
+    outline: none;
+}
+
+.create-note-form select.form-control {
+    cursor: pointer;
+}
+
+.create-note-form .form-group.hidden {
+    display: none;
+}
+
+.create-note-form .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.create-note-form .form-actions button {
+    padding: 8px 20px;
+    border: none;
+    border-radius: var(--second-radius);
+    font-family: var(--font-main);
+    font-size: var(--font-size-sm);
+    cursor: pointer;
+}
+
+.create-note-form .primary-btn {
+    background-color: var(--accent-color);
+    color: var(--text-color);
+    box-shadow: var(--shadow);
+}
+
+.create-note-form .secondary-btn {
+    background-color: var(--second-color);
+    color: var(--text-color);
+    box-shadow: var(--shadow);
+}
+
+.cards-list {
+    flex: 1;
+    min-height: 0;
+    padding-right: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    overflow-y: auto;
+    color: var(--notes-text-color);
+    scrollbar-width: thin;
+    scrollbar-color: #c1c1c1 transparent;
+}
+
+.cards-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.cards-list::-webkit-scrollbar-track {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+.cards-list::-webkit-scrollbar-thumb {
+    background-color: #c1c1c1;
+    border-radius: 10px;
+    border: none;
+    box-shadow: none;
+}
+
+.cards-list::-webkit-scrollbar-thumb:hover {
+    background-color: #a8a8a8;
+}
+
+.card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    border-radius: var(--second-radius);
+    background-color: var(--notes-header-color);
+    color: var(--notes-text-color);
+    margin-left: 2px;
+    overflow: visible;
+}
+
+.card-header {
+    display: flex;
+    height: 28px;
+    align-items: center;
+    user-select: none;
+    -webkit-user-select: none;
+    gap: 4px;
+    padding: 0 4px;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 100;
+    overflow: hidden;
+}
+
+.category-select {
+    max-width: 140px;
+    min-width: 60px;
+    padding: 2px 8px;
+    border: none;
+    border-radius: var(--second-radius);
+    background-color: var(--card-bg);
+    color: var(--text-color);
+    box-shadow: var(--shadow);
+    font-family: var(--font-main);
+    font-size: var(--font-size-sm);
+    overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+    height: 22px;
+    line-height: 22px;
+    flex-shrink: 0;
+}
+
+.card-tags {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 3px;
+    margin: 0;
+    margin-left: 4px;
+    margin-right: 4px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    white-space: nowrap;
+    height: 100%;
+    flex: 1;
+    min-width: 0;
+    max-width: calc(100% - 120px);
+    z-index: 101;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding: 3px;
+}
+
+.card-tags::-webkit-scrollbar {
+    height: 0;
+}
+
+.tag-note {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    border: none;
+    border-radius: var(--second-radius);
+    background-color: var(--second-color);
+    box-shadow: var(--shadow);
+    cursor: pointer;
+    height: 22px;
+    padding: 0 8px;
+    font-size: var(--font-size-sm);
+    color: var(--text-color);
+    line-height: 22px;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 102;
+    overflow: visible !important;
+}
+
+.tag-note:hover{
+    background-color: hsl(0, 71%, 74%);
+}
+
+.tag-note-remove {
+    font-size: var(--font-size-sm);
+    line-height: 1;
+    opacity: 0.7;
+}
+
+.tag-note:hover .tag-note-remove {
+    opacity: 1;
+}
+
+.tag-add-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 22px;
+    height: 22px;
+    padding: 0 4px;
+    border: none;
+    border-radius: var(--second-radius);
+    background-color: var(--card-bg);
+    box-shadow: var(--shadow);
+    cursor: pointer;
+    font-size: var(--font-size-sm);
+    color: var(--text-color);
+    line-height: 22px;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 102;
+    overflow: visible !important;
+}
+
+.tag-add-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.card-actions {
+    display: flex;
+    gap: 3px;
+    margin-left: auto;
+    align-items: center;
+    height: 22px;
+    flex-shrink: 0;
+    z-index: 101;
+    overflow: visible;
+}
+
+.delete-note,
+.edit-note,
+.save-note {
+    border-radius: var(--second-radius);
+    border: none;
+    background-color: var(--second-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow);
+    cursor: pointer;
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 102;
+    overflow: visible !important;
+}
+
+.delete-note:hover,
+.edit-note:hover,
+.save-note:hover {
+    background-color: #87a0de;
+    z-index: 103;
+}
+
+.delete-note:hover{
+    background-color: hsl(0, 71%, 74%);
+}
+
+.edit-icon,
+.delete-icon,
+.save-icon {
+    filter: var(--icon-filter, none);
+    width: 14px;
+    height: 14px;
+    object-fit: contain;
+    display: block;
+    pointer-events: none;
+}
+
+.header-link {
+    display: flex;
+    align-items: center;
+    margin-left: 4px;
+    border: none;
+    border-radius: var(--second-radius);
+    background-color: var(--second-color);
+    box-shadow: var(--shadow);
+    cursor: pointer;
+    height: 22px;
+    padding: 0 6px;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 102;
+    overflow: visible !important;
+}
+
+.header-link:hover{
+    background-color: #87a0de;
+}
+
+.link-icon {
+    height: 14px;
+    width: 14px;
+    margin: 0;
+    filter: var(--icon-filter, none);
+    display: block;
+    pointer-events: none;
+}
+
+.source-link {
+    margin: 8px;
+    max-width: 200px;
+    overflow: hidden;
+    color: var(--link-color);
+    text-decoration: none;
+    font-size: var(--font-size-sm);
+}
+
+.source-link:hover {
+    text-decoration: underline;
+}
+
+.card-content {
+    position: relative;
+    padding: 24px 56px 36px 32px;
+    border-radius: var(--second-radius);
+    background-color: var(--card-content-bg);
+    box-shadow: var(--shadow);
+    overflow-wrap: break-word;
+    overflow: visible;
+    z-index: 1;
+}
+
+.card-body .main-link {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--link-color);
+    text-decoration: none;
+    font-family: var(--font-main);
+    font-size: var(--font-size-md);
+    font-weight: 700;
+}
+
+.card-body .main-link:hover {
+    text-decoration: underline;
+}
+
+.card-body p {
+    margin: 0;
+    font-family: var(--font-main);
+    font-size: var(--font-size-md);
+    color: var(--notes-text-color);
+    overflow-wrap: break-word;
+}
+
+.card-footer {
+    position: absolute;
+    right: 8px;
+    bottom: 8px;
+    color: #AEAEAE;
+    font-family: var(--font-main);
+    font-style: normal;
+    font-size: var(--font-size-xs);
+}
+
+.adidas {
+    position: absolute;
+    top: 7px;
+    left: -22px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.adidas span {
+    width: 15px;
+    height: 2px;
+}
