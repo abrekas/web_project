@@ -3,6 +3,8 @@ import {updateTagsBtnState, openNoteTagsModal} from '../features/tags.js';
 import {loadAllCategories} from '../features/categories.js'
 import {switchLayout} from './layout.js'
 
+import { initAnnotations, applyAnnotationsToAllCards } from '../features/comments.js';
+
 const cardsList = document.getElementById('cards-list');
 const searchInput = document.getElementById('search-input');
 const filter = document.querySelector('.view-switch');
@@ -352,6 +354,7 @@ export function loadAllNotes(category = 'общее', searchToken = '', site = n
 
   updateCategoryDescription();
   cardsList.innerHTML = filtered.map(renderNoteHtml).join('');
+  applyAnnotationsToAllCards();
 }
 
 function getState() {
@@ -393,6 +396,8 @@ export async function refreshNotes() {
     await loadCategoriesForSelects();
     await loadTagsForPicker();
     allNotes = await getSortedNotes();
+    allNotes = allNotes.map(note => ({ ...note, annotations: note.annotations || [] }));
+    window.allNotes = allNotes;
     renderNotes()
   } catch (e) {
     console.error(e);

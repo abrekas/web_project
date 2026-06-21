@@ -532,6 +532,11 @@ export async function deleteTag(tagName) {
     saveTags,
     addTag,
     deleteTag,
+    getComments,
+    saveComments,
+    addComment,
+    updateComment,
+    deleteComment,
 
     get isReady() {
       return isFsReady && !!folderHandle;
