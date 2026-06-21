@@ -33,10 +33,7 @@
 
     <div class="sidebar-footer">
       <div id="color-btn" class="gradient-circle"></div>
-      <button id="help-btn" class="help-btn" aria-label="Справка">
-        <img src="media/help.png" alt="help" />
-      </button>
-      <button id="about-btn" class="about-btn">О сайте</button>
+      <button id="help-btn" class="about-btn">О сайте</button>
     </div>
   </aside>
 
@@ -84,7 +81,12 @@
         <button data-view="text">текст</button>
       </nav>
     </header>
-    <div id="category-description" class="category-description"></div>
+
+    <div id="category-description" class="category-description">
+      <span class="category-description-text" id="category-description-text"></span>
+      <button id="category-description-change-btn">Изменить</button>
+    </div>
+
     <section id="cards-list" class="cards-list"></section>
   </main>
 </div>
@@ -339,11 +341,6 @@
     </div>
   </div>
 </div>
-
-<template id="modal-about-template">
-  <h3>О сайте</h3>
-  <p>Highliter.com — ваш помощник в работе с заметками.</p>
-</template>
 
 <template id="modal-color-template">
   <div class="color-container">

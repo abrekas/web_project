@@ -17,10 +17,6 @@ export function closeModal() {
   modal.style.display = "none";
 }
 
-document.getElementById("about-btn")?.addEventListener("click", () => {
-  openModal("modal-about-template");
-});
-
 modal.addEventListener("click", (e) => {
   if (e.target === modal) closeModal();
 });

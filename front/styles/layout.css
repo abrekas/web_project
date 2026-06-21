@@ -30,6 +30,7 @@
     background-color: var(--accent-color);
     border-radius: var(--second-radius);
     box-shadow: var(--shadow);
+    font-size: var(--font-size-md);
     font-weight: 700;
 }
 
@@ -86,7 +87,6 @@
     list-style: none;
 }
 
-
 .categories li {
     margin-bottom: 4px;
     padding: 7px 16px;
@@ -130,6 +130,7 @@
 
 .categories li span {
     flex: 1;
+    font-size: var(--font-size-md);
     font-weight: 700;
     color: var(--text-color);
 }
@@ -154,9 +155,9 @@
     box-shadow: var(--shadow);
 }
 
-/* Вложенные сайты */
 .categories li.category-item {
     padding: 7px 16px;
+    font-size: var(--font-size-md);
     font-weight: 700;
     color: var(--text-color);
 }
@@ -172,7 +173,7 @@
     padding: 7px 16px 7px 32px;
     border-radius: var(--second-radius);
     cursor: pointer;
-    font-size: 11pt;
+    font-size: var(--font-size-sm);
     font-weight: 400;
     color: var(--link-color);
 }
@@ -190,6 +191,7 @@
     border-radius: var(--second-radius);
     background-color: var(--background-color);
     color: var(--text-color);
+    font-size: var(--font-size-md);
 }
 
 .sidebar-footer {
@@ -223,7 +225,7 @@
     background-color: var(--second-color);
     color: var(--text-color);
     font-family: var(--font-main);
-    font-size: var(--font-size);
+    font-size: var(--font-size-md);
     cursor: pointer;
     box-shadow: var(--shadow);
     transition: background 0.2s;
@@ -233,40 +235,24 @@
     background-color: #87a0de;
 }
 
-.help-btn {
-    width: 32px;
-    height: 32px;
-    border: none;
-    border-radius: var(--first-radius);
-    background-color: var(--second-color);
-    cursor: pointer;
-    box-shadow: var(--shadow);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 0;
-    transition: background 0.2s;
-}
-
-.help-btn:hover {
-    background-color: #87a0de;
-}
-
-.help-btn img {
-    width: 20px;
-    height: 20px;
-    object-fit: contain;
-    filter: var(--icon-filter, none);
-}
-
-/* CONTENT */
-
 .category-description {
     margin: 10px 0;
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: 8px;
+}
+
+.category-description-text {
+    font-size: var(--font-size-sm);
+    flex: 1;
+}
+
+.category-description-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-shrink: 0;
 }
 
 #category-description-change-btn {
@@ -276,7 +262,10 @@
     border: none;
     border-radius: var(--second-radius);
     cursor: pointer;
+    font-size: var(--font-size-sm);
     transition: background 0.2s;
+    height: 32px;
+    white-space: nowrap;
 }
 
 #category-description-change-btn:hover{
@@ -297,6 +286,7 @@
     border-radius: var(--second-radius);
     background-color: var(--background-color);
     color: var(--text-color);
+    font-size: var(--font-size-sm);
 }
 
 .category-description-edit button {
@@ -306,11 +296,12 @@
     border: none;
     cursor: pointer;
     border-radius: var(--second-radius);
+    font-size: var(--font-size-sm);
+    height: 32px;
 }
 
-
 .category-description-edit button:last-child:hover {
-    background: var(--notes-header-color);;
+    background: var(--notes-header-color);
 }
 
 .content-area {
@@ -356,7 +347,7 @@
     background-color: var(--card-bg);
     box-shadow: var(--inside-shadow);
     font-family: var(--font-main);
-    font-size: var(--font-size);
+    font-size: var(--font-size-md);
     color: var(--notes-text-color);
 }
 
@@ -377,12 +368,12 @@
 }
 
 .view-switch button {
-    padding: 4px 12px;
+    padding: 4px 10px;
     border: none;
     border-bottom: 1px solid var(--text-color);
     background: none;
     color: var(--text-color);
-    font-size: var(--font-size);
+    font-size: var(--font-size-md);
     cursor: pointer;
 }
 
@@ -409,7 +400,7 @@
     border: none;
     background-color: var(--card-bg);
     font-family: var(--font-main);
-    font-size: var(--font-size);
+    font-size: var(--font-size-md);
     color: var(--notes-text-color);
     outline: none;
     appearance: none;
@@ -452,31 +443,160 @@
 }
 
 .tags-btn.filter-active {
-    outline: 2px solid var(--accent-color);
+    outline: 3px solid var(--accent-color);
     outline-offset: 2px;
+    background-color: var(--accent-color);
 }
 
-.tags-filter-hint {
-    margin: 0;
-    font-size: 13px;
-    opacity: 0.85;
+.tags-btn.filter-active img {
+    filter: brightness(0) invert(1);
 }
 
-.tags-empty-hint {
-    margin: 0;
-    font-size: 13px;
-    opacity: 0.75;
-}
-
-.tags-filter-form .tag-input-row {
+.create-note-btn {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 1000;
     display: flex;
+    align-items: center;
     gap: 8px;
-    width: 100%;
+    height: 30px;
+    padding: 0 20px;
+    border: none;
+    border-radius: var(--second-radius);
+    background-color: var(--accent-color);
+    color: var(--text-color);
+    font-family: var(--font-main);
+    font-size: var(--font-size-sm);
+    cursor: pointer;
+    box-shadow: var(--shadow);
+    outline: none;
+    transition: background 0.2s, transform 0.2s ease;
 }
 
-.tags-filter-form .tag-input-row .form-control {
-    flex: 1;
-    min-width: 0;
+.create-note-btn:hover {
+    background-color: #87a0de;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.create-note-btn:active {
+    transform: scale(0.97);
+}
+
+.modal-content.create-note-modal {
+    width: 500px;
+    height: auto;
+    max-height: 90vh;
+    padding: 0;
+    overflow: hidden;
+}
+
+.create-note-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 24px;
+}
+
+.create-note-form h3 {
+    margin-top: 0px;
+    font-size: var(--font-size-md);
+}
+
+.create-note-form .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.create-note-form .form-group label {
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    color: var(--text-color);
+}
+
+.create-note-form .form-control {
+    padding: 10px 12px;
+    border: none;
+    border-radius: var(--second-radius);
+    background-color: var(--card-bg);
+    color: var(--notes-text-color);
+    font-family: var(--font-main);
+    font-size: var(--font-size-sm);
+    box-shadow: var(--inside-shadow);
+}
+
+.create-note-form .form-control:focus {
+    outline: none;
+}
+
+.create-note-form select.form-control {
+    cursor: pointer;
+}
+
+.create-note-form .form-group.hidden {
+    display: none;
+}
+
+.create-note-form .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.create-note-form .form-actions button {
+    padding: 8px 20px;
+    border: none;
+    border-radius: var(--second-radius);
+    font-family: var(--font-main);
+    font-size: var(--font-size-sm);
+    cursor: pointer;
+}
+
+.create-note-form .primary-btn {
+    background-color: var(--accent-color);
+    color: var(--text-color);
+    box-shadow: var(--shadow);
+}
+
+.create-note-form .secondary-btn {
+    background-color: var(--second-color);
+    color: var(--text-color);
+    box-shadow: var(--shadow);
+}
+
+.form-tags-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    max-height: 160px;
+    overflow-y: auto;
+    padding: 4px 0;
+}
+
+.form-tag-btn {
+    display: inline-flex;
+    align-items: center;
+    background-color: var(--second-color, #e0e0e0);
+    color: var(--text-color, #333);
+    border: none;
+    border-radius: var(--second-radius, 4px);
+    padding: 4px 10px;
+    font-size: var(--font-size-sm);
+    cursor: pointer;
+    box-shadow: var(--shadow);
+    transition: background-color 0.2s, transform 0.1s;
+    user-select: none;
+}
+
+.form-tag-btn:hover {
+    filter: brightness(0.95);
+}
+
+.form-tag-btn.active {
+    background-color: var(--accent-color, #587cff);
+    color: #fff;
 }
 
 .tag-add-input-btn {
@@ -537,8 +657,8 @@
     opacity: 0.75;
 }
 
-.form-tag-delete:hover{
-    background-color:hsl(0, 71%, 74%);
+.form-tag-delete:hover {
+    background-color: hsl(0, 71%, 74%);
 }
 
 .form-tag-chip.active .form-tag-delete {
@@ -551,165 +671,13 @@
     opacity: 1;
 }
 
-.create-note-btn {
-    /* Фиксированное позиционирование относительно экрана */
-    position: fixed;
-    bottom: 24px;              /* Отступ от нижнего края экрана */
-    right: 24px;               /* Отступ от правого края экрана */
-    z-index: 1000;             /* Помещает кнопку поверх карточек и списков */
-
-    /* Ваши исходные стили стилизации */
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    height: 40px;              /* Немного увеличим высоту для удобства нажатия пальцем/курсором */
-    padding: 0 20px;           /* Пропорционально увеличим внутренние отступы */
-    border: none;
-    border-radius: var(--second-radius);
-    background-color: var(--accent-color);
-    color: var(--text-color);
-    font-family: var(--font-main);
-    font-size: var(--font-size);
-    cursor: pointer;
-    box-shadow: var(--shadow);
-    outline: none;
-    transition: transform 0.2s ease; /* Мягкий эффект при наведении */
-}
-
-/* Добавим небольшой интерактив при наведении, так как кнопка теперь плавающая */
-.create-note-btn:hover {
-    transform: translateY(-2px); /* Кнопка слегка приподнимается */
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); /* Тень становится глубже */
-    background-color: #87a0de;
-}
-
-
-.modal-content.create-note-modal {
-    width: 500px;
-    height: auto;
-    max-height: 90vh;
-    padding: 0;
-    overflow: hidden;
-}
-
-.create-note-form {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    padding: 24px;
-}
-
-.create-note-form h3 {
-    margin-top: 0px;
-}
-
-.create-note-form .form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.create-note-form .form-group label {
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--text-color);
-}
-
-.create-note-form .form-control {
-    padding: 10px 12px;
-    border: none;
-    border-radius: var(--second-radius);
-    background-color: var(--card-bg);
-    color: var(--notes-text-color);
-    font-family: var(--font-main);
-    font-size: 14px;
-    box-shadow: var(--inside-shadow);
-}
-
-.create-note-form .form-control:focus {
-    outline: none;
-}
-
-.create-note-form select.form-control {
-    cursor: pointer;
-}
-
-.create-note-form .form-group.hidden {
-    display: none;
-}
-
-.create-note-form .form-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 12px;
-}
-
-.create-note-form .form-actions button {
-    padding: 8px 20px;
-    border: none;
-    border-radius: var(--second-radius);
-    font-family: var(--font-main);
-    font-size: 14px;
-    cursor: pointer;
-}
-
-.create-note-form .primary-btn {
-    background-color: var(--accent-color);
-    color: var(--text-color);
-    box-shadow: var(--shadow);
-}
-
-.create-note-form .secondary-btn {
-    background-color: var(--second-color);
-    color: var(--text-color);
-    box-shadow: var(--shadow);
-}
-
-/* Контейнер для тегов внутри формы */
-.form-tags-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    max-height: 160px;
-    overflow-y: auto;
-    padding: 4px 0;
-}
-
-/* Кнопка-тег по умолчанию (не выбран) */
-.form-tag-btn {
-    display: inline-flex;
-    align-items: center;
-    background-color: var(--second-color, #e0e0e0);
-    color: var(--text-color, #333);
-    border: none;
-    border-radius: var(--second-radius, 4px);
-    padding: 4px 10px;
-    font-size: 13px;
-    cursor: pointer;
-    box-shadow: var(--shadow);
-    transition: background-color 0.2s, transform 0.1s;
-    user-select: none;
-}
-
-/* Эффект при наведении */
-.form-tag-btn:hover {
-    filter: brightness(0.95);
-}
-
-/* Активное состояние тега (когда он ВЫБРАН для заметки) */
-.form-tag-btn.active {
-    background-color: var(--accent-color, #587cff); /* Ваш акцентный цвет */
-    color: #fff; /* Белый текст для контраста */
-}
-
-/* Блок кода */
 .code-wrapper {
     margin: 12px 0;
     border-radius: 8px;
     background-color: #2d2d2d;
     overflow: hidden;
     font-family: 'Courier New', 'SF Mono', Monaco, monospace;
-    font-size: 13px;
+    font-size: var(--font-size-sm);
 }
 
 .code-header {
@@ -723,7 +691,7 @@
 
 .code-language {
     color: #e06c75;
-    font-size: 12px;
+    font-size: var(--font-size-xs);
     font-weight: 500;
     text-transform: lowercase;
 }
@@ -736,7 +704,7 @@
     border: none;
     border-radius: 6px;
     background-color: var(--second-color);
-    font-size: 12px;
+    font-size: var(--font-size-xs);
     cursor: pointer;
     transition: background-color 0.2s;
     color: var(--text-color);
@@ -762,7 +730,7 @@
     overflow-x: auto;
     background-color: var(--second-color);
     font-family: inherit;
-    font-size: 13px;
+    font-size: var(--font-size-sm);
     line-height: 1.5;
     white-space: pre-wrap;
     word-break: break-word;
@@ -778,6 +746,7 @@
 
 .note-text-content {
     line-height: 1.5;
+    font-size: var(--font-size-md);
 }
 
 .note-text-content p {
@@ -786,7 +755,6 @@
 .note-text-content p:last-child {
     margin-bottom: 0;
 }
-
 
 .note-image {
     max-width: 100%;
@@ -831,29 +799,40 @@
     background-color: var(--notes-header-color);
     color: var(--notes-text-color);
     margin-left: 2px;
+    overflow: visible;
 }
 
 .card-header {
     display: flex;
     height: 28px;
+    align-items: center;
     user-select: none;
     -webkit-user-select: none;
+    gap: 4px;
+    padding: 0 4px;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 100;
+    overflow: hidden;
 }
 
 .category-select {
     max-width: 140px;
-    padding: 4px 8px;
+    min-width: 60px;
+    padding: 2px 8px;
     border: none;
     border-radius: var(--second-radius);
     background-color: var(--card-bg);
     color: var(--text-color);
     box-shadow: var(--shadow);
     font-family: var(--font-main);
-    font-size: var(--font-size);
+    font-size: var(--font-size-sm);
     overflow: hidden;
-    /* margin-right: auto; <-- УДАЛЕНО: больше не расталкивает теги */
     user-select: none;
     -webkit-user-select: none;
+    height: 22px;
+    line-height: 22px;
+    flex-shrink: 0;
 }
 
 .card-tags {
@@ -862,26 +841,45 @@
     flex-direction: row;
     justify-content: flex-start;
     align-items: center;
-    gap: 2px;
-    margin-left: 8px;
-    margin-right: auto;
+    gap: 3px;
+    margin: 0;
+    margin-left: 4px;
+    margin-right: 4px;
     overflow-x: auto;
+    overflow-y: hidden;
     white-space: nowrap;
+    height: 100%;
+    flex: 1;
+    min-width: 0;
+    max-width: calc(100% - 120px);
+    z-index: 101;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding: 3px;
+}
+
+.card-tags::-webkit-scrollbar {
+    height: 0;
 }
 
 .tag-note {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
+    gap: 3px;
     border: none;
     border-radius: var(--second-radius);
     background-color: var(--second-color);
     box-shadow: var(--shadow);
     cursor: pointer;
-    height: 100%;
-    padding: 4px 8px;
-    font-size: var(--font-size);
+    height: 22px;
+    padding: 0 8px;
+    font-size: var(--font-size-sm);
     color: var(--text-color);
+    line-height: 22px;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 102;
+    overflow: visible !important;
 }
 
 .tag-note:hover{
@@ -889,7 +887,7 @@
 }
 
 .tag-note-remove {
-    font-size: 14px;
+    font-size: var(--font-size-sm);
     line-height: 1;
     opacity: 0.7;
 }
@@ -902,16 +900,21 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 24px;
-    height: 100%;
-    padding: 0 6px;
+    min-width: 22px;
+    height: 22px;
+    padding: 0 4px;
     border: none;
     border-radius: var(--second-radius);
     background-color: var(--card-bg);
     box-shadow: var(--shadow);
     cursor: pointer;
-    font-size: 16px;
+    font-size: var(--font-size-sm);
     color: var(--text-color);
+    line-height: 22px;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 102;
+    overflow: visible !important;
 }
 
 .tag-add-btn:disabled {
@@ -919,11 +922,15 @@
     cursor: not-allowed;
 }
 
-
 .card-actions {
     display: flex;
-    gap: 4px;
+    gap: 3px;
     margin-left: auto;
+    align-items: center;
+    height: 22px;
+    flex-shrink: 0;
+    z-index: 101;
+    overflow: visible;
 }
 
 .delete-note,
@@ -937,64 +944,52 @@
     justify-content: center;
     box-shadow: var(--shadow);
     cursor: pointer;
-    width: 28px;
-    height: 28px;
+    width: 22px;
+    height: 22px;
     padding: 0;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 102;
+    overflow: visible !important;
 }
 
 .delete-note:hover,
 .edit-note:hover,
 .save-note:hover {
     background-color: #87a0de;
+    z-index: 103;
 }
 
 .delete-note:hover{
     background-color: #daa9a9;
-
 }
 
 .edit-icon,
 .delete-icon,
 .save-icon {
     filter: var(--icon-filter, none);
-    width: 62%;
-}
-
-.card-editing .note-edit-text {
-    width: 100%;
-    min-height: 120px;
-    padding: 10px;
-    border: none;
-    border-radius: var(--second-radius);
-    background: var(--card-bg);
-    color: var(--notes-text-color);
-    font-family: var(--font-main);
-    font-size: var(--font-size);
-    resize: vertical;
-    box-shadow: var(--inside-shadow);
-}
-
-.card-editing .note-edit-link {
-    flex: 1;
-    min-width: 0;
-    padding: 2px 6px;
-    border: none;
-    border-radius: var(--second-radius);
-    background: var(--card-bg);
-    color: var(--text-color);
-    font-family: var(--font-main);
-    font-size: var(--font-size);
+    width: 14px;
+    height: 14px;
+    object-fit: contain;
+    display: block;
+    pointer-events: none;
 }
 
 .header-link {
     display: flex;
     align-items: center;
-    margin-left: 8px;
+    margin-left: 4px;
     border: none;
     border-radius: var(--second-radius);
     background-color: var(--second-color);
     box-shadow: var(--shadow);
     cursor: pointer;
+    height: 22px;
+    padding: 0 6px;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 102;
+    overflow: visible !important;
 }
 
 .header-link:hover{
@@ -1002,9 +997,12 @@
 }
 
 .link-icon {
-    height: 16px;
-    margin: 5px 8px;
+    height: 14px;
+    width: 14px;
+    margin: 0;
     filter: var(--icon-filter, none);
+    display: block;
+    pointer-events: none;
 }
 
 .source-link {
@@ -1013,7 +1011,11 @@
     overflow: hidden;
     color: var(--link-color);
     text-decoration: none;
-    font-size: var(--font-size);
+    font-size: var(--font-size-sm);
+}
+
+.source-link:hover {
+    text-decoration: underline;
 }
 
 .card-content {
@@ -1023,6 +1025,8 @@
     background-color: var(--card-content-bg);
     box-shadow: var(--shadow);
     overflow-wrap: break-word;
+    overflow: visible;
+    z-index: 1;
 }
 
 .card-body .main-link {
@@ -1031,14 +1035,18 @@
     color: var(--link-color);
     text-decoration: none;
     font-family: var(--font-main);
-    font-size: var(--font-size);
+    font-size: var(--font-size-md);
     font-weight: 700;
+}
+
+.card-body .main-link:hover {
+    text-decoration: underline;
 }
 
 .card-body p {
     margin: 0;
     font-family: var(--font-main);
-    font-size: var(--font-size);
+    font-size: var(--font-size-md);
     color: var(--notes-text-color);
     overflow-wrap: break-word;
 }
@@ -1050,7 +1058,7 @@
     color: #AEAEAE;
     font-family: var(--font-main);
     font-style: normal;
-    font-size: var(--small-font-size);
+    font-size: var(--font-size-xs);
 }
 
 .adidas {
@@ -1065,34 +1073,4 @@
 .adidas span {
     width: 15px;
     height: 2px;
-}
-
-.tags-note-form .tags-add-group {
-    width: 100%;
-}
-
-.tags-note-form .tag-input-row {
-    display: flex;
-    gap: 8px;
-    width: 100%;
-}
-
-.tags-note-form .tag-input-row .form-control {
-    flex: 1;
-    min-width: 0;
-}
-
-.tags-note-form h3 {
-    margin-top: 0;
-    margin-bottom: 0;
-}
-
-.tags-btn.filter-active {
-    outline: 3px solid var(--accent-color);
-    outline-offset: 2px;
-    background-color: var(--accent-color);
-}
-
-.tags-btn.filter-active img {
-    filter: brightness(0) invert(1);
 }
