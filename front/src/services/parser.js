@@ -1,7 +1,7 @@
-import { fsStorage } from '../services/fs-storage.js';
-import { updateTagsBtnState, openNoteTagsModal } from '../features/tags.js';
-import { loadAllCategories } from '../features/categories.js'
-import { switchLayout } from './layout.js'
+import {fsStorage} from './fs-storage.js';
+import {updateTagsBtnState, openNoteTagsModal} from '../features/tags.js';
+import {loadAllCategories} from '../features/categories.js'
+import {switchLayout} from './layout.js'
 
 const cardsList = document.getElementById('cards-list');
 const searchInput = document.getElementById('search-input');
@@ -22,7 +22,6 @@ export function getActiveTagFilter() {
 
 let allNotes = [];
 let allCategories = [];
-
 let allTags = [];
 
 function escapeHtml(str = '') {
@@ -49,7 +48,6 @@ export async function loadCategoriesForSelects() {
     console.error('Ошибка загрузки категорий:', e);
     allCategories = [];
   }
-  console.log(allCategories)
 }
 
 export async function loadTagsForPicker() {
@@ -80,12 +78,12 @@ function noteMatchesTagFilter(note, filterTags) {
 
 function buildCategoryOptions(currentCategory) {
   const normalizedCurrent = String(currentCategory || 'общее').trim();
-  
+
   const categoryNames = allCategories.map(cat => {
     if (typeof cat === 'string') return cat;
     return cat.name || 'общее';
   });
-  
+
   const categoriesSet = new Set(['общее', ...categoryNames, normalizedCurrent]);
   const categories = Array.from(categoriesSet);
 
@@ -140,6 +138,7 @@ function renderNoteHtml(data) {
   } else {
     bodyContent = `<div class="note-text-content">${parsedContent}</div>`;
   }
+
   function highlightText(text, query) {
     if (!query || query.trim() === '') return text;
     const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -184,10 +183,9 @@ function renderNoteHtml(data) {
 function getDomainFromUrl(url) {
   const urlStr = String(url || '').toLowerCase().trim();
   if (!urlStr) return '';
-  
+
   const withoutProtocol = urlStr.replace(/^https?:\/\//, '');
-  const domain = withoutProtocol.split('/')[0];
-  return domain;
+  return withoutProtocol.split('/')[0];
 }
 
 function filterNotes(category = 'общее', searchToken = '', site = null, view = 'all', filterTags = []) {
@@ -206,18 +204,17 @@ function filterNotes(category = 'общее', searchToken = '', site = null, vie
 
     const byCategory = cat === 'общее' || noteCategory === cat;
     const bySearch = !search ||
-      noteContent.includes(search) || noteContent.includes(searchInverted) ||
-      noteSite.includes(search) || noteSite.includes(searchInverted) ||
-      noteCategory.includes(search) || noteCategory.includes(searchInverted);
-    
+        noteContent.includes(search) || noteContent.includes(searchInverted) ||
+        noteSite.includes(search) || noteSite.includes(searchInverted) ||
+        noteCategory.includes(search) || noteCategory.includes(searchInverted);
+
     let bySite = true;
-    if (selectedDomain)
-      bySite = noteDomain === selectedDomain;
+    if (selectedDomain) bySite = noteDomain === selectedDomain;
+
     let byType = true;
-    if (view === 'text')
-      byType = note.type != 'image';
-    if (view === 'image')
-      byType = note.type === 'image';
+    if (view === 'text') byType = note.type !== 'image';
+    if (view === 'image') byType = note.type === 'image';
+
     const byTags = noteMatchesTagFilter(note, tagFilter);
 
     return byCategory && bySearch && bySite && byType && byTags;
@@ -227,13 +224,13 @@ function filterNotes(category = 'общее', searchToken = '', site = null, vie
 function updateCategoryDescription() {
   const descElement = document.getElementById('category-description');
   if (!descElement) return;
-  
+
   const activeLi = document.querySelector('#categories-ul li.active');
   const currentCategory = activeLi ? activeLi.dataset.category : 'общее';
-  
+
   const changeBtn = descElement.querySelector('#category-description-change-btn');
   const textSpan = descElement.querySelector('.category-description-text');
-  
+
   if (currentCategory === 'общее') {
     if (changeBtn) changeBtn.style.display = 'none';
     if (textSpan) {
@@ -242,16 +239,16 @@ function updateCategoryDescription() {
     }
     return;
   }
-  
+
   if (changeBtn) changeBtn.style.display = 'block';
-  
+
   const categoryObj = allCategories.find(cat => {
     const catName = typeof cat === 'string' ? cat : cat.name;
     return catName.toLowerCase() === String(currentCategory).trim().toLowerCase();
   });
-  
+
   const description = categoryObj ? (categoryObj.description || '') : '';
-  
+
   if (textSpan) {
     if (description) {
       textSpan.textContent = description;
@@ -266,16 +263,16 @@ function updateCategoryDescription() {
 async function changeCategoryDescription() {
   const activeLi = document.querySelector('#categories-ul li.active');
   const currentCategory = activeLi ? activeLi.dataset.category : 'общее';
-  
+
   if (currentCategory === 'общее') {
     alert('Нельзя изменить описание категории "общее"');
     return;
   }
-  
+
   const descElement = document.getElementById('category-description');
   const currentText = descElement.querySelector('.category-description-text')?.textContent || '';
   const actualDesc = currentText === 'Нет описания' ? '' : currentText;
-  
+
   const editHtml = `
     <div class="category-description-edit">
       <input type="text" id="category-description-input" value="${escapeHtml(actualDesc)}" placeholder="Введите описание категории">
@@ -283,36 +280,36 @@ async function changeCategoryDescription() {
       <button id="cancel-description-btn">Отмена</button>
     </div>
   `;
-  
+
   const changeBtn = descElement.querySelector('#category-description-change-btn');
   const textSpan = descElement.querySelector('.category-description-text');
-  
+
   changeBtn.style.display = 'none';
   textSpan.style.display = 'none';
-  
+
   const editDiv = document.createElement('div');
   editDiv.innerHTML = editHtml;
   descElement.insertBefore(editDiv, changeBtn);
-  
+
   const input = document.getElementById('category-description-input');
   input.focus();
-  
+
   document.getElementById('save-description-btn').onclick = async () => {
     const newDescription = input.value.trim();
-    
+
     try {
       const categoryObj = allCategories.find(cat => {
         const catName = typeof cat === 'string' ? cat : cat.name;
         return catName.toLowerCase() === currentCategory.toLowerCase();
       });
-      
+
       if (categoryObj) {
         await fsStorage.setCategoryDescription(currentCategory, newDescription);
-        
+
         if (categoryObj.description !== undefined) {
           categoryObj.description = newDescription;
         }
-        
+
         updateCategoryDescription();
       }
     } catch (e) {
@@ -324,7 +321,7 @@ async function changeCategoryDescription() {
     changeBtn.style.display = 'block';
     textSpan.style.display = 'block';
   };
-  
+
   document.getElementById('cancel-description-btn').onclick = () => {
     editDiv.remove();
     changeBtn.style.display = 'block';
@@ -335,12 +332,12 @@ async function changeCategoryDescription() {
 function initCategoryDescription() {
   const descElement = document.getElementById('category-description');
   if (!descElement) return;
-  
+
   descElement.innerHTML = `
     <span class="category-description-text"></span>
     <button id="category-description-change-btn" class="">Изменить</button>
   `;
-  
+
   document.getElementById('category-description-change-btn').addEventListener('click', changeCategoryDescription);
   updateCategoryDescription();
 }
@@ -352,7 +349,7 @@ export function loadAllNotes(category = 'общее', searchToken = '', site = n
     cardsList.innerHTML = `<p>Заметки не найдены</p>`;
     return;
   }
-  
+
   updateCategoryDescription();
   cardsList.innerHTML = filtered.map(renderNoteHtml).join('');
 }
@@ -382,11 +379,11 @@ async function getSortedNotes() {
 }
 
 export function renderNotes() {
-  const { category, search, site, view, filterTags } = getState();
+  const {category, search, site, view, filterTags} = getState();
   loadAllNotes(category, search, site, view, filterTags);
 }
 
-export async function refreshNotes(category = 'общее') {
+export async function refreshNotes() {
   if (!fsStorage || !fsStorage.isReady) {
     cardsList.innerHTML = `<p>Сначала разрешите доступ к папке с данными</p>`;
     return;
@@ -487,20 +484,13 @@ async function changeNoteCategory(noteId, newCategory) {
 
     await fsStorage.updateNote(note);
     allNotes = await getSortedNotes();
-    
+
     loadAllCategories();
     renderNotes();
   } catch (e) {
     console.error('Ошибка смены категории заметки:', e);
     alert('Не удалось изменить категорию');
   }
-}
-
-if (searchInput) {
-  searchInput.addEventListener('input', () => {
-    state.search = searchInput.value;
-    renderNotes();
-  });
 }
 
 const IMAGE_MODAL_PADDING = 16;
@@ -549,7 +539,7 @@ function openImageModal(src) {
   modal.style.display = 'flex';
 }
 
-function updateSortOrderLabels () {
+function updateSortOrderLabels() {
   if (!sortOrder) return;
 
   const ascOpt = sortOrder.querySelector('option[value="asc"]');
@@ -564,7 +554,7 @@ function updateSortOrderLabels () {
 
   ascOpt.textContent = 'сначала старые';
   descOpt.textContent = 'сначала новые';
-};
+}
 
 async function applySort() {
   const selectedValue = sortMenu.value;
@@ -582,24 +572,7 @@ async function applySort() {
   } catch (e) {
     console.error('Ошибка сортировки заметок:', e);
   }
-};
-
-document.addEventListener('DOMContentLoaded', () => {
-  if (!sortMenu) return;
-
-  const savedValue = localStorage.getItem('selectedOption');
-  if (savedValue) sortMenu.value = savedValue;
-  const savedOrder = localStorage.getItem('sortOrder');
-  if (sortOrder && savedOrder) sortOrder.value = savedOrder;
-  updateSortOrderLabels();
-
-  sortMenu.addEventListener('change', () => {
-    updateSortOrderLabels();
-    void applySort();
-  });
-  
-  if (sortOrder) sortOrder.addEventListener('change', applySort);
-});
+}
 
 export function setActiveTagFilter(tags) {
   state.activeFilterTags = normalizeTagList(tags);
@@ -607,61 +580,6 @@ export function setActiveTagFilter(tags) {
   updateTagsBtnState();
   renderNotes();
 }
-
-cardsList.addEventListener('click', async (e) => {
-  const addTagBtn = e.target.closest('.tag-add-btn');
-  if (addTagBtn) {
-    e.stopPropagation();
-    const noteId = addTagBtn.dataset.noteId;
-    openNoteTagsModal(noteId);
-    return;
-  }
-
-  const tagBtn = e.target.closest('.tag-note');
-  if (tagBtn) {
-    const noteId = tagBtn.dataset.noteId;
-    const tag = tagBtn.dataset.tag;
-    const note = allNotes.find(item => String(item.id) === String(noteId));
-    if (!note) return;
-
-    const tags = normalizeTagList(note.tags || []).filter(t => t !== String(tag).toLowerCase());
-    await changeNoteTags(noteId, tags);
-    return;
-  }
-
-  const editBtn = e.target.closest('.edit-note');
-  if (editBtn) {
-    const card = editBtn.closest('.card');
-    const note = allNotes.find(item => String(item.id) === String(card?.dataset.noteId));
-    if (card && note) startNoteEdit(card, note);
-    return;
-  }
-
-  const saveBtn = e.target.closest('.save-note');
-  if (saveBtn) {
-    await saveNoteEdit(saveBtn.closest('.card'));
-    return;
-  }
-
-  const deleteBtn = e.target.closest('.delete-note');
-
-  if (deleteBtn) {
-    const card = deleteBtn.closest('.card');
-
-    if (confirm('Удалить заметку?')) {
-      const noteId = card.getAttribute('data-note-id');
-      allNotes = await fsStorage.deleteNote(noteId);
-      card.remove();
-    }
-
-    return;
-  }
-  const image = e.target.closest('.note-image');
-
-  if (image) {
-    openImageModal(image.src);
-  }
-});
 
 function parseCodeBlocks(text) {
   if (!text) return escapeHtml(text);
@@ -701,75 +619,150 @@ function parseCodeBlocks(text) {
   return result;
 }
 
-cardsList.addEventListener('click', async (e) => {
-  const copyBtn = e.target.closest('.copy-code-btn');
-  if (copyBtn) {
-    e.stopPropagation();
-
-    let codeText = copyBtn.dataset.codeText;
-    if (codeText) {
-      codeText = codeText.replace(/&quot;/g, '"');
-      try {
-        await navigator.clipboard.writeText(codeText);
-
-        const originalText = copyBtn.innerHTML;
-        copyBtn.innerHTML = '<img class="copy-icon" src="media/copy.png"> Скопировано!';
-        copyBtn.style.backgroundColor = '#4caf50';
-
-        setTimeout(() => {
-          copyBtn.innerHTML = originalText;
-          copyBtn.style.backgroundColor = '';
-        }, 2000);
-      } catch (err) {
-        console.error('Не удалось скопировать:', err);
-        copyBtn.innerHTML = '<img class="copy-icon" src="media/copy.png"> Ошибка';
-        setTimeout(() => {
-          copyBtn.innerHTML = originalText;
-        }, 2000);
-      }
-    }
-  }
-});
-
-filter.addEventListener('click', (e) => {
-  const btn = e.target.closest('button');
-  if (!btn) return;
-
-  document.querySelectorAll('.view-switch button')
-    .forEach(b => b.classList.remove('active'));
-
-  btn.classList.add('active');
-
-  state.view = btn.dataset.view;
-  localStorage.setItem('currentView', state.view);
-  renderNotes();
-});
-
-cardsList.addEventListener('change', async (e) => {
-  const select = e.target.closest('.category-select');
-  if (!select) return;
-
-  const noteId = select.dataset.noteId;
-  const newCategory = select.value;
-
-  await changeNoteCategory(noteId, newCategory);
-});
-
-async function initParser() {
+export async function initParser() {
   await fsStorage.restoreFolder();
   await refreshNotes();
   initCategoryDescription();
   updateTagsBtnState();
   if (filter) filter.classList.add('ready');
-}
 
-window.addEventListener('DOMContentLoaded', initParser);
-window.addEventListener('fs-ready', async () => {
-  try {
-    await loadAllCategories();       
-    await loadCategoriesForSelects(); 
-    await renderNotes();              
-  } catch (err) {
-    console.error("Ошибка при старте приложения:", err);
+  if (searchInput) {
+    searchInput.addEventListener('input', () => {
+      state.search = searchInput.value;
+      renderNotes();
+    });
   }
-});
+
+  if (sortMenu) {
+    const savedValue = localStorage.getItem('selectedOption');
+    if (savedValue) sortMenu.value = savedValue;
+    const savedOrder = localStorage.getItem('sortOrder');
+    if (sortOrder && savedOrder) sortOrder.value = savedOrder;
+    updateSortOrderLabels();
+
+    sortMenu.addEventListener('change', () => {
+      updateSortOrderLabels();
+      void applySort();
+    });
+  }
+
+  if (sortOrder) {
+    sortOrder.addEventListener('change', applySort);
+  }
+
+  if (filter) {
+    filter.addEventListener('click', (e) => {
+      const btn = e.target.closest('button');
+      if (!btn) return;
+
+      document.querySelectorAll('.view-switch button')
+          .forEach(b => b.classList.remove('active'));
+
+      btn.classList.add('active');
+
+      state.view = btn.dataset.view;
+      localStorage.setItem('currentView', state.view);
+      renderNotes();
+    });
+  }
+
+  if (cardsList) {
+    cardsList.addEventListener('change', async (e) => {
+      const select = e.target.closest('.category-select');
+      if (!select) return;
+
+      const noteId = select.dataset.noteId;
+      const newCategory = select.value;
+
+      await changeNoteCategory(noteId, newCategory);
+    });
+
+    cardsList.addEventListener('click', async (e) => {
+      const addTagBtn = e.target.closest('.tag-add-btn');
+      if (addTagBtn) {
+        e.stopPropagation();
+        await openNoteTagsModal(addTagBtn.dataset.noteId);
+        return;
+      }
+
+      const tagBtn = e.target.closest('.tag-note');
+      if (tagBtn) {
+        const noteId = tagBtn.dataset.noteId;
+        const tag = tagBtn.dataset.tag;
+        const note = allNotes.find(item => String(item.id) === String(noteId));
+        if (!note) return;
+
+        const tags = normalizeTagList(note.tags || []).filter(t => t !== String(tag).toLowerCase());
+        await changeNoteTags(noteId, tags);
+        return;
+      }
+
+      const editBtn = e.target.closest('.edit-note');
+      if (editBtn) {
+        const card = editBtn.closest('.card');
+        const note = allNotes.find(item => String(item.id) === String(card?.dataset.noteId));
+        if (card && note) startNoteEdit(card, note);
+        return;
+      }
+
+      const saveBtn = e.target.closest('.save-note');
+      if (saveBtn) {
+        await saveNoteEdit(saveBtn.closest('.card'));
+        return;
+      }
+
+      const deleteBtn = e.target.closest('.delete-note');
+      if (deleteBtn) {
+        const card = deleteBtn.closest('.card');
+        if (confirm('Удалить заметку?')) {
+          const noteId = card.getAttribute('data-note-id');
+          allNotes = await fsStorage.deleteNote(noteId);
+          card.remove();
+        }
+        return;
+      }
+
+      const image = e.target.closest('.note-image');
+      if (image) {
+        openImageModal(image.src);
+        return;
+      }
+
+      const copyBtn = e.target.closest('.copy-code-btn');
+      if (copyBtn) {
+        e.stopPropagation();
+        let codeText = copyBtn.dataset.codeText;
+        if (codeText) {
+          codeText = codeText.replace(/&quot;/g, '"');
+          try {
+            await navigator.clipboard.writeText(codeText);
+            const originalText = copyBtn.innerHTML;
+            copyBtn.innerHTML = '<img class="copy-icon" src="media/copy.png"> Скопировано!';
+            copyBtn.style.backgroundColor = '#4caf50';
+
+            setTimeout(() => {
+              copyBtn.innerHTML = originalText;
+              copyBtn.style.backgroundColor = '';
+            }, 2000);
+          } catch (err) {
+            console.error('Не удалось скопировать:', err);
+            copyBtn.innerHTML = '<img class="copy-icon" src="media/copy.png"> Ошибка';
+            setTimeout(() => {
+              copyBtn.innerHTML = originalText;
+            }, 2000);
+          }
+        }
+      }
+    });
+  }
+
+  window.addEventListener('fs-ready', async () => {
+    try {
+      await loadAllCategories();
+      await loadCategoriesForSelects();
+      renderNotes();
+    } catch (err) {
+      console.error("Ошибка при старте приложения:", err);
+    }
+  });
+}

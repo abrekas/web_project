@@ -1,15 +1,29 @@
+import { modal, modalBody } from './modal.js';
+
+function openImageModal(src) {
+    if (!modal || !modalBody) {
+        console.error("Модальное окно не найдено в DOM.");
+        return;
+    }
+
+    modalBody.innerHTML = `<img class="full-modal-image" src="${src}" alt="Скриншот гайда">`;
+
+    const modalContent = modal.querySelector(".modal-content");
+    if (modalContent) {
+        modalContent.className = "modal-content image-viewer";
+    }
+
+    modal.style.display = "flex";
+}
+
 window.addEventListener("DOMContentLoaded", () => {
     const openGuideBtn = document.getElementById("open-guide-btn");
     const closeGuideBtn = document.getElementById("close-guide-btn");
     const guide = document.getElementById("startup-guide");
     const guideElements = document.querySelectorAll(".startup-guide-element");
-    const chromeToggle = document.getElementById("guide-chrome-toggle");
-    const firefoxToggle = document.getElementById("guide-firefox-toggle");
 
     const setGuideVisible = (visible) => {
-
-        guide.classList.toggle("show", visible);
-
+        if (guide) guide.classList.toggle("show", visible);
         if (openGuideBtn) {
             openGuideBtn.setAttribute("aria-expanded", visible ? "true" : "false");
         }
@@ -29,7 +43,7 @@ window.addEventListener("DOMContentLoaded", () => {
     guideElements.forEach((element) => {
         const guideToggle = element.querySelector(".expand-menu");
         const guideGrid = element.querySelector(".startup-guide-grid");
-        const guideName = guideToggle.querySelector(".guide-name");
+        const guideName = guideToggle?.querySelector(".guide-name");
 
         if (guideGrid) {
             guideGrid.style.display = "none";
@@ -52,12 +66,8 @@ window.addEventListener("DOMContentLoaded", () => {
                 if (!img) return;
 
                 const src = img.getAttribute("src");
-                if (!src) return;
-
-                if (typeof window.openImageModal === "function") {
-                    window.openImageModal(src);
-                } else {
-                    console.warn("openImageModal не найден. Проверьте подключение js/parser.js");
+                if (src) {
+                    openImageModal(src);
                 }
             });
         }
