@@ -183,7 +183,7 @@
 
 .create-note-btn-top {
     padding: 5px 15px;
-    background: var(--accent-color);
+    background: var(--notes-header-color);
     color: var(--text-color);
     border: none;
     border-radius: var(--second-radius);
@@ -192,7 +192,6 @@
     transition: background 0.2s, transform 0.2s ease;
     height: 32px;
     white-space: nowrap;
-    box-shadow: var(--shadow);
     text-align: center;
     justify-content: center;
     align-items: center;
@@ -201,7 +200,6 @@
 
 .create-note-btn-top:hover {
     background-color: #87a0de;
-    transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
@@ -249,4 +247,62 @@
 .create-note-btn-top {
     position: relative;
     z-index: 11;
+}
+
+.category-description-edit-wrapper {
+    flex: 1;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.category-description-edit-wrapper input {
+    flex: 1;
+    height: 32px;
+    padding: 8px;
+    border: none;
+    border-radius: var(--second-radius);
+    background-color: var(--background-color);
+    color: var(--text-color);
+    font-size: var(--font-size-sm);
+}
+
+.category-description-edit-wrapper button {
+    padding: 5px 15px;
+    background: var(--notes-header-color);
+    color: var(--text-color);
+    border: none;
+    cursor: pointer;
+    border-radius: var(--second-radius);
+    font-size: var(--font-size-sm);
+    height: 32px;
+}
+
+.category-description-text {
+    font-size: var(--font-size-sm);
+    flex: 1;
+    min-width: 0;           /* разрешаем сжиматься */
+    word-wrap: break-word;  /* переносим длинные слова */
+    word-break: break-word; /* переносим слова */
+    overflow-wrap: break-word;
+    white-space: normal;    /* разрешаем перенос на новую строку */
+    max-width: 100%;        /* не вылезаем за пределы */
+    padding-right: 8px;     /* небольшой отступ от кнопок */
+}
+
+.category-description {
+    margin: 10px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start; /* выравниваем по верхнему краю */
+    gap: 8px;
+    flex-wrap: wrap;        /* если не влезает, переносим на новую строку */
+}
+
+.category-description-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-shrink: 0;         /* не сжимаем кнопки */
+    flex-wrap: wrap;        /* если не влезает, переносим на новую строку */
 }

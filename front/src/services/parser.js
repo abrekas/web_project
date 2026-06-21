@@ -286,16 +286,29 @@ async function changeCategoryDescription() {
 
   const changeBtn = descElement.querySelector('#category-description-change-btn');
   const textSpan = descElement.querySelector('.category-description-text');
+  const actionsDiv = descElement.querySelector('.category-description-actions');
+  const createBtn = descElement.querySelector('#create-note-btn-top');
 
-  changeBtn.style.display = 'none';
-  textSpan.style.display = 'none';
+  // Скрываем кнопку "Изменить" и текст
+  if (changeBtn) changeBtn.style.display = 'none';
+  if (textSpan) textSpan.style.display = 'none';
+
+  // Кнопку "Создать заметку" оставляем видимой
+  if (createBtn) createBtn.style.display = 'inline-flex';
 
   const editDiv = document.createElement('div');
+  editDiv.className = 'category-description-edit-wrapper';
   editDiv.innerHTML = editHtml;
-  descElement.insertBefore(editDiv, changeBtn);
+
+  // Вставляем перед actionsDiv или после textSpan
+  if (actionsDiv) {
+    descElement.insertBefore(editDiv, actionsDiv);
+  } else {
+    descElement.insertBefore(editDiv, changeBtn);
+  }
 
   const input = document.getElementById('category-description-input');
-  input.focus();
+  if (input) input.focus();
 
   document.getElementById('save-description-btn').onclick = async () => {
     const newDescription = input.value.trim();
@@ -321,14 +334,14 @@ async function changeCategoryDescription() {
     }
 
     editDiv.remove();
-    changeBtn.style.display = 'block';
-    textSpan.style.display = 'block';
+    if (changeBtn) changeBtn.style.display = 'block';
+    if (textSpan) textSpan.style.display = 'block';
   };
 
   document.getElementById('cancel-description-btn').onclick = () => {
     editDiv.remove();
-    changeBtn.style.display = 'block';
-    textSpan.style.display = 'block';
+    if (changeBtn) changeBtn.style.display = 'block';
+    if (textSpan) textSpan.style.display = 'block';
   };
 }
 
