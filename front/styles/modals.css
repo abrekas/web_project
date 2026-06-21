@@ -7,7 +7,7 @@
     display: none;
     align-items: center;
     justify-content: center;
-    z-index: 1;
+    z-index: 9999;
 }
 
 .startup-overlay.show {
@@ -75,7 +75,7 @@
     z-index: 10000;
     flex-direction: column;
     width: 50%;
-    height: 60%;
+    height: auto;
     padding: 16px;
     border-radius: var(--first-radius);
     background: var(--second-color);
@@ -235,12 +235,64 @@
     transform: rotate(180deg);
 }
 
-/* Стили для модального окна тегов */
-.modal-content .tags-note-form {
-    gap: 16px;
+.modal-content.color-modal {
+    width: auto;
+    min-width: 400px;
+    max-width: 90vw;
+    height: auto;
+    padding: 24px;
+    overflow: visible;
 }
 
-.modal-content .tags-note-form .form-tags-container {
+.modal-content.color-modal .color-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    align-items: center;
+}
+
+.modal-content.color-modal .color-container > div:first-child {
+    font-size: var(--font-size-lg);
+    font-weight: 700;
+    text-align: left;
+    width: 100%;
+    padding-left: 8px;
+}
+
+.modal-content.color-modal .grid-layout {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    max-width: 600px;
+    width: 100%;
+}
+
+.modal-content.color-modal .grid-item {
+    display: block;
+    width: 100%;
+    max-width: 280px;
+    height: auto;
+    border-radius: var(--second-radius);
+    object-fit: cover;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.modal-content.color-modal .grid-item:hover {
+    transform: scale(1.08);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+.modal-content.create-note-modal .tags-note-form,
+.modal-content.create-note-modal .tags-filter-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+}
+
+.modal-content.create-note-modal .tags-note-form .form-tags-container,
+.modal-content.create-note-modal .tags-filter-form .form-tags-container {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
@@ -250,69 +302,36 @@
     min-height: 40px;
 }
 
-.modal-content .tags-note-form .tag-input-row {
-    display: flex;
-    gap: 8px;
-    width: 100%;
-}
-
-.modal-content .tags-note-form .tag-input-row .form-control {
-    flex: 1;
-    min-width: 0;
-    height: 36px;
-    padding: 8px 12px;
-    border: none;
-    border-radius: var(--second-radius);
-    background-color: var(--card-bg);
-    color: var(--notes-text-color);
-    font-family: var(--font-main);
-    font-size: var(--font-size-sm);
-    box-shadow: var(--inside-shadow);
-}
-
-.modal-content .tags-note-form .tag-input-row .form-control:focus {
-    outline: none;
-}
-
-.modal-content .tags-note-form .tag-add-input-btn {
+.modal-content.create-note-modal .form-tag-chip {
     display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 36px;
-    height: 36px;
-    flex-shrink: 0;
-    padding: 0;
-    border: none;
+    align-items: stretch;
     border-radius: var(--second-radius);
-    background-color: var(--accent-color);
-    cursor: pointer;
     box-shadow: var(--shadow);
+    overflow: hidden;
+}
+
+.modal-content.create-note-modal .form-tag-chip .form-tag-btn {
+    border-radius: 0;
+    box-shadow: none;
+    padding: 4px 10px;
+    font-size: var(--font-size-sm);
+    cursor: pointer;
+    border: none;
+    background-color: var(--second-color);
     color: var(--text-color);
-    font-size: 20px;
-    font-weight: 700;
-    transition: background 0.2s, transform 0.2s ease;
-    pointer-events: auto;
-    position: relative;
-    z-index: 10;
+    transition: background 0.2s;
 }
 
-.modal-content .tags-note-form .tag-add-input-btn:hover {
-    background-color: #87a0de;
-    transform: scale(1.05);
+.modal-content.create-note-modal .form-tag-chip .form-tag-btn:hover {
+    filter: brightness(0.95);
 }
 
-.modal-content .tags-note-form .tag-add-input-btn:active {
-    transform: scale(0.95);
+.modal-content.create-note-modal .form-tag-chip.active .form-tag-btn {
+    background-color: var(--accent-color);
+    color: #fff;
 }
 
-.modal-content .tags-note-form .tag-add-input-btn svg {
-    width: 20px;
-    height: 20px;
-    stroke: currentColor;
-    pointer-events: none;
-}
-
-.modal-content .tags-note-form .form-tag-chip .form-tag-delete {
+.modal-content.create-note-modal .form-tag-chip .form-tag-delete {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -329,58 +348,88 @@
     transition: background 0.2s, opacity 0.2s;
 }
 
-.modal-content .tags-note-form .form-tag-chip .form-tag-delete:hover {
+.modal-content.create-note-modal .form-tag-chip .form-tag-delete:hover {
     background-color: hsl(0, 71%, 74%);
     opacity: 1;
 }
 
-.modal-content .tags-note-form .form-tag-chip.active .form-tag-delete {
+.modal-content.create-note-modal .form-tag-chip.active .form-tag-delete {
     border-left-color: rgba(255, 255, 255, 0.25);
-    background-color: var(--accent-color, #587cff);
+    background-color: var(--accent-color);
     color: #fff;
 }
 
-.modal-content .tags-note-form .form-tag-chip.active .form-tag-delete:hover {
+.modal-content.create-note-modal .form-tag-chip.active .form-tag-delete:hover {
     background-color: hsl(0, 71%, 74%);
 }
 
-.modal-content .tags-note-form .form-tag-chip .form-tag-btn {
-    border-radius: 0;
-    box-shadow: none;
-    padding: 4px 10px;
-    font-size: var(--font-size-sm);
-    cursor: pointer;
+.modal-content.create-note-modal .tag-input-row {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+}
+
+.modal-content.create-note-modal .tag-input-row .form-control {
+    flex: 1;
+    min-width: 0;
+    height: 36px;
+    padding: 8px 12px;
     border: none;
-    background-color: var(--second-color);
-    color: var(--text-color);
-    transition: background 0.2s;
-}
-
-.modal-content .tags-note-form .form-tag-chip .form-tag-btn:hover {
-    filter: brightness(0.95);
-}
-
-.modal-content .tags-note-form .form-tag-chip.active .form-tag-btn {
-    background-color: var(--accent-color, #587cff);
-    color: #fff;
-}
-
-.modal-content .tags-note-form .form-tag-chip {
-    display: inline-flex;
-    align-items: stretch;
     border-radius: var(--second-radius);
-    box-shadow: var(--shadow);
-    overflow: hidden;
+    background-color: var(--card-bg);
+    color: var(--notes-text-color);
+    font-family: var(--font-main);
+    font-size: var(--font-size-sm);
+    box-shadow: var(--inside-shadow);
 }
 
-.modal-content .tags-note-form .form-actions {
+.modal-content.create-note-modal .tag-input-row .form-control:focus {
+    outline: none;
+}
+
+.modal-content.create-note-modal .tag-add-input-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+    padding: 0;
+    border: none;
+    border-radius: var(--second-radius);
+    background-color: var(--accent-color);
+    cursor: pointer;
+    box-shadow: var(--shadow);
+    color: var(--text-color);
+    font-size: 20px;
+    font-weight: 700;
+    transition: background 0.2s, transform 0.2s ease;
+}
+
+.modal-content.create-note-modal .tag-add-input-btn:hover {
+    background-color: #87a0de;
+    transform: scale(1.05);
+}
+
+.modal-content.create-note-modal .tag-add-input-btn:active {
+    transform: scale(0.95);
+}
+
+.modal-content.create-note-modal .tag-add-input-btn svg {
+    width: 20px;
+    height: 20px;
+    stroke: currentColor;
+    pointer-events: none;
+}
+
+.modal-content.create-note-modal .form-actions {
     display: flex;
     justify-content: flex-end;
     gap: 12px;
     margin-top: 8px;
 }
 
-.modal-content .tags-note-form .form-actions button {
+.modal-content.create-note-modal .form-actions button {
     padding: 8px 24px;
     border: none;
     border-radius: var(--second-radius);
@@ -390,22 +439,56 @@
     transition: background 0.2s;
 }
 
-.modal-content .tags-note-form .form-actions .primary-btn {
+.modal-content.create-note-modal .form-actions .primary-btn {
     background-color: var(--accent-color);
     color: var(--text-color);
     box-shadow: var(--shadow);
 }
 
-.modal-content .tags-note-form .form-actions .primary-btn:hover {
+.modal-content.create-note-modal .form-actions .primary-btn:hover {
     background-color: #87a0de;
 }
 
-.modal-content .tags-note-form .form-actions .secondary-btn {
+.modal-content.create-note-modal .form-actions .secondary-btn {
     background-color: var(--second-color);
     color: var(--text-color);
     box-shadow: var(--shadow);
 }
 
-.modal-content .tags-note-form .form-actions .secondary-btn:hover {
+.modal-content.create-note-modal .form-actions .secondary-btn:hover {
     background-color: #d0d0d0;
+}
+
+.modal-content.create-note-modal .tags-note-form {
+    padding: 24px;
+}
+
+.modal-content.create-note-modal .tags-filter-form {
+    padding: 24px;
+}
+
+.modal-content .form-tags-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.modal-content .form-tags-container::-webkit-scrollbar-track {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+.modal-content .form-tags-container::-webkit-scrollbar-thumb {
+    background-color: #c1c1c1;
+    border-radius: 10px;
+    border: none;
+    box-shadow: none;
+}
+
+.modal-content .form-tags-container::-webkit-scrollbar-thumb:hover {
+    background-color: #a8a8a8;
+}
+
+.modal-content .form-tags-container {
+    scrollbar-width: thin;
+    scrollbar-color: #c1c1c1 transparent;
 }

@@ -232,6 +232,9 @@ function updateCategoryDescription() {
 
   const changeBtn = descElement.querySelector('#category-description-change-btn');
   const textSpan = descElement.querySelector('.category-description-text');
+  const createBtn = descElement.querySelector('#create-note-btn-top');
+
+  if (createBtn) createBtn.style.display = 'inline-flex';
 
   if (currentCategory === 'общее') {
     if (changeBtn) changeBtn.style.display = 'none';
@@ -337,10 +340,23 @@ function initCategoryDescription() {
 
   descElement.innerHTML = `
     <span class="category-description-text"></span>
-    <button id="category-description-change-btn" class="">Изменить</button>
+    <div class="category-description-actions">
+      <button id="create-note-btn-top" class="create-note-btn-top">Создать заметку</button>
+      <button id="category-description-change-btn">Изменить</button>
+    </div>
   `;
 
+  const createBtn = document.getElementById('create-note-btn-top');
+  if (createBtn) {
+    createBtn.addEventListener('click', () => {
+      import('../features/notes.js').then(module => {
+        module.openCreateNoteModal();
+      });
+    });
+  }
+
   document.getElementById('category-description-change-btn').addEventListener('click', changeCategoryDescription);
+
   updateCategoryDescription();
 }
 

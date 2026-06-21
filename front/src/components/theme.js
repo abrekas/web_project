@@ -111,6 +111,7 @@ function applyTheme(themeName) {
         root.style.setProperty(variable, theme[variable]);
     });
 
+
     updateTagIcon(themeName);
     localStorage.setItem("selectedTheme", themeName);
 }

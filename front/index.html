@@ -3,9 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>Highliter.com</title>
-  <link rel="stylesheet" href="styles/base.css" />
-  <link rel="stylesheet" href="styles/layout.css" />
-  <link rel="stylesheet" href="styles/modals.css" />    <link rel="icon" href="media/logo.png" type="image/png" />
+  <link rel="stylesheet" href="styles/main.css" />
 </head>
 <body>
 <div class="app-container">
@@ -76,10 +74,6 @@
         <img id="tags-btn-icon" src="media/tag.png" alt="Тэги" />
       </button>
 
-      <button id="create-note-btn" class="create-note-btn">
-        Создать заметку
-      </button>
-
       <nav class="view-switch">
         <button data-view="all" class="active">все</button>
         <button data-view="image">картинки</button>
@@ -89,7 +83,10 @@
 
     <div id="category-description" class="category-description">
       <span class="category-description-text" id="category-description-text"></span>
-      <button id="category-description-change-btn">Изменить</button>
+      <div class="category-description-actions">
+        <button id="create-note-btn-top" class="create-note-btn-top">Создать заметку</button>
+        <button id="category-description-change-btn">Изменить</button>
+      </div>
     </div>
 
     <section id="cards-list" class="cards-list"></section>
