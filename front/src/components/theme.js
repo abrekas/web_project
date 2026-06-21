@@ -34,13 +34,13 @@ const themes = {
         '--icon-filter': 'none'
     },
     sky: {
-        '--background-color': '#1B1B1D',
-        '--notes-header-color': '#222224',
+        '--background-color': '#232327',
+        '--notes-header-color': '#1f1f22',
         '--second-color': '#161616',
         '--text-color': '#ebebeb',
         '--notes-text-color': '#d3d3d3',
         '--card-color': '#3A3A3F',
-        '--accent-color': '#272729',
+        '--accent-color': '#303033',
         '--link-color': '#b9b9b9',
         '--card-bg': '#333336',
         '--card-content-bg': '#333336',
