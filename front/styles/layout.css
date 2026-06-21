@@ -76,7 +76,6 @@
 }
 
 .categories::-webkit-scrollbar-thumb {
-    background-color: var(--third-color);
     border-radius: 10px;
 }
 

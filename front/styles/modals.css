@@ -7,7 +7,7 @@
     display: none;
     align-items: center;
     justify-content: center;
-    z-index: 1;
+    z-index: 9999;
 }
 
 .startup-overlay.show {
@@ -182,6 +182,55 @@
     display: block;
 }
 
+.modal-content.color-modal {
+    width: auto;
+    min-width: 400px;
+    max-width: 90vw;
+    height: auto;
+    padding: 24px;
+    overflow: visible;
+}
+
+.modal-content.color-modal .color-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    align-items: center;
+}
+
+.modal-content.color-modal .color-container > div:first-child {
+    font-size: var(--font-size-lg);
+    font-weight: 700;
+    text-align: left;
+    width: 100%;
+    padding-left: 8px;
+}
+
+.modal-content.color-modal .grid-layout {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    max-width: 600px;
+    width: 100%;
+}
+
+.modal-content.color-modal .grid-item {
+    display: block;
+    width: 100%;
+    max-width: 280px;
+    height: auto;
+    border-radius: var(--second-radius);
+    object-fit: cover;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Увеличение при наведении */
+.modal-content.color-modal .grid-item:hover {
+    transform: scale(1.08);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
 .startup-guide-header {
     display: flex;
     align-items: center;
@@ -235,7 +284,6 @@
     transform: rotate(180deg);
 }
 
-/* Стили для модального окна тегов */
 .modal-content .tags-note-form {
     gap: 16px;
 }

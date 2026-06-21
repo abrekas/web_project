@@ -111,10 +111,6 @@ function applyTheme(themeName) {
         root.style.setProperty(variable, theme[variable]);
     });
 
-    if (themeName === 'rose') {
-        document.body.style.backgroundImage = 'radial-gradient(circle at 100% 100%, #c1b4a4 0%, transparent 20%)';
-
-    }
 
     updateTagIcon(themeName);
     localStorage.setItem("selectedTheme", themeName);
