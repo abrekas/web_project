@@ -1,0 +1,239 @@
+.startup-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: var(--blur);
+    -webkit-backdrop-filter: var(--blur);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+}
+
+.startup-overlay.show {
+    display: flex;
+}
+
+.startup-layout {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    justify-content: center;
+    width: min(1100px, calc(100vw - 32px));
+    max-height: calc(100vh - 64px);
+}
+
+.startup-box {
+    width: min(520px, calc(100vw - 32px));
+    background-color: var(--second-color);
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    font-family: system-ui, sans-serif;
+    max-height: calc(100vh - 64px);
+    overflow: auto;
+}
+
+.startup-box h2 {
+    margin: 0 0 12px;
+}
+
+.startup-box p {
+    margin: 0 0 16px;
+    line-height: 1.45;
+}
+
+.startup-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.startup-actions button {
+    padding: 10px 16px;
+    border: 0;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    background: rgba(0, 0, 0, 0.562);
+    backdrop-filter: var(--blur);
+    -webkit-backdrop-filter: var(--blur);
+}
+
+.modal-content {
+    position: relative;
+    display: flex;
+    z-index: 10000;
+    flex-direction: column;
+    width: 50%;
+    height: 60%;
+    padding: 16px;
+    border-radius: var(--first-radius);
+    background: var(--second-color);
+    box-shadow: var(--shadow);
+    backdrop-filter: var(--blur);
+    -webkit-backdrop-filter: var(--blur);
+}
+
+.modal-content.image-viewer {
+    --image-modal-padding: 16px;
+    box-sizing: border-box;
+    width: max-content;
+    height: max-content;
+    max-width: 100vw;
+    max-height: 100vh;
+    padding: var(--image-modal-padding);
+    overflow: hidden;
+}
+
+.modal-content.image-viewer #modal-body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: max-content;
+    height: max-content;
+    overflow: hidden;
+}
+
+.full-modal-image {
+    display: block;
+    width: auto;
+    height: auto;
+    max-width: calc(100vw - var(--image-modal-padding) * 2);
+    max-height: calc(100vh - var(--image-modal-padding) * 2);
+    object-fit: contain;
+    border-radius: 8px;
+    flex-shrink: 0;
+}
+
+.color-container {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.grid-layout {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+}
+
+.grid-item-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.grid-item {
+    display: block;
+    width: 100%;
+    border-radius: var(--second-radius);
+    object-fit: cover;
+    cursor: pointer;
+}
+
+.grid-item-wrapper .overlay {
+    position: absolute;
+    inset: 0;
+    border-radius: var(--second-radius);
+    border: 5px solid var(--text-color);
+    pointer-events: none;
+}
+
+.delete-icon {
+    filter: var(--icon-filter, none);
+}
+
+
+
+.primary-btn {
+    background: #111;
+    color: white;
+}
+
+.secondary-btn {
+    background: #eee;
+}
+
+#startup-error {
+    color: #c00;
+    margin-top: 12px;
+}
+
+.startup-guide {
+    width: min(520px, calc(100vw - 32px));
+    background: var(--second-color);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    font-family: system-ui, sans-serif;
+    max-height: calc(100vh - 64px);
+    overflow: auto;
+
+    display: none;
+}
+
+.startup-guide.show {
+    display: block;
+}
+
+.startup-guide-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.startup-guide-header h3 {
+    margin: 0;
+}
+
+.startup-guide-close {
+    border: 0;
+    background: #eee;
+    border-radius: 10px;
+    cursor: pointer;
+    padding: 8px 12px;
+}
+
+.startup-guide-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+}
+
+.startup-guide-grid img {
+    width: 100%;
+    border-radius: 10px;
+    cursor: pointer;
+    display: block;
+    object-fit: cover;
+}
+
+.guide-name {
+    color: #3A5DA9;
+}
+
+.guide-name:hover {
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.guide-name .arrow-icon-down svg,
+.guide-name .arrow-icon-up svg {
+    transition: transform 360ms ease;
+}
+
+.guide-name.is-open .arrow-icon-down svg,
+.guide-name.is-open .arrow-icon-up svg {
+    transform: rotate(180deg);
+}

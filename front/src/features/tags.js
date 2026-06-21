@@ -2,7 +2,6 @@ import { fsStorage } from '../services/fs-storage.js';
 import { openModal, closeModal, modalBody } from '../components/modal.js';
 import { loadTagsForPicker, setActiveTagFilter, refreshNotes, appendTagsToNote, getActiveTagFilter, getAvailableTagsForNote } from '../services/parser.js';
 
-
 let allSystemTags = [];
 let selectedFilterTags = [];
 let selectedNoteTags = [];
@@ -59,6 +58,26 @@ function renderFormTags() {
     }).join('');
 }
 
+function renderNoteTagsForm() {
+    const container = document.getElementById('note-tags-list');
+    if (!container) return;
+
+    if (!allSystemTags.length) {
+        container.innerHTML = '<p class="tags-empty-hint">Тэгов пока нет</p>';
+        return;
+    }
+
+    container.innerHTML = allSystemTags.map(tag => {
+        const isActive = selectedNoteTags.includes(tag) ? 'active' : '';
+        return `
+      <div class="form-tag-chip ${isActive}">
+        <button type="button" class="form-tag-btn" data-tag="${escapeHtml(tag)}">#${escapeHtml(tag)}</button>
+        <button type="button" class="form-tag-delete" data-tag="${escapeHtml(tag)}">×</button>
+      </div>
+    `;
+    }).join('');
+}
+
 export function updateTagsBtnState() {
     const btn = document.getElementById('tags-btn');
     if (!btn) return;
@@ -88,24 +107,34 @@ export async function openNoteTagsModal(noteId) {
     noteTagsModalNoteId = noteId;
     selectedNoteTags = [];
 
+    await loadSystemTags();
+
     openModal('modal-note-tags-template', 'create-note-modal');
-    renderTagButtons('note-tags-list', available, selectedNoteTags);
+    renderNoteTagsForm();
 }
 
 document.getElementById("tags-btn")?.addEventListener("click", openTagsFilterModal);
 
 modalBody.addEventListener('click', async (e) => {
     const deleteTagBtn = e.target.closest('.form-tag-delete');
-    if (deleteTagBtn && document.getElementById('form-tags-list')) {
+    if (deleteTagBtn) {
+        const isNoteModal = !!document.getElementById('note-tags-list');
         const tag = deleteTagBtn.dataset.tag;
+
         if (tag && confirm(`Удалить тэг «${tag}»?`)) {
             if (await fsStorage.deleteTag(tag)) {
                 allSystemTags = allSystemTags.filter(t => t !== tag);
-                selectedFilterTags = selectedFilterTags.filter(t => t !== tag);
-                setActiveTagFilter(selectedFilterTags);
-                renderFormTags();
-                await loadTagsForPicker();
-                await refreshNotes();
+
+                if (isNoteModal) {
+                    selectedNoteTags = selectedNoteTags.filter(t => t !== tag);
+                    renderNoteTagsForm();
+                } else {
+                    selectedFilterTags = selectedFilterTags.filter(t => t !== tag);
+                    setActiveTagFilter(selectedFilterTags);
+                    renderFormTags();
+                    await loadTagsForPicker();
+                    await refreshNotes();
+                }
             }
         }
         return;
@@ -119,10 +148,10 @@ modalBody.addEventListener('click', async (e) => {
         if (isNoteModal) {
             if (selectedNoteTags.includes(tag)) {
                 selectedNoteTags = selectedNoteTags.filter(t => t !== tag);
-                tagBtn.classList.remove('active');
+                renderNoteTagsForm();
             } else {
                 selectedNoteTags.push(tag);
-                tagBtn.classList.add('active');
+                renderNoteTagsForm();
             }
         } else {
             if (selectedFilterTags.includes(tag)) {
@@ -148,8 +177,8 @@ modalBody.addEventListener('click', async (e) => {
         return;
     }
 
-    if (e.target.closest('#add-tag-form-btn')) {
-        const input = document.getElementById('new-tag-input');
+    if (e.target.closest('#add-note-tag-btn')) {
+        const input = document.getElementById('new-note-tag-input');
         const tagText = input?.value.trim().toLowerCase();
 
         if (tagText && fsStorage?.isReady) {
@@ -160,11 +189,11 @@ modalBody.addEventListener('click', async (e) => {
                 allSystemTags.push(tag);
                 allSystemTags.sort((a, b) => a.localeCompare(b, 'ru'));
             }
-            if (!selectedFilterTags.includes(tag)) {
-                selectedFilterTags.push(tag);
+            if (!selectedNoteTags.includes(tag)) {
+                selectedNoteTags.push(tag);
             }
             input.value = '';
-            renderFormTags();
+            renderNoteTagsForm();
             await loadTagsForPicker();
         }
         return;
@@ -182,6 +211,5 @@ modalBody.addEventListener('click', async (e) => {
         setActiveTagFilter([]);
         renderFormTags();
         updateTagsBtnState();
-        return;
     }
 });
