@@ -5,7 +5,7 @@
     padding-top: 42px;
     display: flex;
     flex-direction: column;
-    gap: 32px;
+    gap: 20px;
     overflow: hidden;
     padding-bottom: 24px;
 }
@@ -14,8 +14,10 @@
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 16px;
+    gap: 5px;
     justify-content: flex-start;
+    margin-bottom: 0;   /* добавить если есть */
+    padding-bottom: 0;
 }
 
 .search-bar {
@@ -145,27 +147,39 @@
 }
 
 .category-description {
-    margin: 10px 0;
+    margin: 4px 0;
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
     gap: 8px;
+    flex-wrap: wrap;
 }
 
 .category-description-text {
     font-size: var(--font-size-sm);
     flex: 1;
+    min-width: 0;
+    word-wrap: break-word;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
+    max-width: 100%;
+    padding-right: 8px;
+    line-height: 1.4;
 }
 
 .category-description-actions {
     display: flex;
-    gap: 8px;
+    gap: 6px;
     align-items: center;
     flex-shrink: 0;
+    flex-wrap: wrap;
+    position: relative;
+    z-index: 10;
 }
 
 #category-description-change-btn {
-    padding: 5px 15px;
+    padding: 4px 12px;
     background: var(--notes-header-color);
     color: var(--text-color);
     border: none;
@@ -173,7 +187,7 @@
     cursor: pointer;
     font-size: var(--font-size-sm);
     transition: background 0.2s;
-    height: 32px;
+    height: 28px;
     white-space: nowrap;
 }
 
@@ -182,7 +196,7 @@
 }
 
 .create-note-btn-top {
-    padding: 5px 15px;
+    padding: 4px 12px;
     background: var(--notes-header-color);
     color: var(--text-color);
     border: none;
@@ -190,12 +204,14 @@
     cursor: pointer;
     font-size: var(--font-size-sm);
     transition: background 0.2s, transform 0.2s ease;
-    height: 32px;
+    height: 28px;
     white-space: nowrap;
     text-align: center;
     justify-content: center;
     align-items: center;
     display: inline-flex;
+    position: relative;
+    z-index: 11;
 }
 
 .create-note-btn-top:hover {
@@ -215,8 +231,8 @@
 
 .category-description-edit input {
     width: 100%;
-    height: 32px;
-    padding: 8px;
+    height: 28px;
+    padding: 4px 8px;
     border: none;
     border-radius: var(--second-radius);
     background-color: var(--background-color);
@@ -225,41 +241,31 @@
 }
 
 .category-description-edit button {
-    padding: 5px 15px;
+    padding: 4px 12px;
     background: var(--notes-header-color);
     color: var(--text-color);
     border: none;
     cursor: pointer;
     border-radius: var(--second-radius);
     font-size: var(--font-size-sm);
-    height: 32px;
+    height: 28px;
 }
 
 .category-description-edit button:last-child:hover {
     background: var(--notes-header-color);
 }
 
-.category-description-actions {
-    position: relative;
-    z-index: 10;
-}
-
-.create-note-btn-top {
-    position: relative;
-    z-index: 11;
-}
-
 .category-description-edit-wrapper {
     flex: 1;
     display: flex;
-    gap: 10px;
+    gap: 8px;
     align-items: center;
 }
 
 .category-description-edit-wrapper input {
     flex: 1;
-    height: 32px;
-    padding: 8px;
+    height: 28px;
+    padding: 4px 8px;
     border: none;
     border-radius: var(--second-radius);
     background-color: var(--background-color);
@@ -268,41 +274,12 @@
 }
 
 .category-description-edit-wrapper button {
-    padding: 5px 15px;
+    padding: 4px 12px;
     background: var(--notes-header-color);
     color: var(--text-color);
     border: none;
     cursor: pointer;
     border-radius: var(--second-radius);
     font-size: var(--font-size-sm);
-    height: 32px;
-}
-
-.category-description-text {
-    font-size: var(--font-size-sm);
-    flex: 1;
-    min-width: 0;           /* разрешаем сжиматься */
-    word-wrap: break-word;  /* переносим длинные слова */
-    word-break: break-word; /* переносим слова */
-    overflow-wrap: break-word;
-    white-space: normal;    /* разрешаем перенос на новую строку */
-    max-width: 100%;        /* не вылезаем за пределы */
-    padding-right: 8px;     /* небольшой отступ от кнопок */
-}
-
-.category-description {
-    margin: 10px 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start; /* выравниваем по верхнему краю */
-    gap: 8px;
-    flex-wrap: wrap;        /* если не влезает, переносим на новую строку */
-}
-
-.category-description-actions {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-    flex-shrink: 0;         /* не сжимаем кнопки */
-    flex-wrap: wrap;        /* если не влезает, переносим на новую строку */
+    height: 28px;
 }

@@ -352,21 +352,24 @@ function initCategoryDescription() {
   descElement.innerHTML = `
     <span class="category-description-text"></span>
     <div class="category-description-actions">
-      <button id="create-note-btn-top" class="create-note-btn-top">Создать заметку</button>
       <button id="category-description-change-btn">Изменить</button>
+      <button id="create-note-btn-top" class="create-note-btn-top">Создать заметку</button>
     </div>
   `;
 
   const createBtn = document.getElementById('create-note-btn-top');
   if (createBtn) {
     createBtn.addEventListener('click', () => {
-      import('../features/notes.js').then(module => {
+      import('./notes.js').then(module => {
         module.openCreateNoteModal();
       });
     });
   }
 
-  document.getElementById('category-description-change-btn').addEventListener('click', changeCategoryDescription);
+  const changeBtn = document.getElementById('category-description-change-btn');
+  if (changeBtn) {
+    changeBtn.addEventListener('click', changeCategoryDescription);
+  }
 
   updateCategoryDescription();
 }
