@@ -455,8 +455,6 @@ export async function deleteTag(tagName) {
       content
     };
     commentsList.push(newComment);
-    // if (!commentsByNote.has(noteId)) commentsByNote.set(noteId, []);
-    // commentsByNote.get(noteId).push(newComment);
     await saveComments(commentsList);
   }
 

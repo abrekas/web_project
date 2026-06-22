@@ -5,6 +5,7 @@ import './components/guide.js';
 import './features/categories.js';
 import './features/tags.js';
 import './features/notes.js';
+import './features/comments.js';
 
 import { initParser } from './services/parser.js';
 

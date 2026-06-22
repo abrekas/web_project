@@ -1,4 +1,4 @@
-// annotations.js – модуль работы с комментариями к выделенному тексту
+import {getComments, saveComments, addComment, updateComment, deleteComment} from '../services/fs-storage.js';
 
 let commentTooltip = null;
 let floatingButton = null;
@@ -154,14 +154,11 @@ async function addCommentToSelectedText() {
   }
 
   const noteId = card.getAttribute('data-note-id');
-  const noteIndex = window.allNotes.findIndex(n => String(n.id) === String(noteId));
-  if (noteIndex === -1) return;
-  const targetNote = window.allNotes[noteIndex];
-
-  if (targetNote.type === 'image') {
-    alert('Нельзя добавить комментарий к изображению');
-    savedSelectionRange = null;
-    return;
+  try{
+    const allComments = await getComments();
+  }
+  catch{
+    alert('Не удалось открыть comments.js');
   }
 
   // Находим текстовый узел и смещения
@@ -191,20 +188,9 @@ async function addCommentToSelectedText() {
   const commentText = prompt('Введите комментарий к выделенному фрагменту:');
   if (!commentText || commentText.trim() === '') return;
 
-  if (!targetNote.annotations) targetNote.annotations = [];
-
-  const annotationId = crypto.randomUUID ? crypto.randomUUID() : 'ann_' + Date.now() + '_' + Math.random().toString(36).substr(2, 8);
-  targetNote.annotations.push({
-    id: annotationId,
-    startOffset: startOffset,
-    endOffset: endOffset,
-    comment: commentText.trim()
-  });
-
+  
   try {
-    await window.fsStorage.updateNote(targetNote);
-    window.allNotes[noteIndex] = targetNote; // <-- ЭТА СТРОКА БЫЛА ЗАКОММЕНТИРОВАНА
-    if (window.renderNotes) window.renderNotes();
+    addComment(noteId, startOffset, endOffset, commentText.trim());
     hideFloatingButton();
     showSuccessToast('💬 Комментарий добавлен!');
   } catch (err) {

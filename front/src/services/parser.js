@@ -412,8 +412,6 @@ export async function refreshNotes() {
     await loadCategoriesForSelects();
     await loadTagsForPicker();
     allNotes = await getSortedNotes();
-    allNotes = allNotes.map(note => ({ ...note, annotations: note.annotations || [] }));
-    window.allNotes = allNotes;
     renderNotes()
   } catch (e) {
     console.error(e);
@@ -645,6 +643,7 @@ export async function initParser() {
   await refreshNotes();
   initCategoryDescription();
   updateTagsBtnState();
+  initAnnotations();
   if (filter) filter.classList.add('ready');
 
   if (searchInput) {
