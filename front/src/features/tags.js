@@ -11,7 +11,6 @@ const MAX_TAG_LEN = 40;
 
 const escapeHtml = (str) => String(str).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
 
-// Функции для управления ошибкой
 function showTagError(message) {
     let errorMsg = document.getElementById('tag-error-msg');
     if (!errorMsg) {
@@ -65,21 +64,6 @@ async function loadSystemTags() {
         console.error('Ошибка загрузки тэгов:', e);
         allSystemTags = [];
     }
-}
-
-function renderTagButtons(containerId, tags, selectedTags) {
-    const container = document.getElementById(containerId);
-    if (!container) return;
-
-    if (!tags.length) {
-        container.innerHTML = '<p class="tags-empty-hint">Нет доступных тэгов.</p>';
-        return;
-    }
-
-    container.innerHTML = tags.map(tag => {
-        const isActive = selectedTags.includes(tag) ? 'active' : '';
-        return `<button type="button" class="form-tag-btn ${isActive}" data-tag="${escapeHtml(tag)}">#${escapeHtml(tag)}</button>`;
-    }).join('');
 }
 
 function renderFormTags() {
@@ -156,36 +140,30 @@ export async function openNoteTagsModal(noteId) {
     openModal('modal-note-tags-template', 'create-note-modal');
     renderNoteTagsForm();
 
-    // Инициализируем обработчики для поля ввода после открытия модалки
     setTimeout(() => {
         initTagInputHandlers();
     }, 100);
 }
 
-// Функция инициализации обработчиков для поля ввода тэга
 function initTagInputHandlers() {
     const tagInput = document.getElementById('new-note-tag-input');
     if (!tagInput) return;
 
-    // Удаляем старые обработчики, чтобы не дублировать
     tagInput.removeEventListener('keydown', handleTagInputKeydown);
     tagInput.removeEventListener('input', handleTagInputInput);
     tagInput.removeEventListener('focus', handleTagInputFocus);
 
-    // Добавляем новые
     tagInput.addEventListener('keydown', handleTagInputKeydown);
     tagInput.addEventListener('input', handleTagInputInput);
     tagInput.addEventListener('focus', handleTagInputFocus);
 }
 
-// Обработчик нажатия клавиш
 function handleTagInputKeydown(e) {
     const controlKeys = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Tab', 'Escape', 'Enter', 'Home', 'End'];
 
     if (this.value.length >= MAX_TAG_LEN && !controlKeys.includes(e.key) && !e.ctrlKey && !e.metaKey) {
         e.preventDefault();
         showTagError('Максимальная длина тэга - ' + MAX_TAG_LEN + ' символов');
-        // Визуальная обратная связь
         this.style.animation = 'shake 0.3s ease';
         setTimeout(() => {
             this.style.animation = '';
@@ -193,7 +171,6 @@ function handleTagInputKeydown(e) {
     }
 }
 
-// Обработчик ввода текста
 function handleTagInputInput() {
     if (this.value.length > MAX_TAG_LEN) {
         this.value = this.value.slice(0, MAX_TAG_LEN);
@@ -205,7 +182,6 @@ function handleTagInputInput() {
     }
 }
 
-// Обработчик фокуса
 function handleTagInputFocus() {
     if (this.value.length < MAX_TAG_LEN) {
         hideTagError();

@@ -222,7 +222,6 @@ function filterNotes(category = 'общее', searchToken = '', site = null, vie
   });
 }
 
-// Полностью переработанная функция отображения категории
 function updateCategoryDisplay() {
   const titleElement = document.getElementById('category-title');
   if (!titleElement) return;
@@ -230,7 +229,6 @@ function updateCategoryDisplay() {
   const activeLi = document.querySelector('#categories-ul li.active');
   const currentCategory = activeLi ? activeLi.dataset.category : 'общее';
 
-  // Полностью пересоздаем содержимое
   let html = `
     <div class="category-title-content">
       <span class="category-name-text">${currentCategory === 'общее' ? 'Основная категория' : currentCategory}</span>
@@ -249,7 +247,6 @@ function updateCategoryDisplay() {
 
   titleElement.innerHTML = html;
 
-  // Добавляем обработчики событий
   const renameBtn = document.getElementById('category-rename-btn');
   if (renameBtn) {
     renameBtn.addEventListener('click', renameCategory);
@@ -267,7 +264,6 @@ function updateCategoryDisplay() {
   }
 }
 
-// Упрощенная функция переименования
 async function renameCategory() {
   const activeLi = document.querySelector('#categories-ul li.active');
   const currentCategory = activeLi ? activeLi.dataset.category : 'общее';
@@ -280,7 +276,6 @@ async function renameCategory() {
   const titleElement = document.getElementById('category-title');
   const currentName = currentCategory;
 
-  // Создаем форму редактирования прямо в элементе
   titleElement.innerHTML = `
     <div class="category-rename-edit-wrapper">
       <div class="category-rename-edit">
@@ -297,7 +292,6 @@ async function renameCategory() {
     input.select();
   }
 
-  // Обработчик сохранения
   document.getElementById('save-rename-btn').onclick = async () => {
     const newName = input.value.trim();
 
@@ -307,7 +301,6 @@ async function renameCategory() {
     }
 
     if (newName.toLowerCase() === currentName.toLowerCase()) {
-      // Если имя не изменилось, просто обновляем отображение
       updateCategoryDisplay();
       return;
     }
@@ -339,7 +332,6 @@ async function renameCategory() {
         await loadCategoriesForSelects();
         await loadAllCategories();
 
-        // Обновляем активную категорию в списке
         const allLis = document.querySelectorAll('#categories-ul li');
         allLis.forEach(li => {
           li.classList.remove('active');
@@ -348,10 +340,8 @@ async function renameCategory() {
           }
         });
 
-        // Обновляем отображение
         updateCategoryDisplay();
 
-        // Перерисовываем заметки
         await refreshNotes();
       } else {
         alert('Не удалось переименовать категорию');
@@ -364,127 +354,9 @@ async function renameCategory() {
     }
   };
 
-  // Обработчик отмены
   document.getElementById('cancel-rename-btn').onclick = () => {
     updateCategoryDisplay();
   };
-}
-
-// Функция инициализации - просто вызывает отображение
-function initCategoryTitle() {
-  updateCategoryDisplay();
-}
-
-
-
-async function changeCategoryDescription() {
-  const activeLi = document.querySelector('#categories-ul li.active');
-  const currentCategory = activeLi ? activeLi.dataset.category : 'общее';
-
-  if (currentCategory === 'общее') {
-    alert('Нельзя изменить описание категории "общее"');
-    return;
-  }
-
-  const descElement = document.getElementById('category-description');
-  const currentText = descElement.querySelector('.category-description-text')?.textContent || '';
-  const actualDesc = currentText === 'Нет описания' ? '' : currentText;
-
-  const editHtml = `
-    <div class="category-description-edit">
-      <input type="text" id="category-description-input" value="${escapeHtml(actualDesc)}" placeholder="Введите описание категории">
-      <button id="save-description-btn">Сохранить</button>
-      <button id="cancel-description-btn">Отмена</button>
-    </div>
-  `;
-
-  const changeBtn = descElement.querySelector('#category-description-change-btn');
-  const textSpan = descElement.querySelector('.category-description-text');
-  const actionsDiv = descElement.querySelector('.category-description-actions');
-  const createBtn = descElement.querySelector('#create-note-btn-top');
-
-  if (changeBtn) changeBtn.style.display = 'none';
-  if (textSpan) textSpan.style.display = 'none';
-
-  if (createBtn) createBtn.style.display = 'inline-flex';
-
-  const editDiv = document.createElement('div');
-  editDiv.className = 'category-description-edit-wrapper';
-  editDiv.innerHTML = editHtml;
-
-  if (actionsDiv) {
-    descElement.insertBefore(editDiv, actionsDiv);
-  } else {
-    descElement.insertBefore(editDiv, changeBtn);
-  }
-
-  const input = document.getElementById('category-description-input');
-  if (input) input.focus();
-
-  document.getElementById('save-description-btn').onclick = async () => {
-    const newDescription = input.value.trim();
-
-    try {
-      const categoryObj = allCategories.find(cat => {
-        const catName = typeof cat === 'string' ? cat : cat.name;
-        return catName.toLowerCase() === currentCategory.toLowerCase();
-      });
-
-      if (categoryObj) {
-        await fsStorage.setCategoryDescription(currentCategory, newDescription);
-
-        if (categoryObj.description !== undefined) {
-          categoryObj.description = newDescription;
-        }
-
-        updateCategoryDescription();
-      }
-    } catch (e) {
-      console.error('Ошибка сохранения описания:', e);
-      alert('Не удалось сохранить описание');
-    }
-
-    editDiv.remove();
-    if (changeBtn) changeBtn.style.display = 'block';
-    if (textSpan) textSpan.style.display = 'block';
-  };
-
-  document.getElementById('cancel-description-btn').onclick = () => {
-    editDiv.remove();
-    if (changeBtn) changeBtn.style.display = 'block';
-    if (textSpan) textSpan.style.display = 'block';
-  };
-}
-
-function initCategoryDescription() {
-  const descElement = document.getElementById('category-description');
-  if (!descElement) return;
-
-  descElement.innerHTML = `
-    <span class="category-description-text"></span>
-    <div class="category-description-actions">
-      <button id="category-description-change-btn">Изменить</button>
-      <button id="create-note-btn-top" class="create-note-btn-top">Создать заметку</button>
-    </div>
-  `;
-
-  const createBtn = document.getElementById('create-note-btn-top');
-  if (createBtn) {
-    createBtn.addEventListener('click', () => {
-      import('../features/notes.js').then(module => {
-        module.openCreateNoteModal();
-      }).catch(err => {
-        console.error('Ошибка загрузки notes.js:', err);
-      });
-    });
-  }
-
-  const changeBtn = document.getElementById('category-description-change-btn');
-  if (changeBtn) {
-    changeBtn.addEventListener('click', changeCategoryDescription);
-  }
-
-  updateCategoryDescription();
 }
 
 export function loadAllNotes(category = 'общее', searchToken = '', site = null, view = 'all', filterTags = state.activeFilterTags) {
@@ -788,7 +660,7 @@ function parseCodeBlocks(text) {
 export async function initParser() {
   await fsStorage.restoreFolder();
   await refreshNotes();
-  initCategoryTitle();
+  updateCategoryDisplay();
   updateTagsBtnState();
   initAnnotations();
   if (filter) filter.classList.add('ready');
