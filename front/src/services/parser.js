@@ -2,6 +2,8 @@ import {fsStorage} from './fs-storage.js';
 import {updateTagsBtnState, openNoteTagsModal} from '../features/tags.js';
 import {loadAllCategories} from '../features/categories.js'
 import {switchLayout} from './layout.js'
+import { openCreateNoteModal } from '../features/notes.js';
+import { initAnnotations, applyAnnotationsToAllCards } from '../features/comments.js';
 
 const cardsList = document.getElementById('cards-list');
 const searchInput = document.getElementById('search-input');
@@ -360,8 +362,11 @@ function initCategoryDescription() {
   const createBtn = document.getElementById('create-note-btn-top');
   if (createBtn) {
     createBtn.addEventListener('click', () => {
-      import('./notes.js').then(module => {
+      // Правильный путь: ../features/notes.js
+      import('../features/notes.js').then(module => {
         module.openCreateNoteModal();
+      }).catch(err => {
+        console.error('Ошибка загрузки notes.js:', err);
       });
     });
   }
@@ -384,6 +389,7 @@ export function loadAllNotes(category = 'общее', searchToken = '', site = n
 
   updateCategoryDescription();
   cardsList.innerHTML = filtered.map(renderNoteHtml).join('');
+  applyAnnotationsToAllCards();
 }
 
 function getState() {
@@ -425,6 +431,8 @@ export async function refreshNotes() {
     await loadCategoriesForSelects();
     await loadTagsForPicker();
     allNotes = await getSortedNotes();
+    allNotes = allNotes.map(note => ({ ...note, annotations: note.annotations || [] }));
+    window.allNotes = allNotes;
     renderNotes()
   } catch (e) {
     console.error(e);

@@ -5,9 +5,11 @@
   const NOTES_FILE = 'notes.json';
   const CATEGORIES_FILE = 'categories.json';
   const TAGS_FILE = 'tags.json';
+  const COMMENTS_FILE = 'comments.json';
 
 let folderHandle = null;
 let isFsReady = false;
+let commentsAbsolute = [];
 
 
   // ---------------- IndexedDB ----------------
@@ -432,6 +434,51 @@ export async function deleteTag(tagName) {
     return true;
   }
 
+  // ------------  Comments API -------------
+  export async function getComments() {
+    if (commentsAbsolute.length > 0) return commentsAbsolute;
+    commentsAbsolute = await readJsonFile(COMMENTS_FILE, []);
+    return commentsAbsolute;
+  }
+
+  export async function saveComments(comments) {
+    await writeJsonFile(COMMENTS_FILE, comments);
+  }
+
+  export async function addComment(noteId, start, end, content) {
+    const commentsList = await getComments();
+    const newComment = {
+      id: 'cmt_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+      noteId,
+      start,
+      end,
+      content
+    };
+    commentsList.push(newComment);
+    // if (!commentsByNote.has(noteId)) commentsByNote.set(noteId, []);
+    // commentsByNote.get(noteId).push(newComment);
+    await saveComments(commentsList);
+  }
+
+  export async function updateComment(commentID, newStart, newEnd, newContent) {
+    const commentsList = await getComments();
+    const comment = commentsList.find(c => c.id === commentID);
+    if (comment) {
+      comment.start = newStart !== undefined ? newStart : comment.start;
+      comment.end = newEnd !== undefined ? newEnd : comment.end;
+      comment.content = newContent !== undefined ? newContent : comment.content;
+      await saveComments(commentsList);
+    }
+  }
+
+  export async function deleteComment(commentID) {
+    const commentsList = await getComments();
+    const commentIndx = commentsList.findIndex(c => c.id === commentID);
+    commentsList.splice(commentIndx, 1);
+    await saveComments(commentsList);
+  }
+
+
   // ---------------- Events ----------------
   export function initFsStorage() {
     const grantBtn = document.getElementById('grant-access-btn');
@@ -485,6 +532,11 @@ export async function deleteTag(tagName) {
     saveTags,
     addTag,
     deleteTag,
+    getComments,
+    saveComments,
+    addComment,
+    updateComment,
+    deleteComment,
 
     get isReady() {
       return isFsReady && !!folderHandle;
