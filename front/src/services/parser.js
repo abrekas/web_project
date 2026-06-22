@@ -136,7 +136,7 @@ function renderNoteHtml(data) {
   let bodyContent = '';
 
   if (noteType === 'image' && safeImageUrl) {
-    bodyContent = `<img class="note-image" id="${noteId}" src="${safeImageUrl}" alt="картинка записи"/>`;
+    bodyContent = `<img class="note-image" id="${noteId}" src="${safeImageUrl}" style="max-height:30vh" alt="картинка записи"/>`;
   } else {
     bodyContent = `<div class="note-text-content">${parsedContent}</div>`;
   }

@@ -186,6 +186,81 @@
     height: 0;
 }
 
+/* Блок кода */
+.code-wrapper {
+  margin: 12px 0;
+  border-radius: 8px;
+  background-color: #2d2d2d;
+  overflow: hidden;
+  font-family: 'Courier New', 'SF Mono', Monaco, monospace;
+  font-size: 13px;
+}
+
+.code-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background-color: var(--notes-header-color);
+  border-bottom: 1px solid #3d3d3d;
+}
+
+.code-language {
+  color: #e06c75;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: lowercase;
+}
+
+.copy-code-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border: none;
+  border-radius: 6px;
+  background-color: var(--second-color);
+  font-size: 12px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  color: var(--text-color);
+}
+
+.copy-code-btn:hover {
+  background-color: #4d4d4d;
+  background-color: #87a0de;
+}
+
+.copy-code-btn:active {
+  transform: scale(0.97);
+}
+
+.copy-icon {
+  width: 14px;
+  height: 14px;
+  filter: invert(1) brightness(1.5);
+}
+
+.code-block {
+  margin: 0;
+  padding: 14px;
+  overflow-x: auto;
+  background-color: var(--second-color);
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.code-block code {
+  font-family: inherit;
+  font-size: inherit;
+  background: transparent;
+  padding: 0;
+  white-space: pre-wrap;
+}
+
 .tag-note {
     display: inline-flex;
     align-items: center;
