@@ -4,17 +4,19 @@ let commentTooltip = null;
 let floatingButton = null;
 let savedSelectionRange = null;
 
-// Хранилище для связи Range -> Comment (используется для тултипов)
+// Хранилище для связи Range -> Comment
 let highlightItems = [];
 
-// Состояние закреплённого тултипа
+// Состояния
 let isPinned = false;
 let pinnedComment = null;
-
-// Режим редактирования
 let isEditing = false;
+let isCreating = false;        // <-- новый флаг создания
 
-// Последние координаты мыши (для позиционирования)
+// Данные для создания
+let createData = null;         // { noteId, startOffset, endOffset, range }
+
+// Последние координаты мыши
 let lastMouseX = 0;
 let lastMouseY = 0;
 
@@ -32,13 +34,13 @@ function createTooltip() {
   textSpan.className = 'tooltip-text';
   tooltip.appendChild(textSpan);
 
-  // Поле для редактирования (скрыто)
+  // Поле для редактирования/создания (скрыто)
   const editInput = document.createElement('textarea');
   editInput.className = 'tooltip-edit-input';
   editInput.style.display = 'none';
   tooltip.appendChild(editInput);
 
-  // Кнопки редактирования (сохранить / отмена) – скрыты
+  // Кнопки действий (сохранить / отмена) – скрыты
   const editActions = document.createElement('div');
   editActions.className = 'tooltip-edit-actions';
   editActions.style.display = 'none';
@@ -48,7 +50,11 @@ function createTooltip() {
   saveBtn.textContent = 'Сохранить';
   saveBtn.addEventListener('click', (e) => {
     e.stopPropagation();
-    saveEditComment();
+    if (isCreating) {
+      saveNewComment();
+    } else {
+      saveEditComment();
+    }
   });
 
   const cancelBtn = document.createElement('button');
@@ -56,7 +62,11 @@ function createTooltip() {
   cancelBtn.textContent = 'Отмена';
   cancelBtn.addEventListener('click', (e) => {
     e.stopPropagation();
-    cancelEditComment();
+    if (isCreating) {
+      cancelCreateComment();
+    } else {
+      cancelEditComment();
+    }
   });
 
   editActions.appendChild(saveBtn);
@@ -104,12 +114,11 @@ function isModalOpen() {
 function initTooltipEvents() {
   const tooltip = createTooltip();
 
-  // ---- Наведение (временный тултип) ----
   document.addEventListener('mousemove', (e) => {
     lastMouseX = e.clientX;
     lastMouseY = e.clientY;
 
-    // Если открыто модальное окно или режим редактирования — скрываем тултип
+    // Если открыто модальное окно, или мы в режиме редактирования/создания — скрываем тултип и сбрасываем курсор
     if (isModalOpen()) {
       if (tooltip.style.display !== 'none') {
         tooltip.style.display = 'none';
@@ -119,10 +128,15 @@ function initTooltipEvents() {
           tooltip.classList.remove('pinned');
         }
       }
+      document.body.style.cursor = '';
       return;
     }
 
-    if (isPinned) return; // если закреплён, ничего не меняем
+    // Если тултип закреплён — не обновляем, но сбрасываем курсор
+    if (isPinned) {
+      document.body.style.cursor = '';
+      return;
+    }
 
     const x = e.clientX;
     const y = e.clientY;
@@ -141,33 +155,25 @@ function initTooltipEvents() {
     }
 
     if (foundComment) {
+      document.body.style.cursor = 'pointer';
       tooltip.querySelector('.tooltip-text').textContent = foundComment.content;
       tooltip.style.display = 'block';
       positionTooltip(tooltip, x, y);
     } else {
+      document.body.style.cursor = '';
       tooltip.style.display = 'none';
     }
   });
 
-  // ---- Клик (закрепление / открепление) ----
   document.addEventListener('click', (e) => {
-    // Если открыто модальное окно — игнорируем
     if (isModalOpen()) return;
-
-    // Если мы в режиме редактирования — игнорируем клики вне тултипа (не закрываем)
-    if (isEditing) {
-      return;
-    }
+    if (isEditing || isCreating) return; // игнорируем клики в режиме ввода
 
     const x = e.clientX;
     const y = e.clientY;
 
-    // Если кликнут на сам тултип — ничего не делаем (он остаётся закреплённым)
-    if (tooltip.contains(e.target)) {
-      return;
-    }
+    if (tooltip.contains(e.target)) return;
 
-    // Проверяем, кликнут ли внутри какого-либо диапазона
     let clickedComment = null;
     let clickedRange = null;
 
@@ -184,34 +190,33 @@ function initTooltipEvents() {
     }
 
     if (clickedComment) {
-      // Закрепляем тултип на этом комментарии
       isPinned = true;
       pinnedComment = { comment: clickedComment, range: clickedRange };
       tooltip.querySelector('.tooltip-text').textContent = clickedComment.content;
       tooltip.classList.add('pinned');
       tooltip.style.display = 'block';
       positionTooltip(tooltip, x, y);
+      document.body.style.cursor = '';
     } else {
-      // Клик вне выделений и не на тултипе — снимаем закрепление
       if (isPinned) {
         isPinned = false;
         pinnedComment = null;
         tooltip.classList.remove('pinned');
         tooltip.style.display = 'none';
+        document.body.style.cursor = '';
       }
     }
   });
 
-  // При выходе мыши за пределы окна — скрываем временный тултип,
-  // но не трогаем закреплённый
   document.addEventListener('mouseleave', () => {
     if (!isPinned && tooltip) {
       tooltip.style.display = 'none';
+      document.body.style.cursor = '';
     }
   });
 }
 
-// Вспомогательная функция для позиционирования тултипа
+// ---------- Позиционирование тултипа ----------
 function positionTooltip(tooltip, x, y) {
   let left = x + 12;
   let top = y + 12;
@@ -230,9 +235,87 @@ function positionTooltip(tooltip, x, y) {
   tooltip.style.top = top + 'px';
 }
 
-// ---------- Режим редактирования (без перерендеринга) ----------
+// ---------- Режим создания комментария ----------
+function showCreateCommentTooltip(noteId, startOffset, endOffset, range, x, y) {
+  const tooltip = createTooltip();
+  const textSpan = tooltip.querySelector('.tooltip-text');
+  const editInput = tooltip.querySelector('.tooltip-edit-input');
+  const editActions = tooltip.querySelector('.tooltip-edit-actions');
+  const actionsDiv = tooltip.querySelector('.tooltip-actions');
 
-// Вход в режим редактирования
+  // Скрываем всё, кроме поля ввода
+  textSpan.style.display = 'none';
+  actionsDiv.style.display = 'none';
+
+  // Настраиваем поле
+  editInput.value = '';
+  editInput.placeholder = 'Введите комментарий...';
+  editInput.style.display = 'block';
+  editActions.style.display = 'flex';
+
+  // Сохраняем данные для создания
+  createData = { noteId, startOffset, endOffset, range };
+  isCreating = true;
+
+  // Показываем тултип
+  tooltip.style.display = 'block';
+  positionTooltip(tooltip, x, y);
+  editInput.focus();
+}
+
+// Сохранение нового комментария
+async function saveNewComment() {
+  if (!createData) return;
+  const tooltip = createTooltip();
+  const editInput = tooltip.querySelector('.tooltip-edit-input');
+  const newText = editInput.value.trim();
+  if (!newText) {
+    alert('Комментарий не может быть пустым');
+    return;
+  }
+
+  try {
+    const { noteId, startOffset, endOffset, range } = createData;
+    const newComment = await addComment(noteId, startOffset, endOffset, newText);
+
+    // Закрываем режим создания
+    isCreating = false;
+    createData = null;
+    tooltip.style.display = 'none';
+
+    // Перерендериваем комментарии, чтобы появилась подсветка
+    await renderComments();
+
+    // Теперь нужно закрепить тултип на новом комментарии
+    // Ищем его в highlightItems по id
+    const foundItem = highlightItems.find(item => item.comment.id === newComment.id);
+    if (foundItem) {
+      isPinned = true;
+      pinnedComment = { comment: foundItem.comment, range: foundItem.range };
+      tooltip.querySelector('.tooltip-text').textContent = foundItem.comment.content;
+      tooltip.classList.add('pinned');
+      tooltip.style.display = 'block';
+      positionTooltip(tooltip, lastMouseX, lastMouseY);
+      showSuccessToast('💬 Комментарий добавлен!', 1500);
+    } else {
+      // Если не нашли — просто показываем уведомление
+      showSuccessToast('💬 Комментарий добавлен!', 1500);
+    }
+  } catch (err) {
+    console.error('Ошибка сохранения комментария:', err);
+    alert('Не удалось сохранить комментарий');
+  }
+}
+
+// Отмена создания
+function cancelCreateComment() {
+  const tooltip = createTooltip();
+  isCreating = false;
+  createData = null;
+  tooltip.style.display = 'none';
+}
+
+// ---------- Режим редактирования ----------
 function editPinnedComment() {
   if (!pinnedComment) return;
   const tooltip = createTooltip();
@@ -241,11 +324,9 @@ function editPinnedComment() {
   const editActions = tooltip.querySelector('.tooltip-edit-actions');
   const actionsDiv = tooltip.querySelector('.tooltip-actions');
 
-  // Скрываем текст и основные кнопки
   textSpan.style.display = 'none';
   actionsDiv.style.display = 'none';
 
-  // Показываем поле ввода с текущим текстом
   editInput.value = pinnedComment.comment.content;
   editInput.style.display = 'block';
   editActions.style.display = 'flex';
@@ -253,7 +334,6 @@ function editPinnedComment() {
   isEditing = true;
 }
 
-// Сохранение изменений (без перерисовки)
 async function saveEditComment() {
   if (!pinnedComment) return;
   const tooltip = createTooltip();
@@ -266,36 +346,35 @@ async function saveEditComment() {
 
   try {
     await updateComment(pinnedComment.comment.id, undefined, undefined, newText);
-    
-    // Обновляем локальный объект
     pinnedComment.comment.content = newText;
-    
-    // Обновляем текст в тултипе (в режиме просмотра)
     const textSpan = tooltip.querySelector('.tooltip-text');
     textSpan.textContent = newText;
-    
-    // Выходим из режима редактирования
+
     exitEditMode();
-    
-    // Тултип остаётся закреплённым, показываем обновлённый текст
+
+    isPinned = true;
     tooltip.classList.add('pinned');
     tooltip.style.display = 'block';
-    // Обновляем позицию по последним координатам мыши
     positionTooltip(tooltip, lastMouseX, lastMouseY);
-    
     showSuccessToast('✅ Комментарий обновлён!', 1500);
   } catch (err) {
     console.error('Ошибка обновления комментария:', err);
-    alert('Не удалось обновить комментарий');
+    // alert('Не удалось обновить комментарий');
+    alert(err);
   }
 }
 
-// Отмена редактирования
 function cancelEditComment() {
   exitEditMode();
+  if (pinnedComment) {
+    const tooltip = createTooltip();
+    isPinned = true;
+    tooltip.classList.add('pinned');
+    tooltip.style.display = 'block';
+    positionTooltip(tooltip, lastMouseX, lastMouseY);
+  }
 }
 
-// Выход из режима редактирования
 function exitEditMode() {
   const tooltip = createTooltip();
   const textSpan = tooltip.querySelector('.tooltip-text');
@@ -303,7 +382,6 @@ function exitEditMode() {
   const editActions = tooltip.querySelector('.tooltip-edit-actions');
   const actionsDiv = tooltip.querySelector('.tooltip-actions');
 
-  // Возвращаем обычный вид
   textSpan.style.display = 'block';
   editInput.style.display = 'none';
   editActions.style.display = 'none';
@@ -311,16 +389,14 @@ function exitEditMode() {
   isEditing = false;
 }
 
-// ---------- Удаление комментария ----------
+// ---------- Удаление ----------
 async function deletePinnedComment() {
   if (!pinnedComment) return;
   if (!confirm('Удалить этот комментарий?')) return;
 
   try {
     await deleteComment(pinnedComment.comment.id);
-    // После удаления перерендериваем все комментарии (так как исчезает диапазон)
     await renderComments();
-    // Закрепление сбрасывается внутри renderComments
   } catch (err) {
     console.error('Ошибка удаления комментария:', err);
     alert('Не удалось удалить комментарий');
@@ -363,7 +439,7 @@ function showFloatingCommentButton() {
   });
   floatingButton.addEventListener('click', async (e) => {
     e.stopPropagation();
-    await addCommentToSelectedText();
+    await addCommentFromSelection();
     hideFloatingButton();
   });
   document.body.appendChild(floatingButton);
@@ -377,40 +453,8 @@ function hideFloatingButton() {
   savedSelectionRange = null;
 }
 
-function showSuccessToast(message = '💬 Комментарий добавлен!', duration = 2000) {
-  const existingToast = document.querySelector('.comment-toast');
-  if (existingToast) existingToast.remove();
-
-  const toast = document.createElement('div');
-  toast.className = 'comment-toast';
-  toast.textContent = message;
-  Object.assign(toast.style, {
-    position: 'fixed',
-    top: '20px',
-    right: '20px',
-    zIndex: '10001',
-    background: '#1ee535',
-    color: '#fff',
-    padding: '10px 16px',
-    borderRadius: '8px',
-    fontSize: '14px',
-    fontWeight: '500',
-    boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-    transition: 'opacity 0.3s',
-    opacity: '1'
-  });
-  document.body.appendChild(toast);
-
-  setTimeout(() => {
-    toast.style.opacity = '0';
-    setTimeout(() => {
-      if (toast.parentNode) toast.remove();
-    }, 300);
-  }, duration);
-}
-
-// ---------- Добавление комментария ----------
-async function addCommentToSelectedText() {
+// ---------- Добавление комментария из выделения ----------
+async function addCommentFromSelection() {
   if (!savedSelectionRange) {
     alert('Сначала выделите текст в заметке');
     return;
@@ -434,13 +478,6 @@ async function addCommentToSelectedText() {
   }
 
   const noteId = card.getAttribute('data-note-id');
-  let allComments;
-  try {
-    allComments = await getComments();
-  } catch {
-    alert('Не удалось загрузить комментарии');
-    return;
-  }
 
   // Находим текстовый узел и смещения
   let textNode = range.startContainer;
@@ -472,21 +509,46 @@ async function addCommentToSelectedText() {
 
   if (startOffset >= endOffset) return;
 
-  const commentText = prompt('Введите комментарий к выделенному фрагменту:');
-  if (!commentText || commentText.trim() === '') return;
-
-  try {
-    await addComment(noteId, startOffset, endOffset, commentText.trim());
-    hideFloatingButton();
-    showSuccessToast('💬 Комментарий добавлен!');
-    // После добавления обновляем подсветку
-    await renderComments();
-  } catch (err) {
-    console.error('Ошибка сохранения комментария:', err);
-    alert('Не удалось сохранить комментарий');
-  }
+  // Показываем тултип создания
+  const rect = range.getBoundingClientRect();
+  const x = rect.left + window.scrollX;
+  const y = rect.bottom + window.scrollY + 5;
+  showCreateCommentTooltip(noteId, startOffset, endOffset, range, x, y);
 
   savedSelectionRange = null;
+}
+
+// ---------- Утилиты ----------
+function showSuccessToast(message, duration = 2000) {
+  const existingToast = document.querySelector('.comment-toast');
+  if (existingToast) existingToast.remove();
+
+  const toast = document.createElement('div');
+  toast.className = 'comment-toast';
+  toast.textContent = message;
+  Object.assign(toast.style, {
+    position: 'fixed',
+    top: '20px',
+    right: '20px',
+    zIndex: '10001',
+    background: '#1ee535',
+    color: '#fff',
+    padding: '10px 16px',
+    borderRadius: '8px',
+    fontSize: '14px',
+    fontWeight: '500',
+    boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+    transition: 'opacity 0.3s',
+    opacity: '1'
+  });
+  document.body.appendChild(toast);
+
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    setTimeout(() => {
+      if (toast.parentNode) toast.remove();
+    }, 300);
+  }, duration);
 }
 
 // ---------- Сбор диапазонов для одной карточки ----------
@@ -517,17 +579,18 @@ function collectRangesForCard(card, comments, allRanges) {
 
 // ---------- Основная функция рендера комментариев ----------
 export async function renderComments() {
-  // Сбрасываем закрепление и режим редактирования
   isPinned = false;
   pinnedComment = null;
   isEditing = false;
+  isCreating = false;
+  createData = null;
   if (commentTooltip) {
     commentTooltip.style.display = 'none';
     commentTooltip.classList.remove('pinned');
   }
+  document.body.style.cursor = '';
   highlightItems = [];
 
-  // Удаляем старый Highlight
   const highlightName = 'comment-highlight';
   if (CSS.highlights.has(highlightName)) {
     CSS.highlights.delete(highlightName);
@@ -536,7 +599,6 @@ export async function renderComments() {
   const [notes, comments] = await Promise.all([getNotes(), getComments()]);
   const cards = document.querySelectorAll('.card');
 
-  // Группируем комментарии по noteId
   const commentsByNote = {};
   comments.forEach(comment => {
     if (!commentsByNote[comment.noteId]) {
@@ -578,7 +640,7 @@ function bindGlobalEvents() {
   });
 }
 
-// ---------- Полная инициализация модуля ----------
+// ---------- Инициализация ----------
 export function initAnnotations() {
   createTooltip();
   initTooltipEvents();
