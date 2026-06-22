@@ -1,6 +1,6 @@
 import { fsStorage } from '../services/fs-storage.js';
 import { openModal, closeModal, modalBody } from '../components/modal.js';
-import { loadTagsForPicker, setActiveTagFilter, refreshNotes, appendTagsToNote, getActiveTagFilter, getAvailableTagsForNote } from '../services/parser.js';
+import { loadTagsForPicker, setActiveTagFilter, refreshNotes, appendTagsToNote, getActiveTagFilter } from '../services/parser.js';
 
 let allSystemTags = [];
 let selectedFilterTags = [];
@@ -131,7 +131,6 @@ export async function openNoteTagsModal(noteId) {
         alert('Сначала разрешите доступ к папке');
         return;
     }
-    const available = getAvailableTagsForNote(noteId) || [];
     noteTagsModalNoteId = noteId;
     selectedNoteTags = [];
 

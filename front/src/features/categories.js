@@ -257,7 +257,6 @@ categoriesUl.addEventListener('click', async (e) => {
   const targetLi = e.target.closest('li');
   if (!targetLi || targetLi.querySelector('input')) return;
 
-  // Игнорируем клики по стрелочке
   if (e.target.closest('.category-toggle')) return;
 
   document.querySelectorAll('#categories-ul li').forEach(li => li.classList.remove('active'));
