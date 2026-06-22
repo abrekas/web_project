@@ -225,6 +225,10 @@ let commentsAbsolute = [];
   
   function parseNoteDate(note) {
     if (!note) return new Date(0);
+    
+    if (note.savedAt) {
+      return new Date(note.savedAt);
+    }
 
     if (note.time) {
       const [datePart, timePart] = note.time.split(' ');
