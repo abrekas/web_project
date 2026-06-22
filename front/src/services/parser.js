@@ -2,7 +2,7 @@ import {fsStorage} from './fs-storage.js';
 import {updateTagsBtnState, openNoteTagsModal} from '../features/tags.js';
 import {loadAllCategories} from '../features/categories.js'
 import {switchLayout} from './layout.js'
-
+import { openCreateNoteModal } from '../features/notes.js';
 import { initAnnotations, renderComments } from '../features/comments.js';
 
 const cardsList = document.getElementById('cards-list');
@@ -288,16 +288,29 @@ async function changeCategoryDescription() {
 
   const changeBtn = descElement.querySelector('#category-description-change-btn');
   const textSpan = descElement.querySelector('.category-description-text');
+  const actionsDiv = descElement.querySelector('.category-description-actions');
+  const createBtn = descElement.querySelector('#create-note-btn-top');
 
-  changeBtn.style.display = 'none';
-  textSpan.style.display = 'none';
+  // Скрываем кнопку "Изменить" и текст
+  if (changeBtn) changeBtn.style.display = 'none';
+  if (textSpan) textSpan.style.display = 'none';
+
+  // Кнопку "Создать заметку" оставляем видимой
+  if (createBtn) createBtn.style.display = 'inline-flex';
 
   const editDiv = document.createElement('div');
+  editDiv.className = 'category-description-edit-wrapper';
   editDiv.innerHTML = editHtml;
-  descElement.insertBefore(editDiv, changeBtn);
+
+  // Вставляем перед actionsDiv или после textSpan
+  if (actionsDiv) {
+    descElement.insertBefore(editDiv, actionsDiv);
+  } else {
+    descElement.insertBefore(editDiv, changeBtn);
+  }
 
   const input = document.getElementById('category-description-input');
-  input.focus();
+  if (input) input.focus();
 
   document.getElementById('save-description-btn').onclick = async () => {
     const newDescription = input.value.trim();
@@ -323,14 +336,14 @@ async function changeCategoryDescription() {
     }
 
     editDiv.remove();
-    changeBtn.style.display = 'block';
-    textSpan.style.display = 'block';
+    if (changeBtn) changeBtn.style.display = 'block';
+    if (textSpan) textSpan.style.display = 'block';
   };
 
   document.getElementById('cancel-description-btn').onclick = () => {
     editDiv.remove();
-    changeBtn.style.display = 'block';
-    textSpan.style.display = 'block';
+    if (changeBtn) changeBtn.style.display = 'block';
+    if (textSpan) textSpan.style.display = 'block';
   };
 }
 
@@ -341,21 +354,27 @@ function initCategoryDescription() {
   descElement.innerHTML = `
     <span class="category-description-text"></span>
     <div class="category-description-actions">
-      <button id="create-note-btn-top" class="create-note-btn-top">Создать заметку</button>
       <button id="category-description-change-btn">Изменить</button>
+      <button id="create-note-btn-top" class="create-note-btn-top">Создать заметку</button>
     </div>
   `;
 
   const createBtn = document.getElementById('create-note-btn-top');
   if (createBtn) {
     createBtn.addEventListener('click', () => {
+      // Правильный путь: ../features/notes.js
       import('../features/notes.js').then(module => {
         module.openCreateNoteModal();
+      }).catch(err => {
+        console.error('Ошибка загрузки notes.js:', err);
       });
     });
   }
 
-  document.getElementById('category-description-change-btn').addEventListener('click', changeCategoryDescription);
+  const changeBtn = document.getElementById('category-description-change-btn');
+  if (changeBtn) {
+    changeBtn.addEventListener('click', changeCategoryDescription);
+  }
 
   updateCategoryDescription();
 }

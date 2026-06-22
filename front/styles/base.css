@@ -49,3 +49,7 @@ body {
     height: 100vh;
     padding-right: 24px;
 }
+
+button {
+    transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
