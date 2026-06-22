@@ -465,14 +465,13 @@ export async function deleteTag(tagName) {
 
   export async function updateComment(commentID, newStart, newEnd, newContent) {
     const commentsList = await getComments();
-    try{ const comment = commentsList.find(c => c.id === commentID); }
-    catch{}
-    if (comment) {
-      comment.start = newStart !== undefined ? newStart : comment.start;
-      comment.end = newEnd !== undefined ? newEnd : comment.end;
-      comment.content = newContent !== undefined ? newContent : comment.content;
-      await saveComments(commentsList);
-    }
+    const comment = commentsList.find(c => c.id === commentID);
+    if (!comment) return;
+
+    comment.start = newStart !== undefined ? newStart : comment.start;
+    comment.end = newEnd !== undefined ? newEnd : comment.end;
+    comment.content = newContent !== undefined ? newContent : comment.content;
+    await saveComments(commentsList);
   }
 
   export async function deleteComment(commentID) {
