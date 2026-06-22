@@ -16,7 +16,7 @@
     align-items: center;
     gap: 5px;
     justify-content: flex-start;
-    margin-bottom: 0;   /* добавить если есть */
+    margin-bottom: 0;
     padding-bottom: 0;
 }
 
@@ -282,4 +282,148 @@
     border-radius: var(--second-radius);
     font-size: var(--font-size-sm);
     height: 28px;
+}
+
+/* Стили для заголовка категории */
+.category-title {
+    padding: 8px 12px;
+    background: var(--second-color);
+    border-radius: var(--second-radius);
+    margin: 0 0 8px 0;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+}
+
+.category-title-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    width: 100%;
+}
+
+.category-name-text {
+    font-size: var(--font-size-lg);
+    font-weight: 700;
+    color: var(--text-color);
+}
+
+.category-title-actions {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.rename-category-btn {
+    padding: 4px 12px;
+    background: var(--notes-header-color);
+    color: var(--text-color);
+    border: none;
+    border-radius: var(--second-radius);
+    cursor: pointer;
+    font-size: var(--font-size-sm);
+    transition: background 0.2s, transform 0.2s ease;
+    height: 28px;
+    white-space: nowrap;
+}
+
+.rename-category-btn:hover {
+    background-color: #87a0de;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.rename-category-btn:active {
+    transform: scale(0.97);
+}
+
+.create-note-btn-top {
+    padding: 4px 12px;
+    background: var(--notes-header-color);
+    color: var(--text-color);
+    border: none;
+    border-radius: var(--second-radius);
+    cursor: pointer;
+    font-size: var(--font-size-sm);
+    transition: background 0.2s, transform 0.2s ease;
+    height: 28px;
+    white-space: nowrap;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+    display: inline-flex;
+}
+
+.create-note-btn-top:hover {
+    background-color: #87a0de;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.create-note-btn-top:active {
+    transform: scale(0.97);
+}
+
+/* Стили для формы переименования */
+.category-rename-edit-wrapper {
+    width: 100%;
+}
+
+.category-rename-edit {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+.category-rename-edit input {
+    flex: 1;
+    min-width: 150px;
+    padding: 6px 12px;
+    border: none;
+    border-radius: var(--second-radius);
+    background-color: var(--card-bg);
+    color: var(--text-color);
+    font-family: var(--font-main);
+    font-size: var(--font-size-md);
+    box-shadow: var(--inside-shadow);
+}
+
+.category-rename-edit input:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--accent-color);
+}
+
+.category-rename-edit .save-btn {
+    padding: 6px 16px;
+    background: var(--accent-color);
+    color: white;
+    border: none;
+    border-radius: var(--second-radius);
+    cursor: pointer;
+    font-size: var(--font-size-sm);
+    transition: background 0.2s;
+    height: 36px;
+}
+
+.category-rename-edit .save-btn:hover {
+    background: #87a0de;
+}
+
+.category-rename-edit .cancel-btn {
+    padding: 6px 16px;
+    background: var(--accent-color);
+    color: white;
+    border: none;
+    border-radius: var(--second-radius);
+    cursor: pointer;
+    font-size: var(--font-size-sm);
+    transition: background 0.2s;
+    height: 36px;
+}
+
+.category-rename-edit .cancel-btn:hover {
+    background: hsl(0, 71%, 74%);
 }

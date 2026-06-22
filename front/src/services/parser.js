@@ -222,47 +222,160 @@ function filterNotes(category = 'общее', searchToken = '', site = null, vie
   });
 }
 
-function updateCategoryDescription() {
-  const descElement = document.getElementById('category-description');
-  if (!descElement) return;
+// Полностью переработанная функция отображения категории
+function updateCategoryDisplay() {
+  const titleElement = document.getElementById('category-title');
+  if (!titleElement) return;
 
   const activeLi = document.querySelector('#categories-ul li.active');
   const currentCategory = activeLi ? activeLi.dataset.category : 'общее';
 
-  const changeBtn = descElement.querySelector('#category-description-change-btn');
-  const textSpan = descElement.querySelector('.category-description-text');
-  const createBtn = descElement.querySelector('#create-note-btn-top');
+  // Полностью пересоздаем содержимое
+  let html = `
+    <div class="category-title-content">
+      <span class="category-name-text">${currentCategory === 'общее' ? 'Основная категория' : currentCategory}</span>
+      <div class="category-title-actions">
+  `;
 
-  if (createBtn) createBtn.style.display = 'inline-flex';
+  if (currentCategory !== 'общее') {
+    html += `<button id="category-rename-btn" class="rename-category-btn">✎ Переименовать</button>`;
+  }
+
+  html += `
+        <button id="create-note-btn-top" class="create-note-btn-top">+ Создать заметку</button>
+      </div>
+    </div>
+  `;
+
+  titleElement.innerHTML = html;
+
+  // Добавляем обработчики событий
+  const renameBtn = document.getElementById('category-rename-btn');
+  if (renameBtn) {
+    renameBtn.addEventListener('click', renameCategory);
+  }
+
+  const createBtn = document.getElementById('create-note-btn-top');
+  if (createBtn) {
+    createBtn.addEventListener('click', () => {
+      import('../features/notes.js').then(module => {
+        module.openCreateNoteModal();
+      }).catch(err => {
+        console.error('Ошибка загрузки notes.js:', err);
+      });
+    });
+  }
+}
+
+// Упрощенная функция переименования
+async function renameCategory() {
+  const activeLi = document.querySelector('#categories-ul li.active');
+  const currentCategory = activeLi ? activeLi.dataset.category : 'общее';
 
   if (currentCategory === 'общее') {
-    if (changeBtn) changeBtn.style.display = 'none';
-    if (textSpan) {
-      textSpan.textContent = 'Папка для всех заметок';
-      textSpan.className = 'category-description-text';
-    }
+    alert('Нельзя переименовать категорию "общее"');
     return;
   }
 
-  if (changeBtn) changeBtn.style.display = 'block';
+  const titleElement = document.getElementById('category-title');
+  const currentName = currentCategory;
 
-  const categoryObj = allCategories.find(cat => {
-    const catName = typeof cat === 'string' ? cat : cat.name;
-    return catName.toLowerCase() === String(currentCategory).trim().toLowerCase();
-  });
+  // Создаем форму редактирования прямо в элементе
+  titleElement.innerHTML = `
+    <div class="category-rename-edit-wrapper">
+      <div class="category-rename-edit">
+        <input type="text" id="category-rename-input" value="${escapeHtml(currentName)}" placeholder="Введите новое название" autofocus>
+        <button id="save-rename-btn" class="save-btn">Сохранить</button>
+        <button id="cancel-rename-btn" class="cancel-btn">Отмена</button>
+      </div>
+    </div>
+  `;
 
-  const description = categoryObj ? (categoryObj.description || '') : '';
-
-  if (textSpan) {
-    if (description) {
-      textSpan.textContent = description;
-      textSpan.className = 'category-description-text';
-    } else {
-      textSpan.textContent = 'Нет описания';
-      textSpan.className = 'category-description-text category-description-empty';
-    }
+  const input = document.getElementById('category-rename-input');
+  if (input) {
+    input.focus();
+    input.select();
   }
+
+  // Обработчик сохранения
+  document.getElementById('save-rename-btn').onclick = async () => {
+    const newName = input.value.trim();
+
+    if (!newName) {
+      alert('Название категории не может быть пустым');
+      return;
+    }
+
+    if (newName.toLowerCase() === currentName.toLowerCase()) {
+      // Если имя не изменилось, просто обновляем отображение
+      updateCategoryDisplay();
+      return;
+    }
+
+    if (newName.toLowerCase() === 'общее') {
+      alert('Название "общее" зарезервировано');
+      return;
+    }
+
+    try {
+      const categories = await fsStorage.getCategories();
+      const nameExists = categories.some(cat =>
+          cat.name.toLowerCase() === newName.toLowerCase()
+      );
+
+      if (nameExists) {
+        alert(`Категория "${newName}" уже существует`);
+        return;
+      }
+
+      const categoryObj = categories.find(cat =>
+          cat.name.toLowerCase() === currentName.toLowerCase()
+      );
+      const description = categoryObj?.description || '';
+
+      const success = await fsStorage.updateCategory(currentName, newName, description);
+
+      if (success) {
+        await loadCategoriesForSelects();
+        await loadAllCategories();
+
+        // Обновляем активную категорию в списке
+        const allLis = document.querySelectorAll('#categories-ul li');
+        allLis.forEach(li => {
+          li.classList.remove('active');
+          if (li.dataset.category === newName) {
+            li.classList.add('active');
+          }
+        });
+
+        // Обновляем отображение
+        updateCategoryDisplay();
+
+        // Перерисовываем заметки
+        await refreshNotes();
+      } else {
+        alert('Не удалось переименовать категорию');
+        updateCategoryDisplay();
+      }
+    } catch (e) {
+      console.error('Ошибка переименования категории:', e);
+      alert('Не удалось переименовать категорию');
+      updateCategoryDisplay();
+    }
+  };
+
+  // Обработчик отмены
+  document.getElementById('cancel-rename-btn').onclick = () => {
+    updateCategoryDisplay();
+  };
 }
+
+// Функция инициализации - просто вызывает отображение
+function initCategoryTitle() {
+  updateCategoryDisplay();
+}
+
+
 
 async function changeCategoryDescription() {
   const activeLi = document.querySelector('#categories-ul li.active');
@@ -382,7 +495,7 @@ export function loadAllNotes(category = 'общее', searchToken = '', site = n
     return;
   }
 
-  updateCategoryDescription();
+  updateCategoryDisplay();
   cardsList.innerHTML = filtered.map(renderNoteHtml).join('');
   renderComments();
 }
@@ -675,7 +788,7 @@ function parseCodeBlocks(text) {
 export async function initParser() {
   await fsStorage.restoreFolder();
   await refreshNotes();
-  initCategoryDescription();
+  initCategoryTitle();
   updateTagsBtnState();
   initAnnotations();
   if (filter) filter.classList.add('ready');
