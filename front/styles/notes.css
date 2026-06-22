@@ -545,7 +545,6 @@
   color: #000;
 }
 
-/* ---------- Тултип комментариев ---------- */
 .comment-tooltip {
   position: fixed;
   display: none;
@@ -582,7 +581,6 @@
   padding-top: 6px;
 }
 
-/* Показываем кнопки только когда тултип закреплён */
 .comment-tooltip.pinned .tooltip-actions {
   display: flex;
 }
@@ -619,7 +617,6 @@
   pointer-events: none;
 }
 
-/* Поле ввода для редактирования комментария */
 .tooltip-edit-input {
   width: 100%;
   min-height: 60px;
@@ -640,7 +637,6 @@
   box-shadow: 0 0 0 2px var(--accent-color);
 }
 
-/* Контейнер для кнопок сохранения/отмены */
 .tooltip-edit-actions {
   display: flex;
   gap: 6px;
@@ -676,7 +672,48 @@
   background-color: #d0d0d0;
 }
 
-/* Скрываем основные кнопки, когда тултип не закреплён */
 .comment-tooltip:not(.pinned) .tooltip-actions {
   display: none !important;
+}
+
+.markdown-h1 {
+    font-size: 1.8em;
+    font-weight: 700;
+    margin: 0.67em 0 0.33em 0;
+    line-height: 1.2;
+}
+
+.markdown-h2 {
+    font-size: 1.5em;
+    font-weight: 700;
+    margin: 0.83em 0 0.33em 0;
+    line-height: 1.25;
+}
+
+.markdown-h3 {
+    font-size: 1.17em;
+    font-weight: 700;
+    margin: 1em 0 0.33em 0;
+    line-height: 1.3;
+}
+
+.card-body strong {
+    font-weight: 700;
+}
+
+.card-body em {
+    font-style: italic;
+}
+
+.card-body .markdown-h1,
+.card-body .markdown-h2,
+.card-body .markdown-h3 {
+    margin-top: 0.5em;
+    margin-bottom: 0.25em;
+}
+
+.card-body .markdown-h1:first-child,
+.card-body .markdown-h2:first-child,
+.card-body .markdown-h3:first-child {
+    margin-top: 0;
 }

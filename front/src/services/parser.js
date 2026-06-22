@@ -2,7 +2,6 @@ import {fsStorage} from './fs-storage.js';
 import {updateTagsBtnState, openNoteTagsModal} from '../features/tags.js';
 import {loadAllCategories} from '../features/categories.js'
 import {switchLayout} from './layout.js'
-import { openCreateNoteModal } from '../features/notes.js';
 import { initAnnotations, renderComments } from '../features/comments.js';
 
 const cardsList = document.getElementById('cards-list');
@@ -291,18 +290,15 @@ async function changeCategoryDescription() {
   const actionsDiv = descElement.querySelector('.category-description-actions');
   const createBtn = descElement.querySelector('#create-note-btn-top');
 
-  // Скрываем кнопку "Изменить" и текст
   if (changeBtn) changeBtn.style.display = 'none';
   if (textSpan) textSpan.style.display = 'none';
 
-  // Кнопку "Создать заметку" оставляем видимой
   if (createBtn) createBtn.style.display = 'inline-flex';
 
   const editDiv = document.createElement('div');
   editDiv.className = 'category-description-edit-wrapper';
   editDiv.innerHTML = editHtml;
 
-  // Вставляем перед actionsDiv или после textSpan
   if (actionsDiv) {
     descElement.insertBefore(editDiv, actionsDiv);
   } else {
@@ -362,7 +358,6 @@ function initCategoryDescription() {
   const createBtn = document.getElementById('create-note-btn-top');
   if (createBtn) {
     createBtn.addEventListener('click', () => {
-      // Правильный путь: ../features/notes.js
       import('../features/notes.js').then(module => {
         module.openCreateNoteModal();
       }).catch(err => {
@@ -619,8 +614,28 @@ export function setActiveTagFilter(tags) {
   renderNotes();
 }
 
+function parseMarkdown(text) {
+  if (!text) return '';
+
+  let html = escapeHtml(text);
+
+  html = html.replace(/^### (.+)$/gm, '<h3 class="markdown-h3">$1</h3>');
+  html = html.replace(/^## (.+)$/gm, '<h2 class="markdown-h2">$1</h2>');
+  html = html.replace(/^# (.+)$/gm, '<h1 class="markdown-h1">$1</h1>');
+
+  html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  html = html.replace(/__(.+?)__/g, '<strong>$1</strong>');
+
+  html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
+  html = html.replace(/_(.+?)_/g, '<em>$1</em>');
+
+  html = html.replace(/\n/g, '<br>');
+
+  return html;
+}
+
 function parseCodeBlocks(text) {
-  if (!text) return escapeHtml(text);
+  if (!text) return parseMarkdown(text);
 
   const codeBlockRegex = /```\n([\s\S]*?)\n```/g;
 
@@ -630,7 +645,7 @@ function parseCodeBlocks(text) {
 
   while ((match = codeBlockRegex.exec(text)) !== null) {
     const beforeText = text.slice(lastIndex, match.index);
-    result += escapeHtml(beforeText);
+    result += parseMarkdown(beforeText);
 
     const code = match[1];
 
@@ -652,7 +667,7 @@ function parseCodeBlocks(text) {
   }
 
   const remainingText = text.slice(lastIndex);
-  result += escapeHtml(remainingText);
+  result += parseMarkdown(remainingText);
 
   return result;
 }
