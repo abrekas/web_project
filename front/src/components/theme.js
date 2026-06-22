@@ -18,7 +18,8 @@ const themes = {
         '--link-color': '#5757d0',
         '--card-bg': '#ffffff',
         '--card-content-bg': '#ffffff',
-        '--icon-filter': 'none'
+        '--icon-filter': 'none',
+        '--comment-hightlight-color': '21, 197, 237, 0.593'
     },
     rose: {
         '--background-color': '#ffffff',
@@ -31,7 +32,9 @@ const themes = {
         '--link-color': '#5757d0',
         '--card-bg': '#ffffff',
         '--card-content-bg': '#ffffff',
-        '--icon-filter': 'none'
+        '--icon-filter': 'none',
+        '--comment-hightlight-color': '169, 58, 233, 0.242'
+
     },
     sky: {
         '--background-color': '#232327',
@@ -44,7 +47,8 @@ const themes = {
         '--link-color': '#b9b9b9',
         '--card-bg': '#333336',
         '--card-content-bg': '#333336',
-        '--icon-filter': 'invert(1) brightness(2)'
+        '--icon-filter': 'invert(1) brightness(2)',
+        '--comment-hightlight-color': '251, 255, 11, 0.7'
     },
     gum: {
         '--background-color': '#EEE8D5',
@@ -57,7 +61,8 @@ const themes = {
         '--link-color': '#89554D',
         '--card-bg': '#FDF6E3',
         '--card-content-bg': '#FDF6E3',
-        '--icon-filter': 'none'
+        '--icon-filter': 'none',
+        '--comment-hightlight-color': '46, 220, 147, 0.4'
     }
 };
 

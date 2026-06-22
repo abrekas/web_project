@@ -516,7 +516,6 @@
 }
 
 ::highlight(comment-highlight) {
-  background-color: rgba(46, 220, 147, 0.4);
+  background-color: rgba(var(--comment-hightlight-color));
   color: #000;
-  border-radius: 2px;
 }
