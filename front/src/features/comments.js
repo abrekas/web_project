@@ -4,25 +4,146 @@ let commentTooltip = null;
 let floatingButton = null;
 let savedSelectionRange = null;
 
+// Хранилище для связи Range -> Comment (используется для тултипов)
+let highlightItems = [];
+
+// Состояние закреплённого тултипа
+let isPinned = false;
+let pinnedComment = null;
+
 // ---------- Инициализация тултипа ----------
-export function initCommentTooltip() {
-  if (document.getElementById('comment-tooltip')) return;
+function createTooltip() {
+  if (commentTooltip) return commentTooltip;
   const tooltip = document.createElement('div');
   tooltip.id = 'comment-tooltip';
-  tooltip.className = 'comment-tooltip';
-  tooltip.style.display = 'none';
+  tooltip.style.cssText = `
+    position: fixed;
+    background: #333;
+    color: #fff;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 13px;
+    pointer-events: auto;
+    display: none;
+    z-index: 10000;
+    max-width: 300px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    cursor: default;
+  `;
   document.body.appendChild(tooltip);
   commentTooltip = tooltip;
+  return tooltip;
 }
 
-// ---------- Наведение для показа тултипа ----------
-export function initAnnotationTooltips() {
-  // ВАЖНО: при использовании CSS Highlight API у нас нет элементов с классом .commented-text,
-  // поэтому тултипы нужно показывать по-другому – например, по клику или при наведении на подсвеченную область.
-  // Для простоты оставим пока без тултипов, либо позже реализуем через position: absolute.
-  // Но если вы хотите сохранить прежний механизм, нужно искать элементы с классом .highlight, но мы не создаём span'ы.
-  // Рекомендую переделать тултипы на отображение при клике или с помощью собственных событий.
-  // Пока оставим заглушку.
+// ---------- Инициализация обработчиков наведения и кликов ----------
+function initTooltipEvents() {
+  const tooltip = createTooltip();
+
+  // ---- Наведение (временный тултип и курсор) ----
+  document.addEventListener('mousemove', (e) => {
+    const x = e.clientX;
+    const y = e.clientY;
+
+    let foundComment = null;
+
+    for (let item of highlightItems) {
+      const rects = item.range.getClientRects();
+      for (let rect of rects) {
+        if (x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom) {
+          foundComment = item.comment;
+          break;
+        }
+      }
+      if (foundComment) break;
+    }
+
+    // Меняем курсор всегда
+    if (foundComment) {
+      document.body.style.cursor = 'pointer';
+    } else {
+      document.body.style.cursor = '';
+    }
+
+    // Тултип показываем только если не закреплён
+    if (!isPinned) {
+      if (foundComment) {
+        tooltip.textContent = foundComment.content;
+        tooltip.style.display = 'block';
+        positionTooltip(tooltip, x, y);
+      } else {
+        tooltip.style.display = 'none';
+      }
+    }
+  });
+
+  // ---- Клик (закрепление / открепление) ----
+  document.addEventListener('click', (e) => {
+    const x = e.clientX;
+    const y = e.clientY;
+
+    if (tooltip.contains(e.target)) {
+      return;
+    }
+
+    let clickedComment = null;
+    let clickedRange = null;
+
+    for (let item of highlightItems) {
+      const rects = item.range.getClientRects();
+      for (let rect of rects) {
+        if (x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom) {
+          clickedComment = item.comment;
+          clickedRange = item.range;
+          break;
+        }
+      }
+      if (clickedComment) break;
+    }
+
+    if (clickedComment) {
+      isPinned = true;
+      pinnedComment = { comment: clickedComment, range: clickedRange };
+      tooltip.textContent = clickedComment.content;
+      tooltip.style.display = 'block';
+      positionTooltip(tooltip, x, y);
+      // При закреплении курсор остаётся pointer, если мышь над выделением (уже установлено)
+    } else {
+      if (isPinned) {
+        isPinned = false;
+        pinnedComment = null;
+        tooltip.style.display = 'none';
+        // Сбрасываем курсор, если мышь не над выделением (будет установлен снова при движении)
+        document.body.style.cursor = '';
+      }
+    }
+  });
+
+  document.addEventListener('mouseleave', () => {
+    // Сбрасываем курсор при выходе из окна
+    document.body.style.cursor = '';
+    if (!isPinned && tooltip) {
+      tooltip.style.display = 'none';
+    }
+  });
+}
+
+// Вспомогательная функция для позиционирования тултипа
+function positionTooltip(tooltip, x, y) {
+  let left = x + 12;
+  let top = y + 12;
+
+  const tooltipRect = tooltip.getBoundingClientRect();
+  if (left + tooltipRect.width > window.innerWidth) {
+    left = x - tooltipRect.width - 12;
+  }
+  if (top + tooltipRect.height > window.innerHeight) {
+    top = y - tooltipRect.height - 12;
+  }
+  left = Math.max(5, left);
+  top = Math.max(5, top);
+
+  tooltip.style.left = left + 'px';
+  tooltip.style.top = top + 'px';
 }
 
 // ---------- Плавающая кнопка ----------
@@ -140,12 +261,10 @@ async function addCommentToSelectedText() {
     return;
   }
 
-  // Находим текстовый узел и смещения
   let textNode = range.startContainer;
   let startOffset, endOffset;
 
   if (textNode.nodeType !== Node.TEXT_NODE) {
-    // Ищем первый текстовый узел внутри .card-body (или .note-text-content)
     const container = card.querySelector('.note-text-content') || card.querySelector('.card-body');
     if (!container) {
       alert('Не удалось найти текст в заметке');
@@ -178,7 +297,6 @@ async function addCommentToSelectedText() {
     await addComment(noteId, startOffset, endOffset, commentText.trim());
     hideFloatingButton();
     showSuccessToast('💬 Комментарий добавлен!');
-    // После добавления обновляем подсветку
     await renderComments();
   } catch (err) {
     console.error('Ошибка сохранения комментария:', err);
@@ -188,76 +306,49 @@ async function addCommentToSelectedText() {
   savedSelectionRange = null;
 }
 
-// ---------- Применение аннотаций через CSS Custom Highlight API ----------
-function applyAnnotationsToCard(card, comments) {
-  // const highlightName = 'comment-highlight'; // статичное имя
-  const noteId = card.getAttribute('data-note-id');
-  // Удаляем старый highlight для этой заметки, если есть
-  const highlightName = 'comment-highlight';
-  if (CSS.highlights.has(highlightName)) {
-    CSS.highlights.delete(highlightName);
-  }
-
-  // Находим контейнер с текстом
+// ---------- Сбор диапазонов для одной карточки (без создания Highlight) ----------
+function collectRangesForCard(card, comments, allRanges) {
   const textContainer = card.querySelector('.note-text-content') || card.querySelector('.card-body');
   if (!textContainer) return;
-  console.log(textContainer);
 
-  // Получаем текстовые узлы внутри контейнера (может быть несколько, но мы будем искать по всему тексту)
-  // Чтобы найти позиции start/end, нам нужно получить полный текст без разметки.
-  // Так как внутри могут быть другие элементы (картинки, код), лучше работать с .note-text-content,
-  // но для простоты предполагаем, что весь текст находится в одном текстовом узле.
-  // Однако, если внутри есть дочерние элементы, проще взять textContent и найти нужный текстовый узел.
-  // Для корректной работы с Range мы должны найти текстовый узел, соответствующий каждому смещению.
-  // Простейший способ: найти первый текстовый узел в контейнере и использовать его для всех диапазонов,
-  // предполагая, что все комментарии относятся к одному текстовому блоку.
-  // Если у вас текст может быть разбит по разным узлам, то нужно более сложное решение (например, итератор по текстовым узлам).
-  // Для демонстрации ограничимся одним текстовым узлом.
-  
   const walker = document.createTreeWalker(textContainer, NodeFilter.SHOW_TEXT);
   const textNodes = [];
   let node;
   while ((node = walker.nextNode())) {
     textNodes.push(node);
   }
-  
   if (textNodes.length === 0) return;
 
-  // Если несколько текстовых узлов, мы объединим весь текст в один строковый буфер и будем искать смещения.
-  // Но Range может быть создан только на конкретном текстовом узле. Поэтому нужно преобразовать глобальные смещения
-  // в локальные для каждого узла. Для упрощения примера будем считать, что весь текст находится в первом текстовом узле.
-  // Если у вас могут быть вложенные элементы, лучше использовать более продвинутый подход (см. примечание ниже).
-  // Для большинства заметок (текстовых) подойдёт использование первого текстового узла.
-  
   const mainTextNode = textNodes[0];
   const fullText = mainTextNode.textContent;
 
-  const ranges = [];
-
   comments.forEach(comment => {
-    // Проверяем, что start/end не выходят за границы
     if (comment.start < 0 || comment.end > fullText.length || comment.start >= comment.end) return;
-    
     const range = new Range();
     range.setStart(mainTextNode, comment.start);
     range.setEnd(mainTextNode, comment.end);
-    ranges.push(range);
+    allRanges.push(range);
+    highlightItems.push({ range, comment });
   });
-
-  if (ranges.length === 0) return;
-
-  // Создаём Highlight и регистрируем
-  const highlight = new Highlight(...ranges);
-  console.log(highlight);
-  CSS.highlights.set(highlightName, highlight);
 }
 
 // ---------- Основная функция рендера комментариев ----------
 export async function renderComments() {
+  // Сбрасываем закрепление и очищаем старые диапазоны
+  isPinned = false;
+  pinnedComment = null;
+  if (commentTooltip) commentTooltip.style.display = 'none';
+  highlightItems = [];
+  document.body.style.cursor = ''; // сброс курсора
+
+  const highlightName = 'comment-highlight';
+  if (CSS.highlights.has(highlightName)) {
+    CSS.highlights.delete(highlightName);
+  }
+
   const [notes, comments] = await Promise.all([getNotes(), getComments()]);
   const cards = document.querySelectorAll('.card');
 
-  // Группируем комментарии по noteId
   const commentsByNote = {};
   comments.forEach(comment => {
     if (!commentsByNote[comment.noteId]) {
@@ -266,54 +357,57 @@ export async function renderComments() {
     commentsByNote[comment.noteId].push(comment);
   });
 
-  // Собираем все диапазоны
   const allRanges = [];
+
   cards.forEach(card => {
     const noteId = card.dataset.noteId;
     const noteComments = commentsByNote[noteId] || [];
     if (noteComments.length > 0) {
-      const ranges = getRangesForCard(card, noteComments);
-      allRanges.push(...ranges);
+      collectRangesForCard(card, noteComments, allRanges);
     }
   });
 
-  // Удаляем старый highlight (если есть)
-  const highlightName = 'comment-highlight';
-  if (CSS.highlights.has(highlightName)) {
-    CSS.highlights.delete(highlightName);
-  }
-
-  // Создаём новый Highlight со всеми диапазонами
   if (allRanges.length > 0) {
     const highlight = new Highlight(...allRanges);
     CSS.highlights.set(highlightName, highlight);
   }
 }
 
-function getRangesForCard(card, comments) {
-  const textContainer = card.querySelector('.note-text-content') || card.querySelector('.card-body');
-  if (!textContainer) return [];
+// ---------- Редактирование комментария (по клику на закреплённый тултип) ----------
+async function editPinnedComment() {
+  if (!pinnedComment) return;
+  const newText = prompt('Редактировать комментарий:', pinnedComment.comment.content);
+  if (newText === null || newText.trim() === '') return;
 
-  const walker = document.createTreeWalker(textContainer, NodeFilter.SHOW_TEXT);
-  const textNodes = [];
-  let node;
-  while ((node = walker.nextNode())) {
-    textNodes.push(node);
+  try {
+    await updateComment(pinnedComment.comment.id, undefined, undefined, newText.trim());
+    await renderComments();
+    const tooltip = createTooltip();
+    tooltip.textContent = newText.trim();
+    tooltip.style.display = 'block';
+    isPinned = true;
+    pinnedComment.comment.content = newText.trim();
+  } catch (err) {
+    console.error('Ошибка обновления комментария:', err);
+    alert('Не удалось обновить комментарий');
   }
-  if (textNodes.length === 0) return [];
+}
 
-  const mainTextNode = textNodes[0];
-  const fullText = mainTextNode.textContent;
+// ---------- Удаление комментария (по клику на закреплённый тултип) ----------
+async function deletePinnedComment() {
+  if (!pinnedComment) return;
+  if (!confirm('Удалить этот комментарий?')) return;
 
-  const ranges = [];
-  comments.forEach(comment => {
-    if (comment.start < 0 || comment.end > fullText.length || comment.start >= comment.end) return;
-    const range = new Range();
-    range.setStart(mainTextNode, comment.start);
-    range.setEnd(mainTextNode, comment.end);
-    ranges.push(range);
-  });
-  return ranges;
+  try {
+    await deleteComment(pinnedComment.comment.id);
+    isPinned = false;
+    pinnedComment = null;
+    if (commentTooltip) commentTooltip.style.display = 'none';
+    await renderComments();
+  } catch (err) {
+    console.error('Ошибка удаления комментария:', err);
+    alert('Не удалось удалить комментарий');
+  }
 }
 
 // ---------- Глобальные обработчики ----------
@@ -331,12 +425,24 @@ function bindGlobalEvents() {
   document.addEventListener('mousedown', (e) => {
     if (!e.target.closest('.floating-comment-btn')) hideFloatingButton();
   });
+
+  document.addEventListener('dblclick', (e) => {
+    if (e.target.closest('#comment-tooltip')) {
+      editPinnedComment();
+    }
+  });
+
+  document.addEventListener('contextmenu', (e) => {
+    if (e.target.closest('#comment-tooltip')) {
+      e.preventDefault();
+      deletePinnedComment();
+    }
+  });
 }
 
 // ---------- Полная инициализация модуля ----------
 export function initAnnotations() {
-  initCommentTooltip();
-  // initAnnotationTooltips(); // пока отключаем, т.к. нет элементов
+  createTooltip();
+  initTooltipEvents();
   bindGlobalEvents();
-  // При инициализации можно сразу отрендерить комментарии, но лучше вызывать извне после рендера карточек
 }
