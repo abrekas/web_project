@@ -225,7 +225,7 @@ let commentsAbsolute = [];
   
   function parseNoteDate(note) {
     if (!note) return new Date(0);
-    
+
     if (note.savedAt) {
       return new Date(note.savedAt);
     }
@@ -460,11 +460,13 @@ export async function deleteTag(tagName) {
     };
     commentsList.push(newComment);
     await saveComments(commentsList);
+    return newComment;
   }
 
   export async function updateComment(commentID, newStart, newEnd, newContent) {
     const commentsList = await getComments();
-    const comment = commentsList.find(c => c.id === commentID);
+    try{ const comment = commentsList.find(c => c.id === commentID); }
+    catch{}
     if (comment) {
       comment.start = newStart !== undefined ? newStart : comment.start;
       comment.end = newEnd !== undefined ? newEnd : comment.end;

@@ -469,3 +469,139 @@
   background-color: rgba(var(--comment-hightlight-color));
   color: #000;
 }
+
+/* ---------- Тултип комментариев ---------- */
+.comment-tooltip {
+  position: fixed;
+  display: none;
+  z-index: 10000;
+  max-width: 300px;
+  padding: 8px 12px;
+  background: var(--second-color);
+  color: var(--text-color);
+  border-radius: var(--second-radius);
+  box-shadow: var(--shadow);
+  font-family: var(--font-main);
+  font-size: var(--font-size-sm);
+  pointer-events: auto;
+  cursor: default;
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+  transition: opacity 0.15s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.comment-tooltip .tooltip-text {
+  word-break: break-word;
+  line-height: 1.4;
+}
+
+.comment-tooltip .tooltip-actions {
+  display: none;
+  gap: 4px;
+  justify-content: flex-end;
+  margin-top: 4px;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  padding-top: 6px;
+}
+
+/* Показываем кнопки только когда тултип закреплён */
+.comment-tooltip.pinned .tooltip-actions {
+  display: flex;
+}
+
+.comment-tooltip .tooltip-edit-btn,
+.comment-tooltip .tooltip-delete-btn {
+  border: none;
+  border-radius: var(--second-radius);
+  background: var(--second-color);
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: background 0.2s;
+}
+
+.comment-tooltip .tooltip-edit-btn:hover {
+  background: #87a0de;
+}
+
+.comment-tooltip .tooltip-delete-btn:hover {
+  background: hsl(0, 71%, 74%);
+}
+
+.comment-tooltip .tooltip-edit-btn img,
+.comment-tooltip .tooltip-delete-btn img {
+  width: 14px;
+  height: 14px;
+  filter: var(--icon-filter, none);
+  pointer-events: none;
+}
+
+/* Поле ввода для редактирования комментария */
+.tooltip-edit-input {
+  width: 100%;
+  min-height: 60px;
+  padding: 6px 8px;
+  border: none;
+  border-radius: var(--second-radius);
+  background-color: var(--card-bg);
+  color: var(--text-color);
+  font-family: var(--font-main);
+  font-size: var(--font-size-sm);
+  box-shadow: var(--inside-shadow);
+  resize: vertical;
+  box-sizing: border-box;
+}
+
+.tooltip-edit-input:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--accent-color);
+}
+
+/* Контейнер для кнопок сохранения/отмены */
+.tooltip-edit-actions {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+  margin-top: 4px;
+}
+
+.tooltip-edit-actions button {
+  padding: 4px 12px;
+  border: none;
+  border-radius: var(--second-radius);
+  font-family: var(--font-main);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  box-shadow: var(--shadow);
+}
+
+.tooltip-save-btn {
+  background-color: var(--accent-color);
+  color: var(--text-color);
+}
+
+.tooltip-save-btn:hover {
+  background-color: #87a0de;
+}
+
+.tooltip-cancel-btn {
+  background-color: var(--second-color);
+  color: var(--text-color);
+}
+
+.tooltip-cancel-btn:hover {
+  background-color: #d0d0d0;
+}
+
+/* Скрываем основные кнопки, когда тултип не закреплён */
+.comment-tooltip:not(.pinned) .tooltip-actions {
+  display: none !important;
+}
