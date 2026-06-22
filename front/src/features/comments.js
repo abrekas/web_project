@@ -400,7 +400,7 @@ function showFloatingCommentButton() {
   Object.assign(floatingButton.style, {
     position: "fixed",
     left: `${rect.left + window.scrollX}px`,
-    top: `${rect.bottom + window.scrollY + 5}px`,
+    top: `${rect.top + window.scrollY - 5}px`,
     zIndex: "10000",
     background: "#1e88e5",
     color: "#fff",
