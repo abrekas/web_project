@@ -7,6 +7,8 @@ let selectedFilterTags = [];
 let selectedNoteTags = [];
 let noteTagsModalNoteId = null;
 
+const MAX_TAG_LEN = 20;
+
 const escapeHtml = (str) => String(str).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
 
 async function loadSystemTags() {
@@ -180,8 +182,26 @@ modalBody.addEventListener('click', async (e) => {
     if (e.target.closest('#add-note-tag-btn')) {
         const input = document.getElementById('new-note-tag-input');
         const tagText = input?.value.trim().toLowerCase();
+        
+        if (!tagText){
+            return;
+        }
 
-        if (tagText && fsStorage?.isReady) {
+        if (tagText.length > MAX_TAG_LEN){
+            const errorMsg = document.getElementById('errorMsg');
+            errorMsg.style.display = 'block';
+            input.style.borderColor = 'red';
+            return
+        }
+
+        else {
+            const errorMsg = document.getElementById('errorMsg');
+            errorMsg.style.display = 'none';
+            input.style.borderColor = '';
+        }
+
+
+        if (fsStorage?.isReady) {
             const added = await fsStorage.addTag(tagText);
             const tag = added || tagText;
 
