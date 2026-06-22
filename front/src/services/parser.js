@@ -3,7 +3,7 @@ import {updateTagsBtnState, openNoteTagsModal} from '../features/tags.js';
 import {loadAllCategories} from '../features/categories.js'
 import {switchLayout} from './layout.js'
 
-import { initAnnotations, applyAnnotationsToAllCards } from '../features/comments.js';
+import { initAnnotations, renderComments } from '../features/comments.js';
 
 const cardsList = document.getElementById('cards-list');
 const searchInput = document.getElementById('search-input');
@@ -370,7 +370,7 @@ export function loadAllNotes(category = 'общее', searchToken = '', site = n
 
   updateCategoryDescription();
   cardsList.innerHTML = filtered.map(renderNoteHtml).join('');
-  // applyAnnotationsToAllCards();
+  renderComments();
 }
 
 function getState() {

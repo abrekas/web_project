@@ -1,8 +1,7 @@
-import {getNotes, getComments, saveComments, addComment, updateComment, deleteComment} from '../services/fs-storage.js';
+import { getNotes, getComments, saveComments, addComment, updateComment, deleteComment } from '../services/fs-storage.js';
 
 let commentTooltip = null;
 let floatingButton = null;
-let floatingSuccessButton = null;
 let savedSelectionRange = null;
 
 // ---------- Инициализация тултипа ----------
@@ -18,30 +17,12 @@ export function initCommentTooltip() {
 
 // ---------- Наведение для показа тултипа ----------
 export function initAnnotationTooltips() {
-  document.body.addEventListener('mouseenter', (e) => {
-    const target = e.target.closest('.commented-text');
-    if (!target) return;
-    const comment = target.getAttribute('data-comment');
-    if (!comment) return;
-    if (!commentTooltip) initCommentTooltip();
-    commentTooltip.textContent = comment;
-    commentTooltip.style.display = 'block';
-    const rect = target.getBoundingClientRect();
-    commentTooltip.style.left = rect.left + 'px';
-    commentTooltip.style.top = (rect.bottom + 8) + 'px';
-    commentTooltip.style.opacity = '0';
-    setTimeout(() => { commentTooltip.style.opacity = '1'; }, 10);
-  });
-
-  document.body.addEventListener('mouseleave', (e) => {
-    const target = e.target.closest('.commented-text');
-    if (!target) return;
-    if (commentTooltip) {
-      setTimeout(() => {
-        if (commentTooltip) commentTooltip.style.display = 'none';
-      }, 100);
-    }
-  });
+  // ВАЖНО: при использовании CSS Highlight API у нас нет элементов с классом .commented-text,
+  // поэтому тултипы нужно показывать по-другому – например, по клику или при наведении на подсвеченную область.
+  // Для простоты оставим пока без тултипов, либо позже реализуем через position: absolute.
+  // Но если вы хотите сохранить прежний механизм, нужно искать элементы с классом .highlight, но мы не создаём span'ы.
+  // Рекомендую переделать тултипы на отображение при клике или с помощью собственных событий.
+  // Пока оставим заглушку.
 }
 
 // ---------- Плавающая кнопка ----------
@@ -54,7 +35,6 @@ function showFloatingCommentButton() {
   const rect = range.getBoundingClientRect();
   if (rect.width === 0 && rect.height === 0) return;
   
-  // проверяем, что выделение внутри карточки
   let card = range.commonAncestorContainer.closest?.('.card');
   if (!card && range.commonAncestorContainer.nodeType === Node.TEXT_NODE) {
     card = range.commonAncestorContainer.parentElement?.closest('.card');
@@ -95,9 +75,7 @@ function hideFloatingButton() {
   savedSelectionRange = null;
 }
 
-// Показывает временное уведомление (тост) в правом верхнем углу
 function showSuccessToast(message = '💬 Комментарий добавлен!', duration = 2000) {
-  // Удаляем предыдущий тост, если есть
   const existingToast = document.querySelector('.comment-toast');
   if (existingToast) existingToast.remove();
 
@@ -129,7 +107,7 @@ function showSuccessToast(message = '💬 Комментарий добавле�
   }, duration);
 }
 
-// ---------- Добавление комментария (исправленная версия с сохранением rect) ----------
+// ---------- Добавление комментария ----------
 async function addCommentToSelectedText() {
   if (!savedSelectionRange) {
     alert('Сначала выделите текст в заметке');
@@ -154,11 +132,12 @@ async function addCommentToSelectedText() {
   }
 
   const noteId = card.getAttribute('data-note-id');
-  try{
-    const allComments = await getComments();
-  }
-  catch{
-    alert('Не удалось открыть comments.js');
+  let allComments;
+  try {
+    allComments = await getComments();
+  } catch {
+    alert('Не удалось загрузить комментарии');
+    return;
   }
 
   // Находим текстовый узел и смещения
@@ -166,7 +145,14 @@ async function addCommentToSelectedText() {
   let startOffset, endOffset;
 
   if (textNode.nodeType !== Node.TEXT_NODE) {
-    const walker = document.createTreeWalker(card.querySelector('.card-body'), NodeFilter.SHOW_TEXT);
+    // Ищем первый текстовый узел внутри .card-body (или .note-text-content)
+    const container = card.querySelector('.note-text-content') || card.querySelector('.card-body');
+    if (!container) {
+      alert('Не удалось найти текст в заметке');
+      savedSelectionRange = null;
+      return;
+    }
+    const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT);
     textNode = walker.nextNode();
     if (!textNode) {
       alert('Не удалось найти текст в заметке');
@@ -188,11 +174,12 @@ async function addCommentToSelectedText() {
   const commentText = prompt('Введите комментарий к выделенному фрагменту:');
   if (!commentText || commentText.trim() === '') return;
 
-  
   try {
-    addComment(noteId, startOffset, endOffset, commentText.trim());
+    await addComment(noteId, startOffset, endOffset, commentText.trim());
     hideFloatingButton();
     showSuccessToast('💬 Комментарий добавлен!');
+    // После добавления обновляем подсветку
+    await renderComments();
   } catch (err) {
     console.error('Ошибка сохранения комментария:', err);
     alert('Не удалось сохранить комментарий');
@@ -201,25 +188,72 @@ async function addCommentToSelectedText() {
   savedSelectionRange = null;
 }
 
-// ---------- Применение аннотаций к DOM ----------
-function applyAnnotationsToCard(card, comments){
-  const bodyDiv = cardElement.querySelector('.card-body');
-  if (!bodyDiv) return;
+// ---------- Применение аннотаций через CSS Custom Highlight API ----------
+function applyAnnotationsToCard(card, comments) {
+  // const highlightName = 'comment-highlight'; // статичное имя
+  const noteId = card.getAttribute('data-note-id');
+  // Удаляем старый highlight для этой заметки, если есть
+  const highlightName = 'comment-highlight';
+  if (CSS.highlights.has(highlightName)) {
+    CSS.highlights.delete(highlightName);
+  }
 
-  const escapeHtml = (str) => String(str).replace(/[&<>]/g, function(m) {
-    if (m === '&') return '&amp;';
-    if (m === '<') return '&lt;';
-    if (m === '>') return '&gt;';
-    return m;
-  });
-  let resultHtml = escapeHtml(fullText);
-  comments.forEach(element => {
+  // Находим контейнер с текстом
+  const textContainer = card.querySelector('.note-text-content') || card.querySelector('.card-body');
+  if (!textContainer) return;
+  console.log(textContainer);
+
+  // Получаем текстовые узлы внутри контейнера (может быть несколько, но мы будем искать по всему тексту)
+  // Чтобы найти позиции start/end, нам нужно получить полный текст без разметки.
+  // Так как внутри могут быть другие элементы (картинки, код), лучше работать с .note-text-content,
+  // но для простоты предполагаем, что весь текст находится в одном текстовом узле.
+  // Однако, если внутри есть дочерние элементы, проще взять textContent и найти нужный текстовый узел.
+  // Для корректной работы с Range мы должны найти текстовый узел, соответствующий каждому смещению.
+  // Простейший способ: найти первый текстовый узел в контейнере и использовать его для всех диапазонов,
+  // предполагая, что все комментарии относятся к одному текстовому блоку.
+  // Если у вас текст может быть разбит по разным узлам, то нужно более сложное решение (например, итератор по текстовым узлам).
+  // Для демонстрации ограничимся одним текстовым узлом.
+  
+  const walker = document.createTreeWalker(textContainer, NodeFilter.SHOW_TEXT);
+  const textNodes = [];
+  let node;
+  while ((node = walker.nextNode())) {
+    textNodes.push(node);
+  }
+  
+  if (textNodes.length === 0) return;
+
+  // Если несколько текстовых узлов, мы объединим весь текст в один строковый буфер и будем искать смещения.
+  // Но Range может быть создан только на конкретном текстовом узле. Поэтому нужно преобразовать глобальные смещения
+  // в локальные для каждого узла. Для упрощения примера будем считать, что весь текст находится в первом текстовом узле.
+  // Если у вас могут быть вложенные элементы, лучше использовать более продвинутый подход (см. примечание ниже).
+  // Для большинства заметок (текстовых) подойдёт использование первого текстового узла.
+  
+  const mainTextNode = textNodes[0];
+  const fullText = mainTextNode.textContent;
+
+  const ranges = [];
+
+  comments.forEach(comment => {
+    // Проверяем, что start/end не выходят за границы
+    if (comment.start < 0 || comment.end > fullText.length || comment.start >= comment.end) return;
     
+    const range = new Range();
+    range.setStart(mainTextNode, comment.start);
+    range.setEnd(mainTextNode, comment.end);
+    ranges.push(range);
   });
-  const highlight = new Highlight(range1, range2);
+
+  if (ranges.length === 0) return;
+
+  // Создаём Highlight и регистрируем
+  const highlight = new Highlight(...ranges);
+  console.log(highlight);
+  CSS.highlights.set(highlightName, highlight);
 }
 
-async function renderComments() {
+// ---------- Основная функция рендера комментариев ----------
+export async function renderComments() {
   const [notes, comments] = await Promise.all([getNotes(), getComments()]);
   const cards = document.querySelectorAll('.card');
 
@@ -232,15 +266,54 @@ async function renderComments() {
     commentsByNote[comment.noteId].push(comment);
   });
 
-  // Для каждой карточки проверяем, есть ли комментарии
+  // Собираем все диапазоны
+  const allRanges = [];
   cards.forEach(card => {
     const noteId = card.dataset.noteId;
     const noteComments = commentsByNote[noteId] || [];
     if (noteComments.length > 0) {
-      // Ваша существующая функция, но теперь она принимает массив комментариев
-      applyAnnotationsToCard(card, noteComments);
+      const ranges = getRangesForCard(card, noteComments);
+      allRanges.push(...ranges);
     }
   });
+
+  // Удаляем старый highlight (если есть)
+  const highlightName = 'comment-highlight';
+  if (CSS.highlights.has(highlightName)) {
+    CSS.highlights.delete(highlightName);
+  }
+
+  // Создаём новый Highlight со всеми диапазонами
+  if (allRanges.length > 0) {
+    const highlight = new Highlight(...allRanges);
+    CSS.highlights.set(highlightName, highlight);
+  }
+}
+
+function getRangesForCard(card, comments) {
+  const textContainer = card.querySelector('.note-text-content') || card.querySelector('.card-body');
+  if (!textContainer) return [];
+
+  const walker = document.createTreeWalker(textContainer, NodeFilter.SHOW_TEXT);
+  const textNodes = [];
+  let node;
+  while ((node = walker.nextNode())) {
+    textNodes.push(node);
+  }
+  if (textNodes.length === 0) return [];
+
+  const mainTextNode = textNodes[0];
+  const fullText = mainTextNode.textContent;
+
+  const ranges = [];
+  comments.forEach(comment => {
+    if (comment.start < 0 || comment.end > fullText.length || comment.start >= comment.end) return;
+    const range = new Range();
+    range.setStart(mainTextNode, comment.start);
+    range.setEnd(mainTextNode, comment.end);
+    ranges.push(range);
+  });
+  return ranges;
 }
 
 // ---------- Глобальные обработчики ----------
@@ -258,26 +331,12 @@ function bindGlobalEvents() {
   document.addEventListener('mousedown', (e) => {
     if (!e.target.closest('.floating-comment-btn')) hideFloatingButton();
   });
-  
-  document.addEventListener('contextmenu', (e) => {
-    const selection = window.getSelection();
-    if (selection && !selection.isCollapsed && selection.toString().trim() !== '') {
-      const range = selection.getRangeAt(0);
-      let card = range.commonAncestorContainer.closest?.('.card');
-      if (!card && range.commonAncestorContainer.nodeType === Node.TEXT_NODE) {
-        card = range.commonAncestorContainer.parentElement?.closest('.card');
-      }
-    }
-  });
 }
 
 // ---------- Полная инициализация модуля ----------
 export function initAnnotations() {
   initCommentTooltip();
-  initAnnotationTooltips();
+  // initAnnotationTooltips(); // пока отключаем, т.к. нет элементов
   bindGlobalEvents();
-  // При каждом рендере карточек нужно заново размечать аннотации.
-  // Для этого мы переопределяем window.renderNotes (если не хотим трогать parser.js)
-  // или просто вызываем applyAnnotationsToAllCards() после каждого рендера извне.
-  // Лучше оставить вызов из parser.js после отрисовки.
+  // При инициализации можно сразу отрендерить комментарии, но лучше вызывать извне после рендера карточек
 }
