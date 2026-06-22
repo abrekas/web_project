@@ -1,4 +1,4 @@
-import {getComments, saveComments, addComment, updateComment, deleteComment} from '../services/fs-storage.js';
+import {getNotes, getComments, saveComments, addComment, updateComment, deleteComment} from '../services/fs-storage.js';
 
 let commentTooltip = null;
 let floatingButton = null;
@@ -202,19 +202,10 @@ async function addCommentToSelectedText() {
 }
 
 // ---------- Применение аннотаций к DOM ----------
-function applyAnnotationsToCard(cardElement, note) {
-  if (!note.annotations || note.annotations.length === 0) return;
+function applyAnnotationsToCard(card, comments){
   const bodyDiv = cardElement.querySelector('.card-body');
   if (!bodyDiv) return;
-  
-  // Собираем весь текст из карточки
-  const textNodes = [];
-  const walker = document.createTreeWalker(bodyDiv, NodeFilter.SHOW_TEXT);
-  while (walker.nextNode()) textNodes.push(walker.currentNode);
-  const fullText = textNodes.map(node => node.textContent).join('');
-  if (!fullText) return;
-  
-  // Экранируем текст для безопасной вставки HTML
+
   const escapeHtml = (str) => String(str).replace(/[&<>]/g, function(m) {
     if (m === '&') return '&amp;';
     if (m === '<') return '&lt;';
@@ -222,29 +213,32 @@ function applyAnnotationsToCard(cardElement, note) {
     return m;
   });
   let resultHtml = escapeHtml(fullText);
-  
-  // Сортируем аннотации от конца к началу
-  const sorted = [...note.annotations].sort((a, b) => b.startOffset - a.startOffset);
-  for (const ann of sorted) {
-    const { startOffset, endOffset, comment, id } = ann;
-    if (startOffset < 0 || endOffset > fullText.length || startOffset >= endOffset) continue;
-    const before = resultHtml.substring(0, startOffset);
-    const middle = resultHtml.substring(startOffset, endOffset);
-    const after = resultHtml.substring(endOffset);
-    const wrapped = `<span class="commented-text" data-annotation-id="${id}" data-comment="${escapeHtml(comment)}">${middle}</span>`;
-    resultHtml = before + wrapped + after;
-  }
-  bodyDiv.innerHTML = resultHtml;
+  comments.forEach(element => {
+    
+  });
+  const highlight = new Highlight(range1, range2);
 }
 
-export function applyAnnotationsToAllCards() {
-  if (!window.allNotes) return;
+async function renderComments() {
+  const [notes, comments] = await Promise.all([getNotes(), getComments()]);
   const cards = document.querySelectorAll('.card');
+
+  // Группируем комментарии по noteId
+  const commentsByNote = {};
+  comments.forEach(comment => {
+    if (!commentsByNote[comment.noteId]) {
+      commentsByNote[comment.noteId] = [];
+    }
+    commentsByNote[comment.noteId].push(comment);
+  });
+
+  // Для каждой карточки проверяем, есть ли комментарии
   cards.forEach(card => {
-    const noteId = card.getAttribute('data-note-id');
-    const note = window.allNotes.find(n => String(n.id) === String(noteId));
-    if (note && note.annotations && note.annotations.length) {
-      applyAnnotationsToCard(card, note);
+    const noteId = card.dataset.noteId;
+    const noteComments = commentsByNote[noteId] || [];
+    if (noteComments.length > 0) {
+      // Ваша существующая функция, но теперь она принимает массив комментариев
+      applyAnnotationsToCard(card, noteComments);
     }
   });
 }

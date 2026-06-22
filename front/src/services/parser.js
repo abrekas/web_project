@@ -370,7 +370,7 @@ export function loadAllNotes(category = 'общее', searchToken = '', site = n
 
   updateCategoryDescription();
   cardsList.innerHTML = filtered.map(renderNoteHtml).join('');
-  applyAnnotationsToAllCards();
+  // applyAnnotationsToAllCards();
 }
 
 function getState() {
