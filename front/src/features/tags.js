@@ -7,9 +7,51 @@ let selectedFilterTags = [];
 let selectedNoteTags = [];
 let noteTagsModalNoteId = null;
 
-const MAX_TAG_LEN = 20;
+const MAX_TAG_LEN = 40;
 
 const escapeHtml = (str) => String(str).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+
+// Функции для управления ошибкой
+function showTagError(message) {
+    let errorMsg = document.getElementById('tag-error-msg');
+    if (!errorMsg) {
+        errorMsg = document.createElement('div');
+        errorMsg.id = 'tag-error-msg';
+        errorMsg.style.cssText = `
+            color: #e74c3c;
+            font-size: 12px;
+            margin-top: 4px;
+            display: none;
+            animation: fadeIn 0.3s ease;
+        `;
+        const inputRow = document.querySelector('.tag-input-row');
+        if (inputRow) {
+            inputRow.parentNode.insertBefore(errorMsg, inputRow.nextSibling);
+        }
+    }
+    errorMsg.textContent = message;
+    errorMsg.style.display = 'block';
+
+    const input = document.getElementById('new-note-tag-input');
+    if (input) {
+        input.style.borderColor = '#e74c3c';
+        input.style.border = '2px solid #e74c3c';
+        input.classList.add('error');
+    }
+}
+
+function hideTagError() {
+    const errorMsg = document.getElementById('tag-error-msg');
+    if (errorMsg) {
+        errorMsg.style.display = 'none';
+    }
+    const input = document.getElementById('new-note-tag-input');
+    if (input) {
+        input.style.borderColor = '';
+        input.style.border = '';
+        input.classList.remove('error');
+    }
+}
 
 async function loadSystemTags() {
     if (!fsStorage || !fsStorage.isReady) {
@@ -113,6 +155,61 @@ export async function openNoteTagsModal(noteId) {
 
     openModal('modal-note-tags-template', 'create-note-modal');
     renderNoteTagsForm();
+
+    // Инициализируем обработчики для поля ввода после открытия модалки
+    setTimeout(() => {
+        initTagInputHandlers();
+    }, 100);
+}
+
+// Функция инициализации обработчиков для поля ввода тэга
+function initTagInputHandlers() {
+    const tagInput = document.getElementById('new-note-tag-input');
+    if (!tagInput) return;
+
+    // Удаляем старые обработчики, чтобы не дублировать
+    tagInput.removeEventListener('keydown', handleTagInputKeydown);
+    tagInput.removeEventListener('input', handleTagInputInput);
+    tagInput.removeEventListener('focus', handleTagInputFocus);
+
+    // Добавляем новые
+    tagInput.addEventListener('keydown', handleTagInputKeydown);
+    tagInput.addEventListener('input', handleTagInputInput);
+    tagInput.addEventListener('focus', handleTagInputFocus);
+}
+
+// Обработчик нажатия клавиш
+function handleTagInputKeydown(e) {
+    const controlKeys = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Tab', 'Escape', 'Enter', 'Home', 'End'];
+
+    if (this.value.length >= MAX_TAG_LEN && !controlKeys.includes(e.key) && !e.ctrlKey && !e.metaKey) {
+        e.preventDefault();
+        showTagError('Максимальная длина тэга - ' + MAX_TAG_LEN + ' символов');
+        // Визуальная обратная связь
+        this.style.animation = 'shake 0.3s ease';
+        setTimeout(() => {
+            this.style.animation = '';
+        }, 300);
+    }
+}
+
+// Обработчик ввода текста
+function handleTagInputInput() {
+    if (this.value.length > MAX_TAG_LEN) {
+        this.value = this.value.slice(0, MAX_TAG_LEN);
+        showTagError('Максимальная длина тэга - ' + MAX_TAG_LEN + ' символов');
+    } else if (this.value.length > 0) {
+        hideTagError();
+    } else {
+        hideTagError();
+    }
+}
+
+// Обработчик фокуса
+function handleTagInputFocus() {
+    if (this.value.length < MAX_TAG_LEN) {
+        hideTagError();
+    }
 }
 
 document.getElementById("tags-btn")?.addEventListener("click", openTagsFilterModal);
@@ -182,24 +279,21 @@ modalBody.addEventListener('click', async (e) => {
     if (e.target.closest('#add-note-tag-btn')) {
         const input = document.getElementById('new-note-tag-input');
         const tagText = input?.value.trim().toLowerCase();
-        
-        if (!tagText){
+
+        if (!tagText) {
+            showTagError('Введите текст тэга');
+            input?.focus();
             return;
         }
 
-        if (tagText.length > MAX_TAG_LEN){
-            const errorMsg = document.getElementById('errorMsg');
-            errorMsg.style.display = 'block';
-            input.style.borderColor = 'red';
-            return
+        if (tagText.length > MAX_TAG_LEN) {
+            showTagError('Максимальная длина тэга - ' + MAX_TAG_LEN + ' символов');
+            input.value = input.value.slice(0, MAX_TAG_LEN);
+            input?.focus();
+            return;
         }
 
-        else {
-            const errorMsg = document.getElementById('errorMsg');
-            errorMsg.style.display = 'none';
-            input.style.borderColor = '';
-        }
-
+        hideTagError();
 
         if (fsStorage?.isReady) {
             const added = await fsStorage.addTag(tagText);
@@ -215,6 +309,8 @@ modalBody.addEventListener('click', async (e) => {
             input.value = '';
             renderNoteTagsForm();
             await loadTagsForPicker();
+            hideTagError();
+            input?.focus();
         }
         return;
     }
